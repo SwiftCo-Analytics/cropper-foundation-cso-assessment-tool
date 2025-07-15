@@ -78,6 +78,28 @@ export default function Header() {
                 About
               </Link>
 
+              <Link
+                href="/privacy"
+                className={`text-base font-medium ${
+                  pathname === "/privacy"
+                    ? "text-cropper-green-600"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                Privacy Policy
+              </Link>
+
+              <Link
+                href="/terms"
+                className={`text-base font-medium ${
+                  pathname === "/terms"
+                    ? "text-cropper-green-600"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                Terms of Service
+              </Link>
+
               {/* Organization Auth */}
               {orgData ? (
                 <div className="relative group">

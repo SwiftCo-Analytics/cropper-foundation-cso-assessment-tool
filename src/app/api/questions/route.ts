@@ -20,6 +20,8 @@ const questionSchema = z.object({
   ]),
   options: z.any().nullable(), // Allow any JSON value
   order: z.number(),
+  isHidden: z.boolean().optional().default(false),
+  mandatory: z.boolean().optional().default(false),
 });
 
 export async function POST(request: Request) {

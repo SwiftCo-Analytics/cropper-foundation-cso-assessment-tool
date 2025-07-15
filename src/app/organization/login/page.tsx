@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,32 @@ export default function OrganizationLogin() {
     email: "",
     password: "",
   });
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("org_token");
+    if (token) {
+      // Verify the token is still valid by making a request to the me endpoint
+      fetch("/api/organizations/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            // Token is valid, redirect to dashboard
+            router.replace("/organization/dashboard");
+          } else {
+            // Token is invalid, remove it
+            localStorage.removeItem("org_token");
+          }
+        })
+        .catch(() => {
+          // Network error or other issue, remove token
+          localStorage.removeItem("org_token");
+        });
+    }
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +66,11 @@ export default function OrganizationLogin() {
       }
 
       localStorage.setItem("org_token", data.token);
-      router.replace("/organization/dashboard");
+      
+      // Add a small delay to ensure token is stored
+      setTimeout(() => {
+        router.push("/organization/dashboard");
+      }, 100);
     } catch (error) {
       console.error("Auth error:", error);
       setError(error instanceof Error ? error.message : "Authentication failed");

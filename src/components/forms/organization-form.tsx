@@ -41,7 +41,14 @@ export function OrganizationForm() {
       }
 
       const result = await response.json();
-      router.push(`/assessment/${result.assessmentId}`);
+      
+      // Store the authentication token
+      localStorage.setItem("org_token", result.token);
+      
+      // Add a small delay to ensure token is stored
+      setTimeout(() => {
+        router.push("/organization/dashboard");
+      }, 100);
     } catch (error) {
       console.error("Error creating organization:", error);
       // Handle error appropriately
@@ -103,7 +110,7 @@ export function OrganizationForm() {
               type="submit"
               className="btn-primary w-full"
             >
-              Start Assessment
+              Create Organization Account
             </button>
           </div>
         </div>

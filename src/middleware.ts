@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verify } from "jsonwebtoken";
 
 export async function middleware(request: NextRequest) {
   // Debug: Log all cookies
@@ -22,25 +21,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Organization routes protection
-  if (request.nextUrl.pathname.startsWith("/organization/dashboard")) {
-    const token = request.headers.get("authorization")?.split(" ")[1];
-
-    if (!token) {
-      return NextResponse.redirect(new URL("/organization/login", request.url));
-    }
-
-    try {
-      verify(token, process.env.NEXTAUTH_SECRET!);
-      return NextResponse.next();
-    } catch (error) {
-      return NextResponse.redirect(new URL("/organization/login", request.url));
-    }
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/organization/dashboard/:path*"],
+  matcher: ["/admin/:path*"],
 }; 

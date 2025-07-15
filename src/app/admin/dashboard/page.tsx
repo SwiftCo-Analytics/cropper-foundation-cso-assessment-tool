@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { QuestionType } from "@/generated/prisma";
-import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface Section {
   id: string;
@@ -24,6 +25,7 @@ interface Question {
   options: string[] | null;
   order: number;
   isHidden: boolean;
+  mandatory: boolean;
 }
 
 interface Organization {
@@ -53,9 +55,11 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [sections, setSections] = useState<Section[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [filteredOrganizations, setFilteredOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [isEditingSection, setIsEditingSection] = useState(false);
+  const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [newSectionData, setNewSectionData] = useState({
     title: "",
@@ -66,6 +70,7 @@ export default function AdminDashboard() {
     description: "",
     type: "SINGLE_CHOICE" as QuestionType,
     options: "",
+    mandatory: false,
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showNewQuestionForm, setShowNewQuestionForm] = useState(false);
@@ -105,6 +110,7 @@ export default function AdminDashboard() {
       }
       const data = await response.json();
       setOrganizations(data);
+      setFilteredOrganizations(data);
     } catch (error) {
       console.error("Error fetching organizations:", error);
     }
@@ -193,6 +199,7 @@ export default function AdminDashboard() {
           options: newQuestionData.type === "TEXT" ? null : newQuestionData.options.split(",").map(o => o.trim()),
           order: sections.find(s => s.id === selectedSection)?.questions.length || 0,
           isHidden: false,
+          mandatory: newQuestionData.mandatory,
         }),
       });
 
@@ -338,6 +345,30 @@ export default function AdminDashboard() {
     }
   }
 
+  async function handleEditSection(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingSection) return;
+
+    try {
+      const response = await fetch(`/api/sections/${editingSection.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editingSection.title,
+          description: editingSection.description,
+        }),
+      });
+
+      if (response.ok) {
+        setEditingSection(null);
+        showSuccess("Section updated successfully!");
+        fetchSections();
+      }
+    } catch (error) {
+      console.error("Error updating section:", error);
+    }
+  }
+
   async function handleEditQuestion(e: React.FormEvent) {
     e.preventDefault();
     if (!editingQuestion) return;
@@ -351,7 +382,8 @@ export default function AdminDashboard() {
           description: editingQuestion.description,
           type: editingQuestion.type,
           options: editingQuestion.type === "TEXT" ? null : editingQuestion.options,
-          isHidden: editingQuestion.isHidden
+          isHidden: editingQuestion.isHidden,
+          mandatory: editingQuestion.mandatory
         }),
       });
 
@@ -469,7 +501,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Add edit section logic
+                                setEditingSection(section);
                               }}
                               className="p-2 text-gray-500 hover:text-cropper-blue-600 transition-colors duration-300"
                             >
@@ -499,45 +531,87 @@ export default function AdminDashboard() {
         <div>
           <ScaleIn delay={0.2}>
             <div className="bg-white rounded-xl shadow-soft p-6">
-              <h2 className="text-2xl font-semibold mb-6">Organizations</h2>
-              <div className="space-y-4">
-                {organizations.map((org, index) => (
-                  <SlideIn key={org.id} direction="left" delay={index * 0.1}>
-                    <Hover>
-                      <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-medium">{org.name}</h3>
-                            <p className="text-sm text-gray-600">{org.email}</p>
-                            <p className="text-sm text-cropper-blue-600 mt-1">
-                              {org.assessments.filter(a => a.completedAt).length} completed assessments
-                            </p>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold">Organizations</h2>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search organizations..."
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent text-sm"
+                    onChange={(e) => {
+                      const searchTerm = e.target.value.toLowerCase();
+                      const filtered = organizations.filter(org => 
+                        org.name.toLowerCase().includes(searchTerm) || 
+                        org.email.toLowerCase().includes(searchTerm)
+                      );
+                      setFilteredOrganizations(filtered);
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="max-h-96 overflow-y-auto space-y-3">
+                {filteredOrganizations.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No organizations found</p>
+                  </div>
+                ) : (
+                  filteredOrganizations.map((org, index) => (
+                    <SlideIn key={org.id} direction="left" delay={index * 0.1}>
+                      <Hover>
+                        <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium text-gray-900">{org.name}</h3>
+                              <p className="text-sm text-gray-600">{org.email}</p>
+                              <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                <span className="flex items-center">
+                                  <BarChart className="h-3 w-3 mr-1" />
+                                  {org.assessments.length} assessments
+                                </span>
+                                <span className="flex items-center">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  {org.assessments.filter(a => a.completedAt).length} completed
+                                </span>
+                                <span className="flex items-center">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  {org.assessments.filter(a => !a.completedAt).length} in progress
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Link
+                                href={`/admin/reports/${org.id}`}
+                                className="text-cropper-green-600 hover:text-cropper-green-700 transition-colors duration-300 flex items-center text-sm font-medium"
+                              >
+                                View Report
+                                <ArrowRight className="h-3 w-3 ml-1" />
+                              </Link>
+                              <button
+                                onClick={() => handleDownloadResponses(org.id)}
+                                className="text-cropper-blue-600 hover:text-cropper-blue-700 transition-colors duration-300 flex items-center"
+                                title="Download responses"
+                              >
+                                <Download className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
-                          <Hover>
-                            <button
-                              onClick={() => handleDownloadResponses(org.id)}
-                              className="text-cropper-blue-600 hover:text-cropper-blue-700 transition-colors duration-300 flex items-center"
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              Download
-                            </button>
-                          </Hover>
                         </div>
-                      </div>
-                    </Hover>
-                  </SlideIn>
-                ))}
+                      </Hover>
+                    </SlideIn>
+                  ))
+                )}
               </div>
             </div>
           </ScaleIn>
         </div>
       </div>
 
-      {/* Add/Edit Section Modal */}
+      {/* Add Section Modal */}
       {isEditingSection && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+            <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">Add New Section</h3>
                 <button
@@ -568,7 +642,7 @@ export default function AdminDashboard() {
                     value={newSectionData.description}
                     onChange={(e) => setNewSectionData({ ...newSectionData, description: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    rows={3}
+                    rows={4}
                   />
                 </div>
                 <div className="flex justify-end space-x-3">
@@ -585,6 +659,67 @@ export default function AdminDashboard() {
                       className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300"
                     >
                       Save Section
+                    </button>
+                  </Hover>
+                </div>
+              </form>
+            </div>
+          </ScaleIn>
+        </div>
+      )}
+
+      {/* Edit Section Modal */}
+      {editingSection && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <ScaleIn>
+            <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Edit Section</h3>
+                <button
+                  onClick={() => setEditingSection(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <form onSubmit={handleEditSection} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={editingSection.title}
+                    onChange={(e) => setEditingSection({ ...editingSection, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={editingSection.description || ""}
+                    onChange={(e) => setEditingSection({ ...editingSection, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                    rows={4}
+                  />
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingSection(null)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <Hover>
+                    <button
+                      type="submit"
+                      className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300"
+                    >
+                      Save Changes
                     </button>
                   </Hover>
                 </div>
@@ -611,6 +746,20 @@ export default function AdminDashboard() {
                   Add Question
                 </button>
               </Hover>
+            </div>
+            
+            {/* Question Badge Legend */}
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm font-medium text-gray-700 mb-2">Question Types:</p>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">Single Choice</span>
+                <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 border border-green-200">Multiple Choice</span>
+                <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200">Text Input</span>
+                <span className="px-2 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200">Likert Scale</span>
+                <span className="px-2 py-1 rounded-full bg-pink-100 text-pink-800 border border-pink-200">Yes/No</span>
+                <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-200">Hidden</span>
+                <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 border border-red-200">Mandatory</span>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -645,11 +794,20 @@ export default function AdminDashboard() {
                                   Hidden
                                 </span>
                               )}
+                              {question.mandatory && (
+                                <span className="px-3 py-1.5 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200 flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                  Mandatory
+                                </span>
+                              )}
                             </div>
                             {question.description && (
                               <p className="text-sm text-gray-600 mt-1">{question.description}</p>
                             )}
-                            {question.options && (
+                            {question.options && question.options.length > 0 && 
+                             question.type !== "BOOLEAN" && 
+                             question.type !== "LIKERT_SCALE" && 
+                             question.type !== "TEXT" && (
                               <div className="mt-2">
                                 <p className="text-sm text-gray-600">Options:</p>
                                 <ul className="list-disc list-inside text-sm text-gray-600 ml-2">
@@ -705,7 +863,7 @@ export default function AdminDashboard() {
       {showNewQuestionForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+            <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">Add New Question</h3>
                 <button
@@ -788,6 +946,17 @@ export default function AdminDashboard() {
                     />
                   </div>
                 )}
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={newQuestionData.mandatory}
+                      onChange={(e) => setNewQuestionData({ ...newQuestionData, mandatory: e.target.checked })}
+                      className="h-4 w-4 text-cropper-blue-600 focus:ring-cropper-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Mark as mandatory</span>
+                  </label>
+                </div>
                 <div className="flex justify-end space-x-3">
                   <button
                     type="button"
@@ -815,7 +984,7 @@ export default function AdminDashboard() {
       {editingQuestion && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-semibold">Edit Question</h3>
                 <button
@@ -940,6 +1109,17 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 )}
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={editingQuestion.mandatory}
+                      onChange={(e) => setEditingQuestion({ ...editingQuestion, mandatory: e.target.checked })}
+                      className="h-4 w-4 text-cropper-blue-600 focus:ring-cropper-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Mark as mandatory</span>
+                  </label>
+                </div>
                 <div className="flex justify-end space-x-3 pt-4 border-t">
                   <button
                     type="button"

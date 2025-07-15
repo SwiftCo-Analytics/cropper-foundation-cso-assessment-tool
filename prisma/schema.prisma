@@ -26,6 +26,7 @@ model Organization {
 
 model Assessment {
   id             String           @id @default(cuid())
+  name           String?          // Optional name for the assessment
   organizationId String
   organization   Organization     @relation(fields: [organizationId], references: [id])
   status         AssessmentStatus @default(IN_PROGRESS)
@@ -58,6 +59,7 @@ model Question {
   options     Json?      // For multiple choice questions
   order       Int
   isHidden    Boolean    @default(false)
+  mandatory   Boolean    @default(false)
   responses   Response[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

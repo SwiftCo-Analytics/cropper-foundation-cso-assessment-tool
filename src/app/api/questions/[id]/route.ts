@@ -19,6 +19,7 @@ const questionUpdateSchema = z.object({
   ]).optional(),
   options: z.any().nullable().optional(), // Allow any JSON value
   isHidden: z.boolean().optional(),
+  mandatory: z.boolean().optional(),
 });
 
 export async function PATCH(

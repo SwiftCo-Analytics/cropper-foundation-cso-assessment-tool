@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -19,8 +21,119 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    @apply bg-white text-gray-900;
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight text-cropper-green-800;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold text-cropper-green-700;
+  }
+
+  h3 {
+    @apply text-xl font-medium text-cropper-green-600;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cropper-green-600 hover:bg-cropper-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-green-500 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-cropper-brown-300 rounded-md shadow-sm text-sm font-medium text-cropper-brown-700 bg-white hover:bg-cropper-brown-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-brown-500 transition-colors duration-200;
+  }
+
+  .input-primary {
+    @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-cropper-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cropper-green-600 sm:text-sm sm:leading-6;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+  }
+
+  .nav-link {
+    @apply text-cropper-green-600 hover:text-cropper-green-800 font-medium transition-colors duration-200;
+  }
+}
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07),
+                0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-soft-lg {
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .bg-gradient-soft {
+    background: linear-gradient(
+      135deg,
+      theme('colors.cropper.green.50') 0%,
+      theme('colors.cropper.blue.50') 100%
+    );
+  }
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Animation keyframes */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme('colors.cropper.green.200');
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.cropper.green.300');
 }

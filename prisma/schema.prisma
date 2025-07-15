@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  email       String       @unique
+  password    String?      // Hashed password for organization login
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assessments Assessment[]
+}
+
+model Assessment {
+  id             String           @id @default(cuid())
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  status         AssessmentStatus @default(IN_PROGRESS)
+  startedAt      DateTime         @default(now())
+  completedAt    DateTime?
+  responses      Response[]
+  report         Report?
+  shareableLink  String?         @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Section {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  order       Int
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Question {
+  id          String     @id @default(cuid())
+  sectionId   String
+  section     Section    @relation(fields: [sectionId], references: [id])
+  text        String
+  description String?
+  type        QuestionType
+  options     Json?      // For multiple choice questions
+  order       Int
+  isHidden    Boolean    @default(false)
+  responses   Response[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Response {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  questionId   String
+  question     Question   @relation(fields: [questionId], references: [id])
+  value        Json       // The response value (can be string, number, boolean, or array)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  category    String   // Maps to section or specific question
+  condition   Json     // Conditions that trigger this recommendation
+  text        String
+  priority    Int      @default(0)
+  reports     Report[] @relation("ReportRecommendations")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Report {
+  id           String     @id @default(cuid())
+  assessmentId String     @unique
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  content      Json       // The report content including scores and recommendations
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AssessmentStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  LIKERT_SCALE
+  TEXT
+  BOOLEAN
+}

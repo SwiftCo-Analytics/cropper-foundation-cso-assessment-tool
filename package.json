@@ -6,22 +6,51 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
+    "create-admin": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts"
+  },
+  "prisma": {
+    "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.3.3"
+    "@auth/prisma-adapter": "^2.9.1",
+    "@headlessui/react": "^2.2.4",
+    "@hookform/resolvers": "^3.3.4",
+    "@prisma/client": "^5.10.2",
+    "@react-pdf/renderer": "^3.3.8",
+    "@tanstack/react-query": "^5.24.1",
+    "axios": "^1.6.7",
+    "bcryptjs": "^3.0.2",
+    "framer-motion": "^12.16.0",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.344.0",
+    "next": "14.1.0",
+    "next-auth": "^4.24.11",
+    "pdfkit": "^0.17.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.50.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.3",
-    "@eslint/eslintrc": "^3"
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^20",
+    "@types/pdfkit": "^0.13.9",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8",
+    "prisma": "^5.10.2",
+    "tailwindcss": "^3.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
   }
 }

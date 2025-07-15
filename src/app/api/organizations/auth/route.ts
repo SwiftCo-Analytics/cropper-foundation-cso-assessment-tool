@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { sign } from "jsonwebtoken";
 
+export const dynamic = 'force-dynamic';
+
 const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),

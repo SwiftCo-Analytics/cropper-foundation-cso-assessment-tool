@@ -90,6 +90,7 @@ model Report {
   assessmentId String     @unique
   assessment   Assessment @relation(fields: [assessmentId], references: [id])
   content      Json       // The report content including scores and recommendations
+  recommendations Recommendation[] @relation("ReportRecommendations")
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 const createResponseSchema = z.object({
   sectionId: z.string(),
   answers: z.record(z.any()),
@@ -27,9 +29,7 @@ export async function POST(
           data: {
             assessmentId: params.id,
             questionId: question.id,
-            answer: answers[question.id] || null,
-            // You can implement scoring logic here based on the question type and answer
-            score: calculateScore(question, answers[question.id]),
+            value: answers[question.id] || null,
           },
         })
       )
@@ -45,25 +45,4 @@ export async function POST(
   }
 }
 
-function calculateScore(
-  question: { type: string; options?: any },
-  answer: any
-): number {
-  switch (question.type) {
-    case "LIKERT_SCALE":
-      return Number(answer) || 0;
-    case "BOOLEAN":
-      return answer === "true" ? 1 : 0;
-    case "MULTIPLE_CHOICE":
-      // Implement your multiple choice scoring logic
-      return 0;
-    case "SINGLE_CHOICE":
-      // Implement your single choice scoring logic
-      return 0;
-    case "TEXT":
-      // Text responses might not have a numerical score
-      return 0;
-    default:
-      return 0;
-  }
-} 
+ 

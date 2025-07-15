@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { QuestionType } from "@/generated/prisma";
 
+export const dynamic = 'force-dynamic';
+
 const questionUpdateSchema = z.object({
   text: z.string().optional(),
   description: z.string().nullable().optional(),
@@ -15,7 +17,7 @@ const questionUpdateSchema = z.object({
     "TEXT",
     "BOOLEAN",
   ]).optional(),
-  options: z.array(z.string()).nullable().optional(),
+  options: z.any().nullable().optional(), // Allow any JSON value
   isHidden: z.boolean().optional(),
 });
 

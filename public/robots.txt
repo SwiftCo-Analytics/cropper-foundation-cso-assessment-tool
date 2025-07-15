@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin/*
+Disallow: /404
+Disallow: /_*
+Disallow: /api/*
+
+# Host
+Host: https://tcf.swiftcoanalytics.com
+
+# Sitemaps
+Sitemap: https://tcf.swiftcoanalytics.com/sitemap.xml
+Sitemap: https://tcf.swiftcoanalytics.com/server-sitemap.xml

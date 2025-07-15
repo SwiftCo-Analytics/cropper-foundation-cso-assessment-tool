@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { QuestionType } from "@/generated/prisma";
 
+export const dynamic = 'force-dynamic';
+
 const questionSchema = z.object({
   sectionId: z.string(),
   text: z.string(),
@@ -16,7 +18,7 @@ const questionSchema = z.object({
     "TEXT",
     "BOOLEAN",
   ]),
-  options: z.array(z.string()).nullable(),
+  options: z.any().nullable(), // Allow any JSON value
   order: z.number(),
 });
 

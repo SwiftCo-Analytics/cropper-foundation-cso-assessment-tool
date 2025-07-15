@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "tsc --project tsconfig.server.json && node server.js",
+    "build": "prisma generate && next build && tsc --project tsconfig.server.json",
+    "start": "node server.js",
     "lint": "next lint",
     "db:seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
-    "create-admin": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts"
+    "create-admin": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts",
+    "postbuild": "next-sitemap"
   },
   "prisma": {
     "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -27,6 +28,7 @@
     "lucide-react": "^0.344.0",
     "next": "14.1.0",
     "next-auth": "^4.24.11",
+    "next-sitemap": "^4.2.3",
     "pdfkit": "^0.17.1",
     "react": "^18",
     "react-dom": "^18",

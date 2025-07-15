@@ -916,7 +916,7 @@ export default function AdminDashboard() {
                               const newOptions = editingQuestion.options?.filter((_, i) => i !== index);
                               setEditingQuestion({
                                 ...editingQuestion,
-                                options: newOptions
+                                options: newOptions || []
                               });
                             }}
                             className="p-2 text-gray-500 hover:text-red-600 transition-colors duration-300"

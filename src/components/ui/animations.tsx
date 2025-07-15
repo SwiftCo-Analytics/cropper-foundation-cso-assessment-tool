@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export const FadeIn = ({ children, delay = 0, duration = 0.5 }) => (
+export const FadeIn = ({ children , delay = 0, duration = 0.5 }: { children: React.ReactNode, delay?: number, duration?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -10,7 +10,7 @@ export const FadeIn = ({ children, delay = 0, duration = 0.5 }) => (
   </motion.div>
 );
 
-export const SlideIn = ({ children, direction = "left", delay = 0 }) => {
+export const SlideIn = ({ children, direction = "left", delay = 0 }: { children: React.ReactNode, direction?: "left" | "right" | "up" | "down", delay?: number }) => {
   const directionMap = {
     left: { x: -50 },
     right: { x: 50 },
@@ -29,7 +29,7 @@ export const SlideIn = ({ children, direction = "left", delay = 0 }) => {
   );
 };
 
-export const ScaleIn = ({ children, delay = 0 }) => (
+export const ScaleIn = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
@@ -39,7 +39,7 @@ export const ScaleIn = ({ children, delay = 0 }) => (
   </motion.div>
 );
 
-export const Hover = ({ children }) => (
+export const Hover = ({ children }: { children: React.ReactNode }) => (
   <motion.div
     whileHover={{ scale: 1.02 }}
     transition={{ duration: 0.2 }}

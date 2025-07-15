@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { QuestionType } from "@/generated/prisma";
-import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock, Settings } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -14,6 +14,7 @@ interface Section {
   title: string;
   description: string | null;
   order: number;
+  weight: number;
   questions: Question[];
 }
 
@@ -24,6 +25,7 @@ interface Question {
   type: QuestionType;
   options: string[] | null;
   order: number;
+  weight: number;
   isHidden: boolean;
   mandatory: boolean;
 }
@@ -64,12 +66,14 @@ export default function AdminDashboard() {
   const [newSectionData, setNewSectionData] = useState({
     title: "",
     description: "",
+    weight: 1.0,
   });
   const [newQuestionData, setNewQuestionData] = useState({
     text: "",
     description: "",
     type: "SINGLE_CHOICE" as QuestionType,
     options: "",
+    weight: 1.0,
     mandatory: false,
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -138,7 +142,7 @@ export default function AdminDashboard() {
       });
 
       if (response.ok) {
-        setNewSectionData({ title: "", description: "" });
+        setNewSectionData({ title: "", description: "", weight: 1.0 });
         setIsEditingSection(false);
         showSuccess("Section added successfully!");
         fetchSections();
@@ -209,6 +213,8 @@ export default function AdminDashboard() {
           description: "",
           type: "SINGLE_CHOICE",
           options: "",
+          weight: 1.0,
+          mandatory: false,
         });
         setShowNewQuestionForm(false);
         showSuccess("Question added successfully!");
@@ -242,11 +248,9 @@ export default function AdminDashboard() {
       ?.questions.find(q => q.id === questionId);
     
     if (!question) return;
-
-    if (!confirm(`Are you sure you want to delete the question: "${question.text}"? This action cannot be undone.`)) {
-      return;
-    }
-
+    
+    if (!confirm(`Are you sure you want to delete the question "${question.text}"?`)) return;
+    
     try {
       const response = await fetch(`/api/questions/${questionId}`, {
         method: "DELETE",
@@ -262,35 +266,19 @@ export default function AdminDashboard() {
   }
 
   async function handleToggleQuestionVisibility(questionId: string, currentlyHidden: boolean) {
-    const question = sections
-      .find(s => s.id === selectedSection)
-      ?.questions.find(q => q.id === questionId);
-    
-    if (!question) return;
-
-    if (!confirm(
-      currentlyHidden 
-        ? `Show the question: "${question.text}"?`
-        : `Hide the question: "${question.text}"? Hidden questions won't be shown to organizations in the assessment.`
-    )) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/questions/${questionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          isHidden: !currentlyHidden
-        }),
+        body: JSON.stringify({ isHidden: !currentlyHidden }),
       });
 
       if (response.ok) {
-        showSuccess(currentlyHidden ? "Question is now visible" : "Question is now hidden");
+        showSuccess(`Question ${currentlyHidden ? 'shown' : 'hidden'} successfully!`);
         fetchSections();
       }
     } catch (error) {
-      console.error("Error updating question visibility:", error);
+      console.error("Error toggling question visibility:", error);
     }
   }
 
@@ -312,7 +300,7 @@ export default function AdminDashboard() {
 
   async function handleReorderQuestion(questionId: string, newOrder: number) {
     try {
-      const response = await fetch(`/api/questions/${questionId}/reorder`, {
+      const response = await fetch(`/api/questions/${questionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order: newOrder }),
@@ -328,18 +316,18 @@ export default function AdminDashboard() {
 
   async function handleDownloadResponses(organizationId: string) {
     try {
-      const response = await fetch(`/api/organizations/${organizationId}/responses/download`);
-      if (!response.ok) throw new Error('Failed to download responses');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `responses-${organizationId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const response = await fetch(`/api/admin/reports/${organizationId}/download`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `organization-responses-${organizationId}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
     } catch (error) {
       console.error("Error downloading responses:", error);
     }
@@ -361,6 +349,7 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         setEditingSection(null);
+        setIsEditingSection(false);
         showSuccess("Section updated successfully!");
         fetchSections();
       }
@@ -382,8 +371,7 @@ export default function AdminDashboard() {
           description: editingQuestion.description,
           type: editingQuestion.type,
           options: editingQuestion.type === "TEXT" ? null : editingQuestion.options,
-          isHidden: editingQuestion.isHidden,
-          mandatory: editingQuestion.mandatory
+          mandatory: editingQuestion.mandatory,
         }),
       });
 
@@ -397,24 +385,20 @@ export default function AdminDashboard() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-green-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-mint-600"></div>
       </div>
     );
   }
 
-  if (status === "unauthenticated") {
-    return null;
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="content-container section-spacing">
       <FadeIn>
-        <div className="mb-8">
+        <div className="page-header">
           <motion.h1 
-            className="text-4xl font-bold text-gray-900"
+            className="page-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -422,450 +406,324 @@ export default function AdminDashboard() {
             Admin Dashboard
           </motion.h1>
           <motion.p 
-            className="text-xl text-gray-600 mt-2"
+            className="page-subtitle"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             Welcome, {session?.user?.name}
           </motion.p>
+          
+          {/* Navigation */}
+          <motion.div 
+            className="flex space-x-4 mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            <Link
+              href="/admin/suggestions"
+              className="btn-primary"
+            >
+              <Settings className="mr-2 h-5 w-5" />
+              Manage Suggestions
+            </Link>
+          </motion.div>
         </div>
 
         {/* Success Message */}
         {successMessage && (
           <motion.div 
-            className="bg-cropper-green-50 text-cropper-green-800 p-4 rounded-lg mb-6 flex items-center justify-between"
+            className="bg-cropper-mint-50 text-cropper-mint-800 p-4 rounded-lg mb-6 flex items-center justify-between"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
             <span>{successMessage}</span>
-            <button onClick={() => setSuccessMessage(null)} className="text-cropper-green-600 hover:text-cropper-green-800">
+            <button onClick={() => setSuccessMessage(null)} className="text-cropper-mint-600 hover:text-cropper-mint-800">
               <X className="h-5 w-5" />
             </button>
           </motion.div>
         )}
       </FadeIn>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Sections Panel */}
-        <div className="lg:col-span-2">
-          <ScaleIn>
-            <div className="bg-white rounded-xl shadow-soft p-6">
+      {/* Sections Management */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-heading">Sections</h2>
+            <Hover>
+              <button
+                onClick={() => setIsEditingSection(true)}
+                className="btn-primary btn-sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Section
+              </button>
+            </Hover>
+          </div>
+
+          <div className="space-y-4">
+            {sections.map((section, index) => (
+              <div key={section.id} className="card">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <MoveVertical className="h-4 w-4 text-gray-400 cursor-move" />
+                    <div>
+                      <h3 className="text-subheading">{section.title}</h3>
+                      {section.description && (
+                        <p className="text-caption">{section.description}</p>
+                      )}
+                      <p className="text-caption">Weight: {section.weight}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => {
+                        setEditingSection(section);
+                        setIsEditingSection(true);
+                      }}
+                      className="text-cropper-blue-600 hover:text-cropper-blue-700"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSection(section.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setSelectedSection(section.id)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        selectedSection === section.id
+                          ? "bg-cropper-mint-100 text-cropper-mint-800"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {section.questions.length} questions
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Questions Management */}
+        {selectedSection && (
+          <FadeIn delay={0.3}>
+            <div className="card card-lg">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold">Assessment Sections</h2>
+                <h2 className="text-heading">
+                  Questions for {sections.find(s => s.id === selectedSection)?.title}
+                </h2>
                 <Hover>
                   <button
-                    onClick={() => setIsEditingSection(true)}
-                    className="bg-cropper-green-600 text-white px-4 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center"
+                    onClick={() => setShowNewQuestionForm(true)}
+                    className="btn-primary btn-sm"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Section
+                    Add Question
                   </button>
                 </Hover>
               </div>
-
-              {/* Section List */}
-              <div className="space-y-4">
-                {sections.map((section, index) => (
-                  <SlideIn key={section.id} direction="right" delay={index * 0.1}>
-                    <Hover>
-                      <div 
-                        className={`bg-white border rounded-lg p-4 cursor-pointer transition-all duration-300 ${
-                          selectedSection === section.id 
-                            ? 'border-cropper-green-500 shadow-soft' 
-                            : 'border-gray-200 hover:border-cropper-green-300'
-                        }`}
-                        onClick={() => setSelectedSection(section.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="text-lg font-medium">{section.title}</h3>
-                            {section.description && (
-                              <p className="text-gray-600 text-sm mt-1">{section.description}</p>
-                            )}
-                            <p className="text-sm text-cropper-blue-600 mt-1">
-                              {section.questions.length} questions
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteSection(section.id);
-                              }}
-                              className="p-2 text-gray-500 hover:text-red-600 transition-colors duration-300"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingSection(section);
-                              }}
-                              className="p-2 text-gray-500 hover:text-cropper-blue-600 transition-colors duration-300"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Add reorder logic
-                              }}
-                              className="p-2 text-gray-500 hover:text-cropper-green-600 transition-colors duration-300"
-                            >
-                              <MoveVertical className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Hover>
-                  </SlideIn>
-                ))}
-              </div>
-            </div>
-          </ScaleIn>
-        </div>
-
-        {/* Organizations Panel */}
-        <div>
-          <ScaleIn delay={0.2}>
-            <div className="bg-white rounded-xl shadow-soft p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold">Organizations</h2>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search organizations..."
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent text-sm"
-                    onChange={(e) => {
-                      const searchTerm = e.target.value.toLowerCase();
-                      const filtered = organizations.filter(org => 
-                        org.name.toLowerCase().includes(searchTerm) || 
-                        org.email.toLowerCase().includes(searchTerm)
-                      );
-                      setFilteredOrganizations(filtered);
-                    }}
-                  />
-                </div>
-              </div>
               
-              <div className="max-h-96 overflow-y-auto space-y-3">
-                {filteredOrganizations.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No organizations found</p>
-                  </div>
-                ) : (
-                  filteredOrganizations.map((org, index) => (
-                    <SlideIn key={org.id} direction="left" delay={index * 0.1}>
-                      <Hover>
-                        <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <h3 className="font-medium text-gray-900">{org.name}</h3>
-                              <p className="text-sm text-gray-600">{org.email}</p>
-                              <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                                <span className="flex items-center">
-                                  <BarChart className="h-3 w-3 mr-1" />
-                                  {org.assessments.length} assessments
-                                </span>
-                                <span className="flex items-center">
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  {org.assessments.filter(a => a.completedAt).length} completed
-                                </span>
-                                <span className="flex items-center">
-                                  <Clock className="h-3 w-3 mr-1" />
-                                  {org.assessments.filter(a => !a.completedAt).length} in progress
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Link
-                                href={`/admin/reports/${org.id}`}
-                                className="text-cropper-green-600 hover:text-cropper-green-700 transition-colors duration-300 flex items-center text-sm font-medium"
-                              >
-                                View Report
-                                <ArrowRight className="h-3 w-3 ml-1" />
-                              </Link>
-                              <button
-                                onClick={() => handleDownloadResponses(org.id)}
-                                className="text-cropper-blue-600 hover:text-cropper-blue-700 transition-colors duration-300 flex items-center"
-                                title="Download responses"
-                              >
-                                <Download className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </Hover>
-                    </SlideIn>
-                  ))
-                )}
+              {/* Question Badge Legend */}
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-caption font-medium mb-2">Question Types:</p>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">Single Choice</span>
+                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 border border-green-200">Multiple Choice</span>
+                  <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200">Text Input</span>
+                  <span className="px-2 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200">Likert Scale</span>
+                  <span className="px-2 py-1 rounded-full bg-pink-100 text-pink-800 border border-pink-200">Yes/No</span>
+                  <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-200">Hidden</span>
+                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 border border-red-200">Mandatory</span>
+                </div>
               </div>
-            </div>
-          </ScaleIn>
-        </div>
-      </div>
 
-      {/* Add Section Modal */}
-      {isEditingSection && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Add New Section</h3>
-                <button
-                  onClick={() => setIsEditingSection(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <form onSubmit={handleAddSection} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    value={newSectionData.title}
-                    onChange={(e) => setNewSectionData({ ...newSectionData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={newSectionData.description}
-                    onChange={(e) => setNewSectionData({ ...newSectionData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    rows={4}
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingSection(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                  >
-                    Cancel
-                  </button>
-                  <Hover>
-                    <button
-                      type="submit"
-                      className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300"
-                    >
-                      Save Section
-                    </button>
-                  </Hover>
-                </div>
-              </form>
-            </div>
-          </ScaleIn>
-        </div>
-      )}
-
-      {/* Edit Section Modal */}
-      {editingSection && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Edit Section</h3>
-                <button
-                  onClick={() => setEditingSection(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <form onSubmit={handleEditSection} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    value={editingSection.title}
-                    onChange={(e) => setEditingSection({ ...editingSection, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={editingSection.description || ""}
-                    onChange={(e) => setEditingSection({ ...editingSection, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    rows={4}
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setEditingSection(null)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                  >
-                    Cancel
-                  </button>
-                  <Hover>
-                    <button
-                      type="submit"
-                      className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300"
-                    >
-                      Save Changes
-                    </button>
-                  </Hover>
-                </div>
-              </form>
-            </div>
-          </ScaleIn>
-        </div>
-      )}
-
-      {/* Selected Section Questions */}
-      {selectedSection && (
-        <FadeIn delay={0.3}>
-          <div className="mt-8 bg-white rounded-xl shadow-soft p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">
-                Questions for {sections.find(s => s.id === selectedSection)?.title}
-              </h2>
-              <Hover>
-                <button
-                  onClick={() => setShowNewQuestionForm(true)}
-                  className="bg-cropper-blue-600 text-white px-4 py-2 rounded-full hover:bg-cropper-blue-700 transition-colors duration-300 flex items-center"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Question
-                </button>
-              </Hover>
-            </div>
-            
-            {/* Question Badge Legend */}
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-2">Question Types:</p>
-              <div className="flex flex-wrap gap-2 text-xs">
-                <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">Single Choice</span>
-                <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 border border-green-200">Multiple Choice</span>
-                <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200">Text Input</span>
-                <span className="px-2 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200">Likert Scale</span>
-                <span className="px-2 py-1 rounded-full bg-pink-100 text-pink-800 border border-pink-200">Yes/No</span>
-                <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-200">Hidden</span>
-                <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 border border-red-200">Mandatory</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {sections
-                .find(s => s.id === selectedSection)
-                ?.questions.map((question, index) => (
-                  <SlideIn key={question.id} direction="up" delay={index * 0.1}>
-                    <Hover>
-                      <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
-                        <div className="flex items-center justify-between">
+              <div className="space-y-4">
+                {sections
+                  .find(s => s.id === selectedSection)
+                  ?.questions.sort((a, b) => a.order - b.order)
+                  .map((question) => {
+                    const typeInfo = formatQuestionType(question.type);
+                    return (
+                      <div key={question.id} className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <h3 className="font-medium">{question.text}</h3>
-                              {(() => {
-                                const { label, color } = formatQuestionType(question.type);
-                                return (
-                                  <span className={`
-                                    px-3 py-1.5 
-                                    text-xs font-medium rounded-full 
-                                    bg-${color}-100 text-${color}-800
-                                    border border-${color}-200
-                                    flex items-center gap-1.5
-                                  `}>
-                                    <span className={`w-1.5 h-1.5 rounded-full bg-${color}-500`}></span>
-                                    {label}
-                                  </span>
-                                );
-                              })()}
+                            <div className="flex items-center space-x-2 mb-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium bg-${typeInfo.color}-100 text-${typeInfo.color}-800 border border-${typeInfo.color}-200`}>
+                                {typeInfo.label}
+                              </span>
                               {question.isHidden && (
-                                <span className="px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 text-gray-800 border border-gray-200 flex items-center gap-1.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
                                   Hidden
                                 </span>
                               )}
                               {question.mandatory && (
-                                <span className="px-3 py-1.5 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200 flex items-center gap-1.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
                                   Mandatory
                                 </span>
                               )}
                             </div>
+                            <h4 className="text-subheading mb-1">{question.text}</h4>
                             {question.description && (
-                              <p className="text-sm text-gray-600 mt-1">{question.description}</p>
+                              <p className="text-caption mb-2">{question.description}</p>
                             )}
-                            {question.options && question.options.length > 0 && 
-                             question.type !== "BOOLEAN" && 
-                             question.type !== "LIKERT_SCALE" && 
-                             question.type !== "TEXT" && (
-                              <div className="mt-2">
-                                <p className="text-sm text-gray-600">Options:</p>
-                                <ul className="list-disc list-inside text-sm text-gray-600 ml-2">
-                                  {question.options.map((option, i) => (
-                                    <li key={i}>{option}</li>
-                                  ))}
-                                </ul>
+                            {question.options && question.options.length > 0 && (
+                              <div className="text-caption">
+                                <strong>Options:</strong> {question.options.join(", ")}
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 ml-4">
                             <button
                               onClick={() => handleToggleQuestionVisibility(question.id, question.isHidden)}
-                              className={`p-2 transition-colors duration-300 ${
+                              className={`p-1 rounded ${
                                 question.isHidden 
-                                  ? "text-gray-400 hover:text-cropper-green-600" 
-                                  : "text-cropper-green-600 hover:text-gray-400"
+                                  ? "text-gray-600 hover:text-gray-800" 
+                                  : "text-gray-400 hover:text-gray-600"
                               }`}
                               title={question.isHidden ? "Show question" : "Hide question"}
                             >
-                              {question.isHidden ? (
-                                <Eye className="h-4 w-4" />
-                              ) : (
-                                <EyeOff className="h-4 w-4" />
-                              )}
+                              {question.isHidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                             </button>
                             <button
                               onClick={() => setEditingQuestion(question)}
-                              className="p-2 text-gray-500 hover:text-cropper-blue-600 transition-colors duration-300"
-                              title="Edit question"
+                              className="text-cropper-blue-600 hover:text-cropper-blue-700 p-1 rounded"
                             >
                               <Edit2 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteQuestion(question.id)}
-                              className="p-2 text-gray-500 hover:text-red-600 transition-colors duration-300"
-                              title="Delete question"
+                              className="text-red-600 hover:text-red-700 p-1 rounded"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         </div>
                       </div>
-                    </Hover>
-                  </SlideIn>
-                ))}
+                    );
+                  })}
+              </div>
             </div>
-          </div>
-        </FadeIn>
+          </FadeIn>
+        )}
+      </div>
+
+      {/* Organizations Overview */}
+      <div className="mt-12">
+        <h2 className="text-heading mb-6">Organizations</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredOrganizations.map((org) => (
+            <div key={org.id} className="card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-subheading">{org.name}</h3>
+                  <p className="text-caption">{org.email}</p>
+                </div>
+                <span className="px-3 py-1 bg-cropper-mint-100 text-cropper-mint-800 rounded-full text-sm font-medium">
+                  {org.assessments.length} assessments
+                </span>
+              </div>
+              <div className="flex space-x-2">
+                <Link
+                  href={`/admin/reports/${org.id}`}
+                  className="btn-primary btn-sm flex-1"
+                >
+                  View Reports
+                </Link>
+                <button
+                  onClick={() => handleDownloadResponses(org.id)}
+                  className="btn-secondary btn-sm"
+                >
+                  <Download className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Add Section Form */}
+      {isEditingSection && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <ScaleIn>
+            <div className="card card-lg max-w-md w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-heading">{editingSection ? "Edit Section" : "Add New Section"}</h3>
+                <button
+                  onClick={() => {
+                    setIsEditingSection(false);
+                    setEditingSection(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <form onSubmit={editingSection ? handleEditSection : handleAddSection} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Section Title
+                  </label>
+                  <input
+                    type="text"
+                    value={editingSection?.title || newSectionData.title}
+                    onChange={(e) => 
+                      editingSection 
+                        ? setEditingSection({ ...editingSection, title: e.target.value })
+                        : setNewSectionData({ ...newSectionData, title: e.target.value })
+                    }
+                    className="input-primary"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={editingSection?.description || newSectionData.description}
+                    onChange={(e) => 
+                      editingSection 
+                        ? setEditingSection({ ...editingSection, description: e.target.value })
+                        : setNewSectionData({ ...newSectionData, description: e.target.value })
+                    }
+                    className="input-primary"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <button type="submit" className="btn-primary flex-1">
+                    {editingSection ? "Update Section" : "Add Section"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingSection(false);
+                      setEditingSection(null);
+                    }}
+                    className="btn-secondary flex-1"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </ScaleIn>
+        </div>
       )}
 
       {/* Add Question Form */}
       {showNewQuestionForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+            <div className="card card-lg max-w-2xl w-full">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Add New Question</h3>
+                <h3 className="text-heading">Add New Question</h3>
                 <button
                   onClick={() => setShowNewQuestionForm(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -882,7 +740,7 @@ export default function AdminDashboard() {
                     type="text"
                     value={newQuestionData.text}
                     onChange={(e) => setNewQuestionData({ ...newQuestionData, text: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent"
+                    className="input-primary"
                     required
                   />
                 </div>
@@ -893,86 +751,64 @@ export default function AdminDashboard() {
                   <textarea
                     value={newQuestionData.description}
                     onChange={(e) => setNewQuestionData({ ...newQuestionData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent"
+                    className="input-primary"
                     rows={2}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Question Type
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(formatQuestionType).map(([type]) => {
-                      const { label, color } = formatQuestionType(type as QuestionType);
-                      return (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setNewQuestionData({ ...newQuestionData, type: type as QuestionType })}
-                          className={`
-                            p-3 rounded-lg text-sm font-medium
-                            flex items-center justify-center gap-2
-                            transition-all duration-300
-                            ${newQuestionData.type === type
-                              ? `bg-${color}-100 text-${color}-800 border-${color}-200`
-                              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                            }
-                            border
-                          `}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            newQuestionData.type === type
-                              ? `bg-${color}-500`
-                              : 'bg-gray-400'
-                          }`}></span>
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                {newQuestionData.type !== "TEXT" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Options (comma-separated)
+                      Question Type
+                    </label>
+                    <select
+                      value={newQuestionData.type}
+                      onChange={(e) => setNewQuestionData({ ...newQuestionData, type: e.target.value as QuestionType })}
+                      className="input-primary"
+                    >
+                      <option value="SINGLE_CHOICE">Single Choice</option>
+                      <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                      <option value="TEXT">Text Input</option>
+                      <option value="LIKERT_SCALE">Likert Scale</option>
+                      <option value="BOOLEAN">Yes/No</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Options (comma-separated, for choice questions)
                     </label>
                     <input
                       type="text"
                       value={newQuestionData.options}
                       onChange={(e) => setNewQuestionData({ ...newQuestionData, options: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent"
+                      className="input-primary"
                       placeholder="Option 1, Option 2, Option 3"
-                      required
+                      disabled={newQuestionData.type === "TEXT"}
                     />
                   </div>
-                )}
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={newQuestionData.mandatory}
-                      onChange={(e) => setNewQuestionData({ ...newQuestionData, mandatory: e.target.checked })}
-                      className="h-4 w-4 text-cropper-blue-600 focus:ring-cropper-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Mark as mandatory</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="mandatory"
+                    checked={newQuestionData.mandatory}
+                    onChange={(e) => setNewQuestionData({ ...newQuestionData, mandatory: e.target.checked })}
+                    className="h-4 w-4 text-cropper-mint-600 focus:ring-cropper-mint-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="mandatory" className="text-sm font-medium text-gray-700">
+                    This question is mandatory
                   </label>
                 </div>
-                <div className="flex justify-end space-x-3">
+                <div className="flex space-x-3">
+                  <button type="submit" className="btn-primary flex-1">
+                    Add Question
+                  </button>
                   <button
                     type="button"
                     onClick={() => setShowNewQuestionForm(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                    className="btn-secondary flex-1"
                   >
                     Cancel
                   </button>
-                  <Hover>
-                    <button
-                      type="submit"
-                      className="bg-cropper-blue-600 text-white px-6 py-2 rounded-full hover:bg-cropper-blue-700 transition-colors duration-300"
-                    >
-                      Add Question
-                    </button>
-                  </Hover>
                 </div>
               </form>
             </div>
@@ -980,13 +816,13 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Edit Question Modal */}
+      {/* Edit Question Form */}
       {editingQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <ScaleIn>
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-semibold">Edit Question</h3>
+            <div className="card card-lg max-w-2xl w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-heading">Edit Question</h3>
                 <button
                   onClick={() => setEditingQuestion(null)}
                   className="text-gray-500 hover:text-gray-700"
@@ -994,148 +830,87 @@ export default function AdminDashboard() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <form onSubmit={handleEditQuestion} className="space-y-6">
+              <form onSubmit={handleEditQuestion} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Question Text
                   </label>
                   <input
                     type="text"
                     value={editingQuestion.text}
                     onChange={(e) => setEditingQuestion({ ...editingQuestion, text: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent text-base"
+                    className="input-primary"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description (Optional)
                   </label>
                   <textarea
                     value={editingQuestion.description || ""}
                     onChange={(e) => setEditingQuestion({ ...editingQuestion, description: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent text-base"
-                    rows={4}
-                    placeholder="Add additional context or instructions for this question..."
+                    className="input-primary"
+                    rows={2}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Question Type
-                  </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {Object.entries(formatQuestionType).map(([type]) => {
-                      const { label, color } = formatQuestionType(type as QuestionType);
-                      return (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setEditingQuestion({ 
-                            ...editingQuestion, 
-                            type: type as QuestionType,
-                            options: type === "TEXT" ? null : []
-                          })}
-                          className={`
-                            p-4 rounded-lg text-sm font-medium
-                            flex items-center justify-center gap-2
-                            transition-all duration-300
-                            ${editingQuestion.type === type
-                              ? `bg-${color}-100 text-${color}-800 border-${color}-200`
-                              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                            }
-                            border
-                          `}
-                        >
-                          <span className={`w-2 h-2 rounded-full ${
-                            editingQuestion.type === type
-                              ? `bg-${color}-500`
-                              : 'bg-gray-400'
-                          }`}></span>
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                {editingQuestion.type !== "TEXT" && editingQuestion.type !== "BOOLEAN" && editingQuestion.type !== "LIKERT_SCALE" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Options
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Question Type
                     </label>
-                    <div className="space-y-3">
-                      {editingQuestion.options?.map((option, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={option}
-                            onChange={(e) => {
-                              const newOptions = [...(editingQuestion.options || [])];
-                              newOptions[index] = e.target.value;
-                              setEditingQuestion({
-                                ...editingQuestion,
-                                options: newOptions
-                              });
-                            }}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cropper-blue-500 focus:border-transparent"
-                            placeholder={`Option ${index + 1}`}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newOptions = editingQuestion.options?.filter((_, i) => i !== index);
-                              setEditingQuestion({
-                                ...editingQuestion,
-                                options: newOptions || []
-                              });
-                            }}
-                            className="p-2 text-gray-500 hover:text-red-600 transition-colors duration-300"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingQuestion({
-                            ...editingQuestion,
-                            options: [...(editingQuestion.options || []), ""]
-                          });
-                        }}
-                        className="w-full px-4 py-2 border border-dashed border-gray-300 rounded-lg text-gray-600 hover:text-gray-800 hover:border-gray-400 transition-all duration-300"
-                      >
-                        + Add Option
-                      </button>
-                    </div>
+                    <select
+                      value={editingQuestion.type}
+                      onChange={(e) => setEditingQuestion({ ...editingQuestion, type: e.target.value as QuestionType })}
+                      className="input-primary"
+                    >
+                      <option value="SINGLE_CHOICE">Single Choice</option>
+                      <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                      <option value="TEXT">Text Input</option>
+                      <option value="LIKERT_SCALE">Likert Scale</option>
+                      <option value="BOOLEAN">Yes/No</option>
+                    </select>
                   </div>
-                )}
-                <div>
-                  <label className="flex items-center space-x-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Options (comma-separated, for choice questions)
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={editingQuestion.mandatory}
-                      onChange={(e) => setEditingQuestion({ ...editingQuestion, mandatory: e.target.checked })}
-                      className="h-4 w-4 text-cropper-blue-600 focus:ring-cropper-blue-500 border-gray-300 rounded"
+                      type="text"
+                      value={editingQuestion.options?.join(", ") || ""}
+                      onChange={(e) => setEditingQuestion({ 
+                        ...editingQuestion, 
+                        options: e.target.value.split(",").map(o => o.trim()).filter(o => o)
+                      })}
+                      className="input-primary"
+                      placeholder="Option 1, Option 2, Option 3"
+                      disabled={editingQuestion.type === "TEXT"}
                     />
-                    <span className="text-sm font-medium text-gray-700">Mark as mandatory</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit-mandatory"
+                    checked={editingQuestion.mandatory}
+                    onChange={(e) => setEditingQuestion({ ...editingQuestion, mandatory: e.target.checked })}
+                    className="h-4 w-4 text-cropper-mint-600 focus:ring-cropper-mint-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="edit-mandatory" className="text-sm font-medium text-gray-700">
+                    This question is mandatory
                   </label>
                 </div>
-                <div className="flex justify-end space-x-3 pt-4 border-t">
+                <div className="flex space-x-3">
+                  <button type="submit" className="btn-primary flex-1">
+                    Update Question
+                  </button>
                   <button
                     type="button"
                     onClick={() => setEditingQuestion(null)}
-                    className="px-6 py-2.5 text-gray-600 hover:text-gray-800 font-medium"
+                    className="btn-secondary flex-1"
                   >
                     Cancel
                   </button>
-                  <Hover>
-                    <button
-                      type="submit"
-                      className="bg-cropper-blue-600 text-white px-8 py-2.5 rounded-full hover:bg-cropper-blue-700 transition-colors duration-300 font-medium"
-                    >
-                      Save Changes
-                    </button>
-                  </Hover>
                 </div>
               </form>
             </div>

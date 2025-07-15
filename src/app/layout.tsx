@@ -24,12 +24,12 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider session={session}>
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col bg-cropper-mint-50">
             <Header />
             <main className="flex-grow">
               {children}
             </main>
-            <footer className="bg-gray-50 border-t border-gray-100">
+            <footer className="bg-white border-t border-cropper-mint-200">
               <div className="container mx-auto px-4 py-8">
                 <p className="text-center text-gray-500 text-sm">
                   © {new Date().getFullYear()} The Cropper Foundation. All rights reserved.

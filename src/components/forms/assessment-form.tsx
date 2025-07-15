@@ -225,7 +225,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
   return (
     <div className="space-y-8">
       {showSaveSuccess && (
-        <div className="bg-cropper-green-100 border border-cropper-green-400 text-cropper-green-700 px-4 py-3 rounded-md flex items-center">
+        <div className="bg-cropper-mint-100 border border-cropper-mint-400 text-cropper-mint-700 px-4 py-3 rounded-md flex items-center">
           <CheckCircle className="h-5 w-5 mr-2" />
           Progress saved successfully! You can safely leave and return later.
         </div>
@@ -242,7 +242,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-cropper-green-600 h-2 rounded-full transition-all duration-300"
+              className="bg-cropper-mint-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentSectionIndex + 1) / sections.length) * 100}%` }}
             ></div>
           </div>
@@ -254,11 +254,11 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
             <span className="text-sm font-medium text-gray-700">Sections</span>
             <div className="flex items-center space-x-4 text-xs text-gray-500">
               <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 rounded-full bg-cropper-green-600"></div>
+                <div className="w-3 h-3 rounded-full bg-cropper-mint-600"></div>
                 <span>Current</span>
               </div>
               <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 rounded-full bg-cropper-green-100 border border-cropper-green-300"></div>
+                <div className="w-3 h-3 rounded-full bg-cropper-mint-100 border border-cropper-mint-300"></div>
                 <span>Complete</span>
               </div>
               <div className="flex items-center space-x-1">
@@ -285,9 +285,9 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
                 }}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   index === currentSectionIndex
-                    ? 'bg-cropper-green-600 text-white'
+                    ? 'bg-cropper-mint-600 text-white'
                     : completedSections.has(section.id)
-                    ? 'bg-cropper-green-100 text-cropper-green-800'
+                    ? 'bg-cropper-mint-100 text-cropper-mint-800'
                     : section.questions.some(q => q.mandatory)
                     ? 'bg-red-100 text-red-800 border border-red-300'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

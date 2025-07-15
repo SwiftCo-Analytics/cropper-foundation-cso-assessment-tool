@@ -6,14 +6,14 @@ import { motion } from "framer-motion";
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="content-container section-spacing">
       {/* Hero Section */}
       <FadeIn>
         <div className="text-center mb-16 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-cropper-green-50 to-cropper-blue-50 rounded-3xl transform -skew-y-2" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cropper-mint-100 to-cropper-mint-50 rounded-3xl transform -skew-y-2" />
           <div className="relative py-12">
             <motion.h1 
-              className="text-5xl font-bold text-gray-900 mb-4"
+              className="text-display mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
@@ -21,7 +21,7 @@ export default function AboutPage() {
               Advancing Informed and Inclusive Decision-making
             </motion.h1>
             <motion.p 
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
+              className="text-body-lg max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
@@ -35,25 +35,25 @@ export default function AboutPage() {
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
         <SlideIn direction="left">
-          <div className="bg-white rounded-xl shadow-soft p-8 hover:shadow-soft-lg transition-shadow duration-300">
-            <h2 className="text-2xl font-semibold text-cropper-green-700 mb-6">
+          <div className="card card-lg">
+            <h2 className="text-heading text-cropper-mint-700 mb-6">
               The Cropper Foundation
             </h2>
             <div className="prose prose-lg">
-              <p className="mb-4">
+              <p className="text-body mb-4">
                 The Cropper Foundation is a non-profit organisation based in Trinidad and Tobago, 
                 dedicated to advancing informed and inclusive decision-making for sustainable development. 
                 For almost 25 years, we have been at the forefront of efforts to ensure that nature 
                 and the environment are integral to how development is understood and approached by 
                 decision-makers and communities alike.
               </p>
-              <p className="mb-4">
+              <p className="text-body mb-4">
                 Our work is driven by the belief that sustainable development must include everyone 
                 and everything—from policymakers to private citizens, and from academia to the private 
                 sector. At the heart of our mission is the idea that nature is everyone's business, 
                 and its stewardship is essential for a thriving future.
               </p>
-              <p className="mb-4">
+              <p className="text-body mb-4">
                 Through nearly a quarter-century of innovation, collaboration, and impact, we remain 
                 committed to creating a future where development respects and preserves the natural 
                 world, ensuring a better quality of life for all.
@@ -63,18 +63,18 @@ export default function AboutPage() {
         </SlideIn>
 
         <SlideIn direction="right">
-          <div className="bg-white rounded-xl shadow-soft p-8 hover:shadow-soft-lg transition-shadow duration-300">
-            <h2 className="text-2xl font-semibold text-cropper-blue-700 mb-6">
+          <div className="card card-lg">
+            <h2 className="text-heading text-cropper-blue-700 mb-6">
               Why CSO Self-Assessment Matters
             </h2>
             <div className="prose prose-lg">
-              <p className="mb-4">
+              <p className="text-body mb-4">
                 As part of our commitment to inclusive decision-making and sustainable development, 
                 we recognize the crucial role that Civil Society Organizations (CSOs) play in shaping 
                 our region's future. Our CSO Self-Assessment Tool is designed to strengthen these 
                 vital organizations in their mission to create positive change.
               </p>
-              <p className="mb-4">
+              <p className="text-body mb-4">
                 Through this tool, we help CSOs:
               </p>
               <ul className="list-none pl-0 mb-4 space-y-2">
@@ -88,13 +88,13 @@ export default function AboutPage() {
                 ].map((item, index) => (
                   <motion.li 
                     key={index}
-                    className="flex items-center bg-cropper-blue-50 p-3 rounded-lg"
+                    className="flex items-center bg-cropper-mint-100 p-3 rounded-lg"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="h-2 w-2 rounded-full bg-cropper-blue-500 mr-3" />
-                    {item}
+                    <div className="h-2 w-2 rounded-full bg-cropper-mint-500 mr-3" />
+                    <span className="text-body">{item}</span>
                   </motion.li>
                 ))}
               </ul>
@@ -106,10 +106,10 @@ export default function AboutPage() {
       {/* Our Impact Section */}
       <ScaleIn>
         <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-8 mb-16 shadow-soft">
-          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-8">
+          <h2 className="text-heading text-center mb-8">
             Our Impact and Partnerships
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid-cards">
             {[
               {
                 title: "Policy Integration",
@@ -137,14 +137,14 @@ export default function AboutPage() {
               }
             ].map((item, index) => (
               <Hover key={index}>
-                <div className="bg-white rounded-xl p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300">
+                <div className="card">
                   <div className={`bg-cropper-${item.color}-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center`}>
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 text-cropper-${item.color}-600`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       {item.icon}
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600">{item.description}</p>
+                  <h3 className="text-subheading text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-body">{item.description}</p>
                 </div>
               </Hover>
             ))}
@@ -154,11 +154,11 @@ export default function AboutPage() {
 
       {/* Vision Section */}
       <SlideIn direction="up">
-        <div className="bg-gradient-to-r from-cropper-green-50 to-cropper-blue-50 rounded-xl p-8 mb-16 shadow-soft transform hover:scale-[1.02] transition-transform duration-300">
-          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-4">
+        <div className="bg-gradient-to-r from-cropper-mint-100 to-cropper-mint-50 rounded-xl p-8 mb-16 shadow-soft transform hover:scale-[1.02] transition-transform duration-300">
+          <h2 className="text-heading text-center mb-4">
             One Planet, One World, One Trinidad and Tobago
           </h2>
-          <p className="text-gray-600 text-center max-w-3xl mx-auto mb-8">
+          <p className="text-body text-center max-w-3xl mx-auto mb-8">
             We all exist within nature, and sustainable development cannot happen without recognising 
             this interdependence. Through technical expertise, partnerships, and guided processes, 
             we ensure that development is informed by a holistic understanding of nature, equity, 
@@ -169,17 +169,17 @@ export default function AboutPage() {
 
       {/* Contact Section */}
       <FadeIn delay={0.4}>
-        <div className="text-center bg-white rounded-xl p-8 shadow-soft">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <div className="text-center card card-lg">
+          <h2 className="text-heading mb-4">
             Join Us in Creating Sustainable Change
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-body mb-4">
             Have questions about the CSO Self-Assessment Tool or The Cropper Foundation?
           </p>
           <Hover>
             <a
               href="mailto:info@thecropperfoundation.org"
-              className="inline-block bg-cropper-green-600 text-white px-6 py-3 rounded-full hover:bg-cropper-green-700 transition-colors duration-300"
+              className="btn-primary"
             >
               Contact Us
             </a>

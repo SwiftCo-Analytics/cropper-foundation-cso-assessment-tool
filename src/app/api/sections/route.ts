@@ -29,7 +29,17 @@ export async function GET() {
           orderBy: {
             order: 'asc',
           },
+          include: {
+            suggestions: {
+              where: { isActive: true },
+              orderBy: { priority: 'desc' }
+            }
+          }
         },
+        suggestions: {
+          where: { isActive: true },
+          orderBy: { priority: 'desc' }
+        }
       },
       orderBy: {
         order: 'asc',

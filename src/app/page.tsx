@@ -4,18 +4,21 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle, BarChart3, FileText } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
+import { useOrganizationAuth } from "@/hooks/useOrganizationAuth";
 
 export default function Home() {
+  const { isAuthenticated, organization, loading, navigateToAssessment } = useOrganizationAuth();
+
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-cropper-green-50/50 to-white pointer-events-none" />
-        <div className="container mx-auto px-4 py-24 relative">
+      <section className="relative overflow-hidden section-spacing">
+        <div className="absolute inset-0 bg-gradient-to-b from-cropper-mint-100/50 to-cropper-mint-50 pointer-events-none" />
+        <div className="content-container relative">
           <FadeIn>
-            <div className="max-w-3xl mx-auto text-center">
+            <div className="content-narrow text-center">
               <motion.h1 
-                className="text-5xl font-bold tracking-tight text-cropper-green-800 sm:text-6xl"
+                className="text-hero"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
@@ -23,7 +26,7 @@ export default function Home() {
                 CSO Self Assessment Tool
               </motion.h1>
               <motion.p 
-                className="mt-6 text-lg leading-8 text-gray-600"
+                className="text-body-lg mt-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
@@ -38,18 +41,19 @@ export default function Home() {
                 transition={{ duration: 0.7, delay: 0.4 }}
               >
                 <Hover>
-                  <Link
-                    href="/assessment/new"
-                    className="bg-cropper-green-600 text-white px-6 py-3 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center"
+                  <button
+                    onClick={navigateToAssessment}
+                    disabled={loading}
+                    className="btn-primary btn-lg"
                   >
-                    Start Assessment
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                    {loading ? "Loading..." : "Start Assessment"}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </button>
                 </Hover>
                 <Hover>
                   <Link
                     href="/about"
-                    className="text-cropper-green-600 hover:text-cropper-green-700 font-medium flex items-center"
+                    className="nav-link text-body-lg flex items-center"
                   >
                     Learn more <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
@@ -61,22 +65,22 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cropper-blue-50/30 via-transparent to-cropper-green-50/30 pointer-events-none" />
-        <div className="container mx-auto px-4 relative">
+      <section className="section-spacing bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-cropper-mint-100/30 via-transparent to-cropper-mint-50/30 pointer-events-none" />
+        <div className="content-container relative">
           <ScaleIn>
-            <div className="max-w-2xl mx-auto text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900">
+            <div className="section-header">
+              <h2 className="section-title">
                 Everything you need to assess your organization
               </h2>
-              <p className="mt-4 text-lg text-gray-600">
+              <p className="section-subtitle">
                 Our tool provides a structured approach to evaluating your organization's
                 practices across multiple dimensions.
               </p>
             </div>
           </ScaleIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          <div className="grid-cards">
             {[
               {
                 icon: CheckCircle,
@@ -102,12 +106,12 @@ export default function Home() {
             ].map((feature, index) => (
               <SlideIn key={index} direction="up" delay={feature.delay}>
                 <Hover>
-                  <div className="bg-white rounded-xl p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300">
+                  <div className="card">
                     <div className={`h-12 w-12 rounded-lg bg-cropper-${feature.color}-100 flex items-center justify-center mb-4`}>
                       <feature.icon className={`h-6 w-6 text-cropper-${feature.color}-600`} />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <h3 className="text-subheading mb-2">{feature.title}</h3>
+                    <p className="text-body">{feature.description}</p>
                   </div>
                 </Hover>
               </SlideIn>
@@ -117,26 +121,27 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cropper-green-50 to-cropper-blue-50 pointer-events-none" />
-        <div className="container mx-auto px-4 relative">
+      <section className="section-spacing-sm relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-cropper-mint-100 to-cropper-mint-50 pointer-events-none" />
+        <div className="content-container relative">
           <FadeIn delay={0.2}>
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-cropper-green-800 mb-4">
+            <div className="content-narrow text-center">
+              <h2 className="text-heading text-cropper-mint-800 mb-4">
                 Ready to improve your organization?
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
+              <p className="text-body-lg mb-8">
                 Start your assessment today and get actionable insights to enhance your
                 organization's effectiveness.
               </p>
               <Hover>
-                <Link
-                  href="/assessment/new"
-                  className="inline-block bg-cropper-green-600 text-white px-6 py-3 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center justify-center mx-auto w-fit"
+                <button
+                  onClick={navigateToAssessment}
+                  disabled={loading}
+                  className="btn-primary btn-lg"
                 >
-                  Begin Assessment
+                  {loading ? "Loading..." : "Begin Assessment"}
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                </button>
               </Hover>
             </div>
           </FadeIn>

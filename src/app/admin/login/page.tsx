@@ -48,9 +48,9 @@ export default function AdminLoginPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="card max-w-md w-full">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-full bg-cropper-green-100 flex items-center justify-center">
-            <Lock className="h-6 w-6 text-cropper-green-600" />
-          </div>
+                      <div className="mx-auto h-12 w-12 rounded-full bg-cropper-mint-100 flex items-center justify-center">
+              <Lock className="h-6 w-6 text-cropper-mint-600" />
+            </div>
           <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
             Admin Login
           </h2>

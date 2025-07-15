@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f0fdfa;
+  --foreground: #134e4a;
 }
 
 @theme inline {
@@ -16,48 +16,185 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f766e;
+    --foreground: #f0fdfa;
   }
 }
 
 @layer base {
   body {
-    @apply bg-white text-gray-900;
+    @apply bg-cropper-mint-50 text-gray-900;
   }
 
+  /* Typography Hierarchy */
   h1 {
-    @apply text-4xl font-bold tracking-tight text-cropper-green-800;
+    @apply text-4xl font-bold tracking-tight text-cropper-mint-800 sm:text-5xl;
   }
 
   h2 {
-    @apply text-2xl font-semibold text-cropper-green-700;
+    @apply text-2xl font-semibold text-cropper-mint-700 sm:text-3xl;
   }
 
   h3 {
-    @apply text-xl font-medium text-cropper-green-600;
+    @apply text-xl font-semibold text-cropper-mint-600 sm:text-2xl;
+  }
+
+  h4 {
+    @apply text-lg font-semibold text-gray-900;
+  }
+
+  h5 {
+    @apply text-base font-semibold text-gray-900;
+  }
+
+  h6 {
+    @apply text-sm font-semibold text-gray-900;
+  }
+
+  /* Consistent spacing for sections */
+  section {
+    @apply py-16 sm:py-24;
+  }
+
+  /* Consistent container spacing */
+  .container {
+    @apply px-4 sm:px-6 lg:px-8;
   }
 }
 
 @layer components {
+  /* Button System */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cropper-green-600 hover:bg-cropper-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-green-500 transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-cropper-mint-600 hover:bg-cropper-mint-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-mint-500 transition-colors duration-200;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-cropper-brown-300 rounded-md shadow-sm text-sm font-medium text-cropper-brown-700 bg-white hover:bg-cropper-brown-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-brown-500 transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-cropper-brown-300 rounded-lg shadow-sm text-base font-medium text-cropper-brown-700 bg-white hover:bg-cropper-brown-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-brown-500 transition-colors duration-200;
   }
 
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-8 py-4 text-lg;
+  }
+
+  /* Input System */
   .input-primary {
-    @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-cropper-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cropper-green-600 sm:text-sm sm:leading-6;
+    @apply block w-full rounded-lg border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-cropper-mint-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cropper-mint-600 text-base leading-6;
   }
 
+  /* Card System */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+    @apply bg-white rounded-xl shadow-soft border border-cropper-mint-200 p-6 hover:shadow-soft-lg transition-shadow duration-200;
   }
 
+  .card-lg {
+    @apply p-8;
+  }
+
+  .card-sm {
+    @apply p-4;
+  }
+
+  /* Navigation System */
   .nav-link {
-    @apply text-cropper-green-600 hover:text-cropper-green-800 font-medium transition-colors duration-200;
+    @apply text-cropper-mint-600 hover:text-cropper-mint-700 font-medium transition-colors duration-200;
+  }
+
+  /* Page Header System */
+  .page-header {
+    @apply mb-12;
+  }
+
+  .page-title {
+    @apply text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4;
+  }
+
+  .page-subtitle {
+    @apply text-xl text-gray-600;
+  }
+
+  .page-description {
+    @apply text-lg text-gray-700 mt-4;
+  }
+
+  /* Section Header System */
+  .section-header {
+    @apply mb-8 text-center;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold text-gray-900 mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-gray-700 max-w-2xl mx-auto;
+  }
+
+  /* Content Layout System */
+  .content-container {
+    @apply container mx-auto max-w-7xl;
+  }
+
+  .content-narrow {
+    @apply max-w-2xl mx-auto;
+  }
+
+  .content-wide {
+    @apply max-w-4xl mx-auto;
+  }
+
+  /* Grid System */
+  .grid-cards {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8;
+  }
+
+  .grid-stats {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+
+  /* Text Utilities */
+  .text-hero {
+    @apply text-5xl font-bold tracking-tight text-cropper-mint-800 sm:text-6xl;
+  }
+
+  .text-display {
+    @apply text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl;
+  }
+
+  .text-heading {
+    @apply text-2xl font-semibold text-gray-900 sm:text-3xl;
+  }
+
+  .text-subheading {
+    @apply text-xl font-semibold text-gray-900;
+  }
+
+  .text-body {
+    @apply text-base text-gray-700 leading-relaxed;
+  }
+
+  .text-body-lg {
+    @apply text-lg text-gray-700 leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-sm text-gray-600;
+  }
+
+  /* Spacing Utilities */
+  .section-spacing {
+    @apply py-16 sm:py-24;
+  }
+
+  .section-spacing-sm {
+    @apply py-12 sm:py-16;
+  }
+
+  .section-spacing-lg {
+    @apply py-20 sm:py-32;
   }
 }
 
@@ -75,8 +212,8 @@
   .bg-gradient-soft {
     background: linear-gradient(
       135deg,
-      theme('colors.cropper.green.50') 0%,
-      theme('colors.cropper.blue.50') 100%
+      theme('colors.cropper.mint.50') 0%,
+      theme('colors.cropper.mint.100') 100%
     );
   }
 }
@@ -130,10 +267,10 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: theme('colors.cropper.green.200');
+  background: theme('colors.cropper.mint.200');
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.cropper.green.300');
+  background: theme('colors.cropper.mint.300');
 }

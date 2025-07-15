@@ -22,6 +22,48 @@ const questionUpdateSchema = z.object({
   mandatory: z.boolean().optional(),
 });
 
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const question = await prisma.question.findUnique({
+      where: { id: params.id },
+      include: {
+        section: true,
+        suggestions: {
+          where: { isActive: true },
+          orderBy: { priority: 'desc' }
+        }
+      }
+    });
+
+    if (!question) {
+      return NextResponse.json(
+        { error: "Question not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(question);
+  } catch (error) {
+    console.error("Error fetching question:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch question" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, FileText, BarChart, ArrowRight } from "lucide-react";
+import { FileText, CheckCircle, Clock, Plus, ArrowRight, Calendar, AlertCircle, Download, Edit2, X } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 
@@ -22,9 +22,15 @@ interface Assessment {
   };
 }
 
+interface Organization {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export default function OrganizationDashboard() {
   const router = useRouter();
-  const [organization, setOrganization] = useState<any>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingAssessment, setEditingAssessment] = useState<string | null>(null);
@@ -32,12 +38,11 @@ export default function OrganizationDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("org_token");
-    if (!token) {
-      router.replace("/organization/login");
-      return;
+    if (token) {
+      fetchOrganizationData(token);
+    } else {
+      router.push("/organization/login");
     }
-
-    fetchOrganizationData(token);
   }, [router]);
 
   async function fetchOrganizationData(token: string) {
@@ -48,16 +53,18 @@ export default function OrganizationDashboard() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch organization data");
+      if (response.ok) {
+        const data = await response.json();
+        setOrganization(data.organization);
+        setAssessments(data.assessments || []);
+      } else {
+        localStorage.removeItem("org_token");
+        router.push("/organization/login");
       }
-
-      const data = await response.json();
-      setOrganization(data.organization);
-      setAssessments(data.assessments);
     } catch (error) {
       console.error("Error fetching organization data:", error);
-      router.replace("/organization/login");
+      localStorage.removeItem("org_token");
+      router.push("/organization/login");
     } finally {
       setLoading(false);
     }
@@ -72,17 +79,17 @@ export default function OrganizationDashboard() {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to download report");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `assessment-report-${assessmentId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `assessment-report-${assessmentId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
     } catch (error) {
       console.error("Error downloading report:", error);
     }
@@ -94,24 +101,17 @@ export default function OrganizationDashboard() {
       const response = await fetch("/api/organizations/assessments", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create new assessment");
+      if (response.ok) {
+        const data = await response.json();
+        router.push(`/assessment/${data.assessment.id}`);
       }
-
-      const data = await response.json();
-      
-      // Refresh the assessments list
-      await fetchOrganizationData(token!);
-      
-      // Redirect to the new assessment
-      router.push(`/assessment/${data.assessmentId}`);
     } catch (error) {
-      console.error("Error creating new assessment:", error);
+      console.error("Error creating assessment:", error);
     }
   }
 
@@ -121,25 +121,21 @@ export default function OrganizationDashboard() {
       const response = await fetch(`/api/organizations/assessments/${assessmentId}`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name: newName }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to rename assessment");
+      if (response.ok) {
+        setAssessments(prev => 
+          prev.map(a => 
+            a.id === assessmentId ? { ...a, name: newName } : a
+          )
+        );
+        setEditingAssessment(null);
+        setEditingName("");
       }
-
-      // Update the assessment in the local state
-      setAssessments(assessments.map(assessment => 
-        assessment.id === assessmentId 
-          ? { ...assessment, name: newName }
-          : assessment
-      ));
-
-      setEditingAssessment(null);
-      setEditingName("");
     } catch (error) {
       console.error("Error renaming assessment:", error);
     }
@@ -158,17 +154,17 @@ export default function OrganizationDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-green-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-mint-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="content-container section-spacing">
       <FadeIn>
-        <div className="mb-8">
+        <div className="page-header">
           <motion.h1 
-            className="text-4xl font-bold text-gray-900"
+            className="page-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -176,51 +172,55 @@ export default function OrganizationDashboard() {
             Organization Dashboard
           </motion.h1>
           <motion.p 
-            className="text-xl text-gray-600 mt-2"
+            className="page-subtitle"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            Welcome, {organization?.name}
+            Welcome back, <span className="font-semibold text-cropper-mint-700">{organization?.name}</span>
           </motion.p>
         </div>
       </FadeIn>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div className="grid-stats mb-16">
         {[
           {
             title: "Total Assessments",
             value: assessments.length,
             icon: FileText,
             color: "green",
-            delay: 0
+            delay: 0,
+            description: "All assessments created"
           },
           {
             title: "Completed",
             value: assessments.filter(a => a.status === "COMPLETED").length,
-            icon: BarChart,
+            icon: CheckCircle,
             color: "blue",
-            delay: 0.1
+            delay: 0.1,
+            description: "Successfully finished"
           },
           {
             title: "In Progress",
             value: assessments.filter(a => a.status === "IN_PROGRESS").length,
-            icon: FileText,
+            icon: Clock,
             color: "brown",
-            delay: 0.2
+            delay: 0.2,
+            description: "Currently being worked on"
           }
         ].map((stat, index) => (
           <SlideIn key={index} direction="up" delay={stat.delay}>
             <Hover>
-              <div className={`bg-white rounded-xl p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300 border border-${stat.color}-100`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className={`text-lg font-semibold text-cropper-${stat.color}-800`}>{stat.title}</h3>
-                    <p className={`text-3xl font-bold text-cropper-${stat.color}-600`}>{stat.value}</p>
+              <div className={`card border-${stat.color}-100 h-full`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`h-16 w-16 rounded-xl bg-cropper-${stat.color}-100 flex items-center justify-center`}>
+                    <stat.icon className={`h-8 w-8 text-cropper-${stat.color}-600`} />
                   </div>
-                  <div className={`h-12 w-12 rounded-lg bg-cropper-${stat.color}-100 flex items-center justify-center`}>
-                    <stat.icon className={`h-6 w-6 text-cropper-${stat.color}-600`} />
-                  </div>
+                </div>
+                <div>
+                  <h3 className={`text-2xl font-bold text-cropper-${stat.color}-800 mb-2`}>{stat.value}</h3>
+                  <p className="text-subheading text-gray-900 mb-1">{stat.title}</p>
+                  <p className="text-caption">{stat.description}</p>
                 </div>
               </div>
             </Hover>
@@ -229,42 +229,53 @@ export default function OrganizationDashboard() {
       </div>
 
       <ScaleIn>
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">Your Assessments</h2>
+            <div>
+              <h2 className="text-heading mb-2">Your Assessments</h2>
+              <p className="text-body">Manage and track your assessment progress</p>
+            </div>
             <Hover>
               <button
                 onClick={handleStartNewAssessment}
-                className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center"
+                className="btn-primary btn-lg"
               >
+                <Plus className="mr-2 h-5 w-5" />
                 Start New Assessment
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-5 w-5" />
               </button>
             </Hover>
           </div>
           
           {assessments.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl shadow-soft p-8">
-              <p className="text-gray-600 mb-6">No assessments found.</p>
+            <div className="text-center py-16 card card-lg">
+              <div className="w-24 h-24 bg-cropper-mint-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText className="h-12 w-12 text-cropper-mint-600" />
+              </div>
+              <h3 className="text-heading mb-4">No assessments yet</h3>
+              <p className="text-body mb-8 max-w-md mx-auto">
+                Get started by creating your first assessment to evaluate your organization's current state.
+              </p>
               <Hover>
                 <button
                   onClick={handleStartNewAssessment}
-                  className="bg-cropper-green-600 text-white px-6 py-3 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center mx-auto"
+                  className="btn-primary btn-lg"
                 >
-                  Start New Assessment
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Plus className="mr-2 h-5 w-5" />
+                  Start Your First Assessment
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
               </Hover>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {assessments.map((assessment, index) => (
                 <SlideIn key={assessment.id} direction="right" delay={index * 0.1}>
                   <Hover>
-                    <div className="bg-white rounded-xl p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="flex items-center space-x-3">
+                    <div className="card h-full">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-4">
                             {editingAssessment === assessment.id ? (
                               <input
                                 type="text"
@@ -278,100 +289,111 @@ export default function OrganizationDashboard() {
                                     cancelEditing();
                                   }
                                 }}
-                                className="text-lg font-medium focus:outline-none border-b border-gray-300 focus:border-cropper-green-600"
+                                className="text-xl font-semibold focus:outline-none border-b-2 border-gray-300 focus:border-cropper-mint-600 bg-transparent"
                                 placeholder="Enter assessment name"
                                 autoFocus
                               />
                             ) : (
-                              <h3 className="text-lg font-medium">
+                              <h3 className="text-subheading text-gray-900">
                                 {assessment.name || `Assessment ${assessment.id.slice(0, 8)}`}
                               </h3>
                             )}
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              className={`px-4 py-2 rounded-full text-sm font-medium ${
                                 assessment.status === "COMPLETED"
-                                  ? "bg-cropper-green-100 text-cropper-green-800"
+                                  ? "bg-cropper-mint-100 text-cropper-mint-800"
                                   : "bg-cropper-brown-100 text-cropper-brown-800"
                               }`}
                             >
                               {assessment.status === "COMPLETED" ? "Completed" : "In Progress"}
                             </span>
                           </div>
-                          <div className="mt-2 text-sm text-gray-600">
-                            <p>Started: {new Date(assessment.startedAt).toLocaleDateString()} at {new Date(assessment.startedAt).toLocaleTimeString()}</p>
+                          
+                          <div className="space-y-3 text-caption">
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="h-4 w-4" />
+                              <span>Started: {new Date(assessment.startedAt).toLocaleDateString()} at {new Date(assessment.startedAt).toLocaleTimeString()}</span>
+                            </div>
                             {assessment.completedAt && (
-                              <p>
-                                Completed: {new Date(assessment.completedAt).toLocaleDateString()} at {new Date(assessment.completedAt).toLocaleTimeString()}
-                              </p>
+                              <div className="flex items-center space-x-2">
+                                <CheckCircle className="h-4 w-4 text-cropper-mint-600" />
+                                <span>Completed: {new Date(assessment.completedAt).toLocaleDateString()} at {new Date(assessment.completedAt).toLocaleTimeString()}</span>
+                              </div>
                             )}
                             {assessment.status === "IN_PROGRESS" && (
-                              <p className="text-cropper-brown-600 font-medium">
-                                • Progress saved - you can continue where you left off
-                              </p>
+                              <div className="flex items-center space-x-2">
+                                <Clock className="h-4 w-4 text-cropper-brown-600" />
+                                <span className="text-cropper-brown-600 font-medium">
+                                  Progress saved - you can continue where you left off
+                                </span>
+                              </div>
                             )}
                             {assessment.status === "IN_PROGRESS" && (
-                              <p className="text-red-600 text-xs mt-1">
-                                ⚠️ Some sections may have mandatory questions that need to be completed
-                              </p>
+                              <div className="flex items-center space-x-2">
+                                <AlertCircle className="h-4 w-4 text-red-500" />
+                                <span className="text-red-600 text-xs">
+                                  Some sections may have mandatory questions that need to be completed
+                                </span>
+                              </div>
                             )}
                           </div>
                         </div>
+                      </div>
 
-                        <div className="flex items-center space-x-4">
-                          {editingAssessment === assessment.id ? (
-                            <>
-                              <button
-                                onClick={() => handleRenameAssessment(assessment.id, editingName)}
-                                className="bg-cropper-green-600 text-white px-4 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center"
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={cancelEditing}
-                                className="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center"
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              {assessment.status === "IN_PROGRESS" ? (
-                                <>
-                                  <button
-                                    onClick={() => startEditing(assessment)}
-                                    className="text-cropper-blue-600 hover:text-cropper-blue-700 font-medium flex items-center"
-                                  >
-                                    Rename
-                                  </button>
-                                  <button
-                                    onClick={() => router.push(`/assessment/${assessment.id}`)}
-                                    className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center"
-                                  >
-                                    Continue Assessment
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    onClick={() => router.push(`/assessment/${assessment.id}`)}
-                                    className="text-cropper-green-600 hover:text-cropper-green-700 font-medium flex items-center"
-                                  >
-                                    View Responses
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDownloadReport(assessment.id)}
-                                    className="bg-cropper-blue-600 text-white px-6 py-2 rounded-full hover:bg-cropper-blue-700 transition-colors duration-300 flex items-center"
-                                  >
-                                    <Download className="h-4 w-4 mr-2" />
-                                    Download Report
-                                  </button>
-                                </>
-                              )}
-                            </>
-                          )}
-                        </div>
+                      <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                        {editingAssessment === assessment.id ? (
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={() => handleRenameAssessment(assessment.id, editingName)}
+                              className="btn-primary btn-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-300"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-4">
+                            {assessment.status === "IN_PROGRESS" ? (
+                              <>
+                                <button
+                                  onClick={() => startEditing(assessment)}
+                                  className="text-cropper-blue-600 hover:text-cropper-blue-700 font-medium"
+                                >
+                                  Rename
+                                </button>
+                                <button
+                                  onClick={() => router.push(`/assessment/${assessment.id}`)}
+                                  className="btn-primary"
+                                >
+                                  Continue Assessment
+                                  <ArrowRight className="ml-2 h-4 w-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => router.push(`/assessment/${assessment.id}`)}
+                                  className="nav-link flex items-center"
+                                >
+                                  View Responses
+                                  <ArrowRight className="ml-2 h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDownloadReport(assessment.id)}
+                                  className="btn-secondary"
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Download Report
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Hover>

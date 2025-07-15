@@ -24,6 +24,41 @@ const questionSchema = z.object({
   mandatory: z.boolean().optional().default(false),
 });
 
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const questions = await prisma.question.findMany({
+      include: {
+        section: true,
+        suggestions: {
+          where: { isActive: true },
+          orderBy: { priority: 'desc' }
+        }
+      },
+      orderBy: [
+        { section: { order: 'asc' } },
+        { order: 'asc' }
+      ]
+    });
+
+    return NextResponse.json(questions);
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch questions" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);

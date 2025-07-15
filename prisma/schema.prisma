@@ -44,7 +44,9 @@ model Section {
   title       String
   description String?
   order       Int
+  weight      Float     @default(1.0) // Weight of this section in overall assessment
   questions   Question[]
+  suggestions SectionSuggestion[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -58,9 +60,11 @@ model Question {
   type        QuestionType
   options     Json?      // For multiple choice questions
   order       Int
+  weight      Float     @default(1.0) // Weight of this question within its section
   isHidden    Boolean    @default(false)
   mandatory   Boolean    @default(false)
   responses   Response[]
+  suggestions QuestionSuggestion[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -74,6 +78,46 @@ model Response {
   value        Json       // The response value (can be string, number, boolean, or array)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+// Question-level suggestions based on specific response values
+model QuestionSuggestion {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id])
+  condition   Json     // Conditions that trigger this suggestion (e.g., {"value": "low", "operator": "equals"})
+  suggestion  String   // The suggestion text
+  priority    Int      @default(0) // Priority level (higher = more important)
+  weight      Float    @default(1.0) // Weight of this suggestion
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Section-level suggestions based on aggregated responses
+model SectionSuggestion {
+  id          String   @id @default(cuid())
+  sectionId   String
+  section     Section  @relation(fields: [sectionId], references: [id])
+  condition   Json     // Conditions that trigger this suggestion (e.g., {"minScore": 0.6, "maxScore": 0.8})
+  suggestion  String   // The suggestion text
+  priority    Int      @default(0) // Priority level (higher = more important)
+  weight      Float    @default(1.0) // Weight of this suggestion
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Assessment-level suggestions based on overall scores
+model AssessmentSuggestion {
+  id          String   @id @default(cuid())
+  condition   Json     // Conditions that trigger this suggestion (e.g., {"overallScore": {"min": 0.7, "max": 0.9}})
+  suggestion  String   // The suggestion text
+  priority    Int      @default(0) // Priority level (higher = more important)
+  weight      Float    @default(1.0) // Weight of this suggestion
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Recommendation {
@@ -93,8 +137,24 @@ model Report {
   assessment   Assessment @relation(fields: [assessmentId], references: [id])
   content      Json       // The report content including scores and recommendations
   recommendations Recommendation[] @relation("ReportRecommendations")
+  suggestions  ReportSuggestion[] // Generated suggestions for this report
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+// Generated suggestions for a specific assessment report
+model ReportSuggestion {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      Report   @relation(fields: [reportId], references: [id])
+  type        SuggestionType // QUESTION, SECTION, or ASSESSMENT
+  sourceId    String?  // ID of the question/section that triggered this suggestion
+  suggestion  String   // The actual suggestion text
+  priority    Int      @default(0)
+  weight      Float    @default(1.0)
+  metadata    Json?    // Additional metadata about the suggestion
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Admin {
@@ -117,4 +177,10 @@ enum QuestionType {
   LIKERT_SCALE
   TEXT
   BOOLEAN
+}
+
+enum SuggestionType {
+  QUESTION
+  SECTION
+  ASSESSMENT
 }

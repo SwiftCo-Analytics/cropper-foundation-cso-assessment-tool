@@ -45,12 +45,12 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm border-b border-cropper-mint-200">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="w-full py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-cropper-green-600">
+              <Link href="/" className="text-2xl font-bold text-cropper-mint-600">
                 CSO Assessment Tool
               </Link>
             </div>
@@ -61,8 +61,8 @@ export default function Header() {
                 href="/"
                 className={`text-base font-medium ${
                   pathname === "/"
-                    ? "text-cropper-green-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-cropper-mint-600"
+                    : "text-gray-600 hover:text-cropper-mint-700"
                 }`}
               >
                 Home
@@ -71,8 +71,8 @@ export default function Header() {
                 href="/about"
                 className={`text-base font-medium ${
                   pathname === "/about"
-                    ? "text-cropper-green-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-cropper-mint-600"
+                    : "text-gray-600 hover:text-cropper-mint-700"
                 }`}
               >
                 About
@@ -82,8 +82,8 @@ export default function Header() {
                 href="/privacy"
                 className={`text-base font-medium ${
                   pathname === "/privacy"
-                    ? "text-cropper-green-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-cropper-mint-600"
+                    : "text-gray-600 hover:text-cropper-mint-700"
                 }`}
               >
                 Privacy Policy
@@ -93,8 +93,8 @@ export default function Header() {
                 href="/terms"
                 className={`text-base font-medium ${
                   pathname === "/terms"
-                    ? "text-cropper-green-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-cropper-mint-600"
+                    : "text-gray-600 hover:text-cropper-mint-700"
                 }`}
               >
                 Terms of Service
@@ -136,7 +136,7 @@ export default function Header() {
               {/* Admin Auth */}
               {status === "authenticated" && session?.user ? (
                 <div className="relative group">
-                  <button className="flex items-center space-x-1 text-base font-medium text-cropper-green-600">
+                  <button className="flex items-center space-x-1 text-base font-medium text-cropper-mint-600">
                     <span>Admin: {session.user.name || 'Admin'}</span>
                     <ChevronDown className="h-4 w-4" />
                   </button>
@@ -159,7 +159,7 @@ export default function Header() {
                 !isAdminPath && (
                   <Link
                     href="/admin/login"
-                    className="text-base font-medium text-cropper-green-600 hover:text-cropper-green-500"
+                    className="text-base font-medium text-cropper-mint-600 hover:text-cropper-mint-500"
                   >
                     Admin Login
                   </Link>
@@ -193,8 +193,8 @@ export default function Header() {
                 href="/"
                 className={`text-base font-medium ${
                   pathname === "/"
-                    ? "text-cropper-green-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-cropper-mint-600"
+                    : "text-gray-600 hover:text-cropper-mint-700"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -204,8 +204,8 @@ export default function Header() {
                 href="/about"
                 className={`text-base font-medium ${
                   pathname === "/about"
-                    ? "text-cropper-green-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-cropper-mint-600"
+                    : "text-gray-600 hover:text-cropper-mint-700"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >

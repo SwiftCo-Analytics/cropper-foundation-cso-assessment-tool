@@ -34,6 +34,7 @@ interface Assessment {
 interface Response {
   id: string;
   value: any;
+  createdAt: string;
   question: {
     id: string;
     text: string;

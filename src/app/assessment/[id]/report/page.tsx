@@ -80,7 +80,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-green-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-mint-600"></div>
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Assessment Not Found</h1>
           <Link
             href="/organization/dashboard"
-            className="text-cropper-green-600 hover:text-cropper-green-700"
+                          className="text-cropper-mint-600 hover:text-cropper-mint-700"
           >
             Return to Dashboard
           </Link>
@@ -107,7 +107,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         <div className="mb-8">
           <Link
             href="/organization/dashboard"
-            className="inline-flex items-center text-cropper-green-600 hover:text-cropper-green-700 mb-4"
+            className="inline-flex items-center text-cropper-mint-600 hover:text-cropper-mint-700 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
@@ -128,7 +128,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
               )}
             </div>
             
-            <div className="flex items-center space-x-2 text-cropper-green-600">
+            <div className="flex items-center space-x-2 text-cropper-mint-600">
               <CheckCircle className="h-6 w-6" />
               <span className="font-medium">Completed</span>
             </div>
@@ -164,7 +164,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
               <div className="flex items-center">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   assessment.status === "COMPLETED"
-                    ? "bg-cropper-green-100 text-cropper-green-800"
+                    ? "bg-cropper-mint-100 text-cropper-mint-800"
                     : "bg-cropper-brown-100 text-cropper-brown-800"
                 }`}>
                   {assessment.status === "COMPLETED" ? "Completed" : "In Progress"}
@@ -190,7 +190,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
               <button
                 onClick={handleDownloadReport}
                 disabled={downloading}
-                className="bg-cropper-green-600 text-white px-6 py-3 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center justify-center"
+                className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
               >
                 {downloading ? (
                   "Downloading..."

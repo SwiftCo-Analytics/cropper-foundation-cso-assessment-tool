@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, CheckCircle, Clock, Plus, ArrowRight, Calendar, AlertCircle, Download, Edit2, X } from "lucide-react";
+import Link from "next/link";
+import { FileText, CheckCircle, Clock, Plus, ArrowRight, Calendar, AlertCircle, Download, Edit2, X, BarChart } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 
@@ -240,22 +241,49 @@ export default function OrganizationDashboard() {
             color: "brown",
             delay: 0.2,
             description: "Currently being worked on"
+          },
+          {
+            title: "View Reports",
+            value: "Analytics",
+            icon: BarChart,
+            color: "purple",
+            delay: 0.3,
+            description: "Track your progress",
+            isLink: true,
+            href: "/organization/reports"
           }
         ].map((stat, index) => (
           <SlideIn key={index} direction="up" delay={stat.delay}>
             <Hover>
-              <div className={`card border-${stat.color}-100 h-full`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`h-16 w-16 rounded-xl bg-cropper-${stat.color}-100 flex items-center justify-center`}>
-                    <stat.icon className={`h-8 w-8 text-cropper-${stat.color}-600`} />
+              {stat.isLink ? (
+                <Link href={stat.href!} className="block">
+                  <div className={`card border-${stat.color}-100 h-full cursor-pointer hover:shadow-lg transition-all duration-300`}>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`h-16 w-16 rounded-xl bg-cropper-${stat.color}-100 flex items-center justify-center`}>
+                        <stat.icon className={`h-8 w-8 text-cropper-${stat.color}-600`} />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className={`text-2xl font-bold text-cropper-${stat.color}-800 mb-2`}>{stat.value}</h3>
+                      <p className="text-subheading text-gray-900 mb-1">{stat.title}</p>
+                      <p className="text-caption">{stat.description}</p>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div className={`card border-${stat.color}-100 h-full`}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`h-16 w-16 rounded-xl bg-cropper-${stat.color}-100 flex items-center justify-center`}>
+                      <stat.icon className={`h-8 w-8 text-cropper-${stat.color}-600`} />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className={`text-2xl font-bold text-cropper-${stat.color}-800 mb-2`}>{stat.value}</h3>
+                    <p className="text-subheading text-gray-900 mb-1">{stat.title}</p>
+                    <p className="text-caption">{stat.description}</p>
                   </div>
                 </div>
-                <div>
-                  <h3 className={`text-2xl font-bold text-cropper-${stat.color}-800 mb-2`}>{stat.value}</h3>
-                  <p className="text-subheading text-gray-900 mb-1">{stat.title}</p>
-                  <p className="text-caption">{stat.description}</p>
-                </div>
-              </div>
+              )}
             </Hover>
           </SlideIn>
         ))}
@@ -268,16 +296,28 @@ export default function OrganizationDashboard() {
               <h2 className="text-heading mb-2">Your Assessments</h2>
               <p className="text-body">Manage and track your assessment progress</p>
             </div>
-            <Hover>
-              <button
-                onClick={handleStartNewAssessment}
-                className="btn-primary btn-lg"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                Start New Assessment
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </button>
-            </Hover>
+            <div className="flex items-center space-x-4">
+              <Hover>
+                <Link
+                  href="/organization/reports"
+                  className="btn-secondary btn-lg"
+                >
+                  <BarChart className="mr-2 h-5 w-5" />
+                  View Reports
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Hover>
+              <Hover>
+                <button
+                  onClick={handleStartNewAssessment}
+                  className="btn-primary btn-lg"
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  Start New Assessment
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </button>
+              </Hover>
+            </div>
           </div>
           
           {assessments.length === 0 ? (

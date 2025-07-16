@@ -23,16 +23,33 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
               >
-                CSO Self Assessment Tool
+                <div className="text-center">
+                  <div className="flex justify-start mb-2">
+                    <div className="text-cropper-mint-700 text-lg md:text-xl font-medium text-left">
+                      The Cropper Foundation
+                    </div>
+                  </div>
+                  <div className="text-cropper-mint-800 font-bold text-4xl md:text-5xl lg:text-6xl mb-2">
+                    Self Assessment
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="text-cropper-mint-600 text-lg md:text-xl font-medium text-right">
+                      for Civil Society Organizations
+                    </div>
+                  </div>
+                </div>
               </motion.h1>
               <motion.p 
-                className="text-body-lg mt-6"
+                className="text-body-lg mt-6 text-gray-700 leading-relaxed max-w-2xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
               >
-                A comprehensive tool for Civil Society Organizations to evaluate their practices,
-                identify strengths, and discover areas for improvement.
+                A powerful, comprehensive tool designed to help Civil Society Organizations 
+                <span className="text-cropper-mint-700 font-medium"> evaluate their practices</span>,
+                <span className="text-cropper-mint-700 font-medium"> identify key strengths</span>, and
+                <span className="text-cropper-mint-700 font-medium"> discover opportunities</span> for 
+                sustainable growth and improvement.
               </motion.p>
               <motion.div 
                 className="mt-10 flex items-center justify-center gap-x-6"

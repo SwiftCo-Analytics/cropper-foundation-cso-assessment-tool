@@ -50,8 +50,16 @@ export default function Header() {
         <div className="w-full py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-cropper-mint-600">
-                CSO Assessment Tool
+              <Link href="/" className="flex flex-col items-center text-center">
+                <div className="text-cropper-mint-700 text-xs font-medium leading-tight">
+                  The Cropper Foundation
+                </div>
+                <div className="text-cropper-mint-800 font-bold text-lg md:text-xl leading-tight">
+                  Self Assessment Tool
+                </div>
+                <div className="text-cropper-mint-600 text-xs font-medium leading-tight">
+                  for Civil Society Organizations
+                </div>
               </Link>
             </div>
 

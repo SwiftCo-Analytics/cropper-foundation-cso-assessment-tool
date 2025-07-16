@@ -2,6 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { AlertTriangle, RefreshCw, Home, Building2, Shield, ArrowRight, Bug } from 'lucide-react';
+import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
+import { motion } from "framer-motion";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -10,62 +13,130 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   return (
-    <main className="min-h-screen bg-mint-50 flex flex-col items-center justify-center py-16 px-4">
-      <div className="max-w-2xl mx-auto text-center">
-        {/* Error Icon */}
-        <div className="mb-8">
-          <div className="w-20 h-20 bg-mint-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-10 h-10 text-mint-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <div className="w-32 h-2 bg-mint-400 mx-auto rounded-full"></div>
-        </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cropper-mint-100/50 to-cropper-mint-50 pointer-events-none" />
+      
+      <div className="content-container relative min-h-screen flex items-center justify-center py-12">
+        <FadeIn>
+          <div className="content-narrow text-center">
+            <ScaleIn>
+              <div className="card card-lg max-w-2xl mx-auto">
+                {/* Error Icon */}
+                <motion.div 
+                  className="mb-8"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="mx-auto h-20 w-20 rounded-xl bg-red-100 flex items-center justify-center mb-6">
+                    <AlertTriangle className="h-10 w-10 text-red-600" />
+                  </div>
+                  <h1 className="text-heading mb-4">Something went wrong!</h1>
+                  <div className="w-32 h-2 bg-cropper-mint-400 mx-auto rounded-full"></div>
+                </motion.div>
 
-        {/* Error Message */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
-          <h1 className="text-heading font-bold text-mint-900 mb-6">Something went wrong!</h1>
-          <p className="text-body text-mint-700 mb-8">
-            An unexpected error occurred. Please try again or contact support if the problem persists.
-          </p>
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={reset}
-              className="inline-flex items-center px-6 py-3 bg-mint-600 text-white font-medium rounded-lg hover:bg-mint-700 transition-colors duration-200 shadow-md hover:shadow-lg"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Try again
-            </button>
-            <Link
-              href="/"
-              className="inline-flex items-center px-6 py-3 border-2 border-mint-300 text-mint-700 font-medium rounded-lg hover:bg-mint-50 transition-colors duration-200"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              Go home
-            </Link>
-          </div>
-        </div>
+                {/* Error Message */}
+                <SlideIn delay={0.2}>
+                  <div className="mb-8">
+                    <p className="text-body-lg text-gray-700 mb-6">
+                      An unexpected error occurred. Please try again or choose one of the options below.
+                    </p>
+                    <p className="text-body text-gray-600">
+                      If the problem persists, please contact our support team.
+                    </p>
+                  </div>
+                </SlideIn>
 
-        {/* Development Error Details */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <details className="cursor-pointer">
-              <summary className="font-semibold text-mint-900 mb-4 text-left">Error Details</summary>
-              <div className="mt-4 p-4 bg-mint-50 rounded-lg">
-                <pre className="text-sm text-mint-800 whitespace-pre-wrap text-left">
-                  {error.message}
-                </pre>
+                {/* Primary Action - Retry */}
+                <SlideIn delay={0.4}>
+                  <Hover>
+                    <button
+                      onClick={reset}
+                      className="btn-primary btn-lg inline-flex items-center mb-6"
+                    >
+                      <RefreshCw className="mr-2 h-5 w-5" />
+                      Try Again
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </button>
+                  </Hover>
+                </SlideIn>
+
+                {/* Navigation Options */}
+                <SlideIn delay={0.6}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <Hover>
+                      <Link 
+                        href="/" 
+                        className="card card-sm text-center hover:shadow-soft-lg transition-all duration-300 group"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-cropper-mint-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-mint-200 transition-colors duration-200">
+                          <Home className="h-6 w-6 text-cropper-mint-600" />
+                        </div>
+                        <h3 className="text-subheading mb-2">Go Home</h3>
+                        <p className="text-caption text-gray-600">Return to the main page</p>
+                      </Link>
+                    </Hover>
+
+                    <Hover>
+                      <Link 
+                        href="/organization/login" 
+                        className="card card-sm text-center hover:shadow-soft-lg transition-all duration-300 group"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-cropper-blue-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-blue-200 transition-colors duration-200">
+                          <Building2 className="h-6 w-6 text-cropper-blue-600" />
+                        </div>
+                        <h3 className="text-subheading mb-2">Organization Login</h3>
+                        <p className="text-caption text-gray-600">Access your organization dashboard</p>
+                      </Link>
+                    </Hover>
+
+                    <Hover>
+                      <Link 
+                        href="/admin/login" 
+                        className="card card-sm text-center hover:shadow-soft-lg transition-all duration-300 group"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-cropper-brown-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-brown-200 transition-colors duration-200">
+                          <Shield className="h-6 w-6 text-cropper-brown-600" />
+                        </div>
+                        <h3 className="text-subheading mb-2">Admin Access</h3>
+                        <p className="text-caption text-gray-600">Administrative dashboard</p>
+                      </Link>
+                    </Hover>
+                  </div>
+                </SlideIn>
+
+                {/* Development Error Details */}
+                {process.env.NODE_ENV === 'development' && (
+                  <motion.div 
+                    className="mt-8 pt-6 border-t border-gray-200"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.7, delay: 0.8 }}
+                  >
+                    <details className="cursor-pointer">
+                      <summary className="font-semibold text-gray-900 mb-4 text-left flex items-center">
+                        <Bug className="h-4 w-4 mr-2 text-gray-600" />
+                        Error Details (Development)
+                      </summary>
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <pre className="text-sm text-gray-800 whitespace-pre-wrap text-left">
+                          {error.message}
+                        </pre>
+                        {error.digest && (
+                          <div className="mt-2 text-xs text-gray-600">
+                            Error ID: {error.digest}
+                          </div>
+                        )}
+                      </div>
+                    </details>
+                  </motion.div>
+                )}
               </div>
-            </details>
+            </ScaleIn>
           </div>
-        )}
+        </FadeIn>
       </div>
-    </main>
+    </div>
   );
 } 

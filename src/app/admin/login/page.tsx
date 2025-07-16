@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock } from "lucide-react";
+import { Lock, Shield, ArrowLeft } from "lucide-react";
+import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -45,77 +48,142 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="card max-w-md w-full">
-        <div className="text-center">
-                      <div className="mx-auto h-12 w-12 rounded-full bg-cropper-mint-100 flex items-center justify-center">
-              <Lock className="h-6 w-6 text-cropper-mint-600" />
-            </div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            Admin Login
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Access the administrative dashboard
-          </p>
-        </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="input-primary mt-1"
-                placeholder="Enter your email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="input-primary mt-1"
-                placeholder="Enter your password"
-              />
-            </div>
-          </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cropper-mint-100/50 to-cropper-mint-50 pointer-events-none" />
+      
+      <div className="content-container relative min-h-screen flex items-center justify-center py-12">
+        <FadeIn>
+          <div className="content-narrow">
+            <ScaleIn>
+              <div className="card card-lg max-w-md w-full mx-auto">
+                <div className="text-center mb-8">
+                  <motion.div 
+                    className="mx-auto h-16 w-16 rounded-xl bg-cropper-mint-100 flex items-center justify-center mb-6"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Shield className="h-8 w-8 text-cropper-mint-600" />
+                  </motion.div>
+                  
+                  <motion.h1 
+                    className="page-title text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                  >
+                    Admin Access
+                  </motion.h1>
+                  
+                  <motion.p 
+                    className="page-subtitle text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 }}
+                  >
+                    Access the administrative dashboard
+                  </motion.p>
+                </div>
+                
+                <SlideIn delay={0.4}>
+                  <form className="space-y-6" onSubmit={onSubmit}>
+                    <div className="space-y-4">
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                          Email address
+                        </label>
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          className="input-primary"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                          Password
+                        </label>
+                        <input
+                          id="password"
+                          name="password"
+                          type="password"
+                          autoComplete="current-password"
+                          required
+                          className="input-primary"
+                          placeholder="Enter your password"
+                        />
+                      </div>
+                    </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+                    {error && (
+                      <motion.div 
+                        className="rounded-lg bg-red-50 border border-red-200 p-4"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="flex">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm text-red-700">{error}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <Hover>
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={`btn-primary btn-lg w-full ${
+                          isLoading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                            Signing in...
+                          </div>
+                        ) : (
+                          <div className="flex items-center">
+                            <Lock className="mr-2 h-5 w-5" />
+                            Sign in
+                          </div>
+                        )}
+                      </button>
+                    </Hover>
+                  </form>
+                </SlideIn>
+
+                <motion.div 
+                  className="mt-8 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.7, delay: 0.6 }}
+                >
+                  <Hover>
+                    <Link
+                      href="/"
+                      className="nav-link inline-flex items-center"
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Home
+                    </Link>
+                  </Hover>
+                </motion.div>
               </div>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`btn-primary w-full ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isLoading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+            </ScaleIn>
+          </div>
+        </FadeIn>
       </div>
     </div>
   );

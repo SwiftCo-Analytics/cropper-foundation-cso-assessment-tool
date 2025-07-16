@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Building2, ArrowLeft, Users, Lock } from "lucide-react";
+import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function OrganizationLogin() {
@@ -80,130 +82,214 @@ export default function OrganizationLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            {isLogin ? "Organization Login" : "Register Organization"}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isLogin ? (
-              <>
-                Don't have an account?{" "}
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className="text-cropper-green-600 hover:text-cropper-green-500"
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cropper-mint-100/50 to-cropper-mint-50 pointer-events-none" />
+      
+      <div className="content-container relative min-h-screen flex items-center justify-center py-12">
+        <FadeIn>
+          <div className="content-narrow">
+            <ScaleIn>
+              <div className="card card-lg max-w-md w-full mx-auto">
+                <div className="text-center mb-8">
+                  <motion.div 
+                    className="mx-auto h-16 w-16 rounded-xl bg-cropper-mint-100 flex items-center justify-center mb-6"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Building2 className="h-8 w-8 text-cropper-mint-600" />
+                  </motion.div>
+                  
+                  <motion.h1 
+                    className="page-title text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                  >
+                    {isLogin ? "Organization Login" : "Register Organization"}
+                  </motion.h1>
+                  
+                  <motion.p 
+                    className="page-subtitle text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 }}
+                  >
+                    {isLogin ? (
+                      <>
+                        Don't have an account?{" "}
+                        <button
+                          onClick={() => setIsLogin(false)}
+                          className="text-cropper-mint-600 hover:text-cropper-mint-700 font-medium transition-colors duration-200"
+                        >
+                          Register here
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        Already have an account?{" "}
+                        <button
+                          onClick={() => setIsLogin(true)}
+                          className="text-cropper-mint-600 hover:text-cropper-mint-700 font-medium transition-colors duration-200"
+                        >
+                          Login here
+                        </button>
+                      </>
+                    )}
+                  </motion.p>
+                </div>
+                
+                <SlideIn delay={0.4}>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {!isLogin && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-700 mb-2"
+                        >
+                          Organization Name
+                        </label>
+                        <input
+                          id="name"
+                          name="name"
+                          type="text"
+                          required={!isLogin}
+                          value={formData.name}
+                          onChange={(e) =>
+                            setFormData({ ...formData, name: e.target.value })
+                          }
+                          className="input-primary"
+                          placeholder="Enter your organization name"
+                        />
+                      </motion.div>
+                    )}
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: !isLogin ? 0.1 : 0 }}
+                    >
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="input-primary"
+                        placeholder="Enter your email"
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: !isLogin ? 0.2 : 0.1 }}
+                    >
+                      <label
+                        htmlFor="password"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Password
+                      </label>
+                      <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
+                        className="input-primary"
+                        placeholder="Enter your password"
+                      />
+                    </motion.div>
+
+                    {error && (
+                      <motion.div 
+                        className="rounded-lg bg-red-50 border border-red-200 p-4"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="flex">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm text-red-700">{error}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <Hover>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn-primary btn-lg w-full flex justify-center items-center"
+                      >
+                        {loading ? (
+                          <div className="flex items-center">
+                            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                            {isLogin ? "Signing In..." : "Registering..."}
+                          </div>
+                        ) : (
+                          <div className="flex items-center">
+                            {isLogin ? (
+                              <>
+                                <Lock className="mr-2 h-5 w-5" />
+                                Sign In
+                              </>
+                            ) : (
+                              <>
+                                <Users className="mr-2 h-5 w-5" />
+                                Register
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </button>
+                    </Hover>
+                  </form>
+                </SlideIn>
+
+                <motion.div 
+                  className="mt-8 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.7, delay: 0.6 }}
                 >
-                  Register here
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className="text-cropper-green-600 hover:text-cropper-green-500"
-                >
-                  Login here
-                </button>
-              </>
-            )}
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          {!isLogin && (
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Organization Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required={!isLogin}
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="input-primary mt-1"
-                placeholder="Enter your organization name"
-              />
-            </div>
-          )}
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email Address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              className="input-primary mt-1"
-              placeholder="Enter your email"
-            />
+                  <Hover>
+                    <Link
+                      href="/"
+                      className="nav-link inline-flex items-center"
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Home
+                    </Link>
+                  </Hover>
+                </motion.div>
+              </div>
+            </ScaleIn>
           </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              className="input-primary mt-1"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full flex justify-center items-center"
-          >
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : isLogin ? (
-              "Sign In"
-            ) : (
-              "Register"
-            )}
-          </button>
-        </form>
-
-        <div className="mt-4 text-center">
-          <Link
-            href="/"
-            className="text-sm text-gray-600 hover:text-cropper-green-500"
-          >
-            Back to Home
-          </Link>
-        </div>
+        </FadeIn>
       </div>
     </div>
   );

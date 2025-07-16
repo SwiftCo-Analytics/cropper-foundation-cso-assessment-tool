@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verify } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
-import PDFDocument from "pdfkit";
+import jsPDF from "jspdf";
 
 export async function GET(
   request: Request,
@@ -47,22 +47,20 @@ export async function GET(
     }
 
     // Create a PDF document
-    const doc = new PDFDocument();
-    const chunks: Buffer[] = [];
+    const doc = new jsPDF();
+    let yPosition = 20;
 
-    doc.on("data", (chunk) => chunks.push(chunk));
+    // Add title
+    doc.setFontSize(20);
+    doc.text("CSO Self-Assessment Report", 105, yPosition, { align: "center" });
+    yPosition += 15;
 
-    // Add content to the PDF
-    doc
-      .fontSize(20)
-      .text("CSO Self-Assessment Report", { align: "center" })
-      .moveDown();
-
-    doc
-      .fontSize(14)
-      .text(`Organization: ${assessment.organization.name}`)
-      .text(`Date: ${assessment.completedAt?.toLocaleDateString() || "N/A"}`)
-      .moveDown();
+    // Add organization info
+    doc.setFontSize(14);
+    doc.text(`Organization: ${assessment.organization.name}`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Date: ${assessment.completedAt?.toLocaleDateString() || "N/A"}`, 20, yPosition);
+    yPosition += 15;
 
     // Group responses by section
     const sectionResponses = assessment.responses.reduce((acc, response) => {
@@ -79,51 +77,84 @@ export async function GET(
 
     // Add sections and responses
     Object.values(sectionResponses).forEach((section) => {
-      doc
-        .fontSize(16)
-        .text(section.title)
-        .moveDown();
+      // Check if we need a new page
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text(section.title, 20, yPosition);
+      yPosition += 10;
 
       section.responses.forEach((response) => {
-        doc
-          .fontSize(12)
-          .text(`Question: ${response.question.text}`)
-          .text(`Response: ${formatResponseValue(response.value)}`)
-          .moveDown(0.5);
+        // Check if we need a new page
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        
+        const questionText = `Question: ${response.question.text}`;
+        const responseText = `Response: ${formatResponseValue(response.value)}`;
+        
+        // Split long text to fit page width
+        const questionLines = doc.splitTextToSize(questionText, 170);
+        const responseLines = doc.splitTextToSize(responseText, 170);
+        
+        doc.text(questionLines, 20, yPosition);
+        yPosition += questionLines.length * 5;
+        
+        doc.text(responseLines, 20, yPosition);
+        yPosition += responseLines.length * 5 + 5;
       });
 
-      doc.moveDown();
+      yPosition += 10;
     });
 
     // Add report content if available
     if (assessment.report) {
-      doc
-        .fontSize(16)
-        .text("Assessment Report")
-        .moveDown();
+      // Check if we need a new page
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("Assessment Report", 20, yPosition);
+      yPosition += 10;
 
       const reportContent = assessment.report.content as any;
       
       if (reportContent.recommendations) {
-        doc
-          .fontSize(14)
-          .text("Recommendations:")
-          .moveDown(0.5);
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Recommendations:", 20, yPosition);
+        yPosition += 10;
 
         reportContent.recommendations.forEach((rec: string) => {
-          doc
-            .fontSize(12)
-            .text(`• ${rec}`)
-            .moveDown(0.5);
+          // Check if we need a new page
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "normal");
+          
+          const recommendationLines = doc.splitTextToSize(`• ${rec}`, 170);
+          doc.text(recommendationLines, 20, yPosition);
+          yPosition += recommendationLines.length * 5 + 5;
         });
       }
     }
 
-    // Finalize the PDF
-    doc.end();
-
-    // Combine chunks into a single buffer
-    const pdfBuffer = Buffer.concat(chunks);
+    // Generate PDF buffer
+    const pdfBuffer = doc.output("arraybuffer");
 
     // Create and return the response
     const response = new NextResponse(pdfBuffer);

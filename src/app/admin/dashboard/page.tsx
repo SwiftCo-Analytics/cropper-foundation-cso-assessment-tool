@@ -322,7 +322,7 @@ export default function AdminDashboard() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `organization-responses-${organizationId}.csv`;
+        a.download = `organization-report-${organizationId}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

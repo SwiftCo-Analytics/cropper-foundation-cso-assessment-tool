@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import PDFDocument from "pdfkit";
+import jsPDF from "jspdf";
 
 export const dynamic = 'force-dynamic';
 
@@ -149,96 +149,6 @@ export async function GET() {
       };
     });
 
-    // Create PDF document
-    const doc = new PDFDocument();
-    const chunks: Buffer[] = [];
-
-    doc.on("data", (chunk) => chunks.push(chunk));
-
-    // Add content to the PDF
-    doc
-      .fontSize(24)
-      .text("CSO Self-Assessment Tool - Admin Report", { align: "center" })
-      .moveDown();
-
-    doc
-      .fontSize(12)
-      .text(`Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`)
-      .moveDown(2);
-
-    // Overview Section
-    doc
-      .fontSize(16)
-      .text("Overview Statistics", { underline: true })
-      .moveDown();
-
-    doc
-      .fontSize(12)
-      .text(`Total Organizations: ${totalOrganizations}`)
-      .text(`Total Assessments: ${totalAssessments}`)
-      .text(`Completed Assessments: ${completedAssessments}`)
-      .text(`In Progress Assessments: ${inProgressAssessments}`)
-      .text(`Total Responses: ${totalResponses}`)
-      .text(`Completion Rate: ${completionRate.toFixed(1)}%`)
-      .moveDown(2);
-
-    // Most Active Organizations
-    doc
-      .fontSize(16)
-      .text("Most Active Organizations", { underline: true })
-      .moveDown();
-
-    mostActiveOrganizations.forEach((org, index) => {
-      doc
-        .fontSize(12)
-        .text(`${index + 1}. ${org.name}`)
-        .fontSize(10)
-        .text(`   Email: ${org.email}`)
-        .text(`   Assessments: ${org.assessmentCount} (${org.completedCount} completed)`)
-        .text(`   Total Responses: ${org.responseCount}`)
-        .moveDown();
-    });
-
-    doc.moveDown();
-
-    // Top Questions
-    doc
-      .fontSize(16)
-      .text("Most Answered Questions", { underline: true })
-      .moveDown();
-
-    topQuestions.slice(0, 10).forEach((question, index) => {
-      doc
-        .fontSize(12)
-        .text(`${index + 1}. ${question.questionText}`)
-        .fontSize(10)
-        .text(`   Section: ${question.sectionTitle}`)
-        .text(`   Type: ${question.questionType}`)
-        .text(`   Total Responses: ${question.totalResponses}`)
-        .text(`   Most Common Response: ${question.mostCommonResponse || "N/A"} (${question.mostCommonCount} times)`)
-        .text(`   Average Score: ${question.averageScore > 0 ? question.averageScore.toFixed(1) : "N/A"}`)
-        .moveDown();
-    });
-
-    doc.moveDown();
-
-    // Section Analysis
-    doc
-      .fontSize(16)
-      .text("Section Completion Analysis", { underline: true })
-      .moveDown();
-
-    sectionAnalysis.forEach((section) => {
-      doc
-        .fontSize(12)
-        .text(`${section.sectionTitle}`)
-        .fontSize(10)
-        .text(`   Questions: ${section.totalQuestions}`)
-        .text(`   Total Responses: ${section.totalResponses}`)
-        .text(`   Completion Rate: ${section.completionRate.toFixed(1)}%`)
-        .moveDown();
-    });
-
     // Monthly Activity
     const monthlyActivity = new Map();
     const currentYear = new Date().getFullYear();
@@ -251,26 +161,263 @@ export async function GET() {
       });
     });
 
-    doc
-      .fontSize(16)
-      .text("Monthly Activity", { underline: true })
-      .moveDown();
+    // Create PDF document using jsPDF
+    const doc = new jsPDF();
+    
+    let yPosition = 20;
+    const pageHeight = 280;
+    const margin = 20;
+    const pageWidth = 210;
+    const centerX = pageWidth / 2;
 
-    Array.from(monthlyActivity.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .forEach(([month, count]) => {
-        const monthName = new Date(month + '-01').toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long' 
-        });
-        doc
-          .fontSize(10)
-          .text(`${monthName}: ${count} assessments`);
+    // Helper function to add text and handle page breaks
+    const addText = (text: string, fontSize: number = 12, isBold: boolean = false, x: number = margin, align: 'left' | 'center' | 'right' = 'left') => {
+      if (yPosition > pageHeight) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.setFontSize(fontSize);
+      if (isBold) {
+        doc.setFont('helvetica', 'bold');
+      } else {
+        doc.setFont('helvetica', 'normal');
+      }
+      
+      // Handle alignment
+      let textX = x;
+      if (align === 'center') {
+        const textWidth = doc.getTextWidth(text);
+        textX = centerX - (textWidth / 2);
+      } else if (align === 'right') {
+        const textWidth = doc.getTextWidth(text);
+        textX = pageWidth - margin - textWidth;
+      }
+      
+      doc.text(text, textX, yPosition);
+      yPosition += fontSize + 3;
+    };
+
+    // Helper function to add section divider
+    const addDivider = () => {
+      if (yPosition > pageHeight - 10) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+    };
+
+    // Helper function to add bullet points
+    const addBulletPoint = (text: string, fontSize: number = 10, indent: number = 10) => {
+      if (yPosition > pageHeight) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', 'normal');
+      doc.text('•', margin, yPosition);
+      doc.text(text, margin + indent, yPosition);
+      yPosition += fontSize + 2;
+    };
+
+    // Helper function to format question type
+    const formatQuestionType = (type: string) => {
+      switch (type) {
+        case 'TEXT':
+          return 'Text';
+        case 'NUMBER':
+          return 'Number';
+        case 'BOOLEAN':
+          return 'Yes/No';
+        case 'MULTIPLE_CHOICE':
+          return 'Multiple Choice';
+        case 'SINGLE_CHOICE':
+          return 'Single Choice';
+        case 'LIKERT_SCALE':
+          return 'Likert Scale';
+        default:
+          return type;
+      }
+    };
+
+    // Title and header
+    addText("CSO Self-Assessment Tool", 24, true, margin, 'center');
+    addText("Administrative Report", 18, true, margin, 'center');
+    yPosition += 5;
+    
+    // Date and time
+    const dateTime = `Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`;
+    addText(dateTime, 10, false, margin, 'center');
+    yPosition += 15;
+
+    // Overview Section
+    addText("Overview Statistics", 16, true, margin, 'center');
+    yPosition += 10;
+    
+    // Create a table-like layout for statistics
+    const stats = [
+      { label: "Total Organizations", value: totalOrganizations.toString() },
+      { label: "Total Assessments", value: totalAssessments.toString() },
+      { label: "Completed Assessments", value: completedAssessments.toString() },
+      { label: "In Progress Assessments", value: inProgressAssessments.toString() },
+      { label: "Total Responses", value: totalResponses.toString() },
+      { label: "Completion Rate", value: `${completionRate.toFixed(1)}%` }
+    ];
+
+    stats.forEach((stat, index) => {
+      if (yPosition > pageHeight - 20) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(stat.label + ":", margin, yPosition);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text(stat.value, margin + 80, yPosition);
+      yPosition += 8;
+    });
+
+    addDivider();
+
+    // Most Active Organizations
+    addText("Most Active Organizations", 16, true, margin, 'center');
+    yPosition += 10;
+
+    mostActiveOrganizations.forEach((org, index) => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      // Organization name with ranking
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${index + 1}. ${org.name}`, margin, yPosition);
+      yPosition += 8;
+      
+      // Organization details
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      addBulletPoint(`Email: ${org.email}`, 10, 15);
+      addBulletPoint(`Assessments: ${org.assessmentCount} (${org.completedCount} completed)`, 10, 15);
+      addBulletPoint(`Total Responses: ${org.responseCount}`, 10, 15);
+      yPosition += 5;
+    });
+
+    addDivider();
+
+    // Top Questions
+    addText("Most Answered Questions", 16, true, margin, 'center');
+    yPosition += 10;
+
+    topQuestions.slice(0, 10).forEach((question, index) => {
+      if (yPosition > pageHeight - 40) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      // Question text with ranking
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      const questionText = `${index + 1}. ${question.questionText}`;
+      // Handle long question text
+      if (questionText.length > 80) {
+        const words = questionText.split(' ');
+        let line = '';
+        let firstLine = true;
+        for (const word of words) {
+          if ((line + word).length > 80) {
+            doc.text(line, margin, yPosition);
+            yPosition += 6;
+            line = word + ' ';
+            firstLine = false;
+          } else {
+            line += word + ' ';
+          }
+        }
+        if (line.trim()) {
+          doc.text(line, margin, yPosition);
+          yPosition += 6;
+        }
+      } else {
+        doc.text(questionText, margin, yPosition);
+        yPosition += 8;
+      }
+      
+      // Question details
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      addBulletPoint(`Section: ${question.sectionTitle}`, 10, 15);
+      addBulletPoint(`Type: ${formatQuestionType(question.questionType)}`, 10, 15);
+      addBulletPoint(`Total Responses: ${question.totalResponses}`, 10, 15);
+      addBulletPoint(`Most Common Response: ${question.mostCommonResponse || "N/A"} (${question.mostCommonCount} times)`, 10, 15);
+      yPosition += 5;
+    });
+
+    addDivider();
+
+    // Section Analysis
+    addText("Section Completion Analysis", 16, true, margin, 'center');
+    yPosition += 10;
+
+    sectionAnalysis.forEach((section) => {
+      if (yPosition > pageHeight - 25) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      // Section title
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(section.sectionTitle, margin, yPosition);
+      yPosition += 8;
+      
+      // Section details
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      addBulletPoint(`Questions: ${section.totalQuestions}`, 10, 15);
+      addBulletPoint(`Total Responses: ${section.totalResponses}`, 10, 15);
+      addBulletPoint(`Completion Rate: ${section.completionRate.toFixed(1)}%`, 10, 15);
+      yPosition += 5;
+    });
+
+    addDivider();
+
+    // Monthly Activity
+    addText("Monthly Activity", 16, true, margin, 'center');
+    yPosition += 10;
+
+    // Create a table for monthly activity
+    const monthlyEntries = Array.from(monthlyActivity.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]));
+
+    monthlyEntries.forEach(([month, count]) => {
+      if (yPosition > pageHeight - 15) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      const monthName = new Date(month + '-01').toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long' 
       });
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(monthName, margin, yPosition);
+      doc.text(count.toString(), margin + 120, yPosition);
+      yPosition += 6;
+    });
 
-    doc.end();
+    // Generate PDF buffer
+    const pdfBuffer = doc.output('arraybuffer');
 
-    return new Response(Buffer.concat(chunks), {
+    return new Response(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="admin-reports-${new Date().toISOString().split('T')[0]}.pdf"`,

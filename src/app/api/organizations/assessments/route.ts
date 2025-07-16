@@ -27,8 +27,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      assessmentId: assessment.id,
-      status: assessment.status,
+      assessment: {
+        id: assessment.id,
+        status: assessment.status,
+      },
     });
   } catch (error) {
     console.error("Error creating assessment:", error);

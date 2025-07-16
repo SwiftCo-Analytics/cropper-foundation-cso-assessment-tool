@@ -1,5 +1,6 @@
 import { getAssessment } from "@/lib/prisma";
 import { AssessmentForm } from "@/components/forms/assessment-form";
+import { redirect } from "next/navigation";
 
 interface AssessmentPageProps {
   params: {
@@ -9,6 +10,11 @@ interface AssessmentPageProps {
 
 export default async function AssessmentPage({ params }: AssessmentPageProps) {
   const assessment = await getAssessment(params.id);
+
+  // If assessment is completed, redirect to report page
+  if (assessment.status === "COMPLETED") {
+    redirect(`/assessment/${params.id}/report`);
+  }
 
   return (
     <div className="content-container section-spacing">

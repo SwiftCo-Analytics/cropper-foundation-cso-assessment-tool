@@ -422,8 +422,15 @@ export default function AdminDashboard() {
             transition={{ duration: 0.7, delay: 0.4 }}
           >
             <Link
-              href="/admin/suggestions"
+              href="/admin/reports"
               className="btn-primary"
+            >
+              <BarChart className="mr-2 h-5 w-5" />
+              View Reports
+            </Link>
+            <Link
+              href="/admin/suggestions"
+              className="btn-secondary"
             >
               <Settings className="mr-2 h-5 w-5" />
               Manage Suggestions

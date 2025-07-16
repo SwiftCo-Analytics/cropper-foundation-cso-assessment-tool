@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, ArrowLeft, CheckCircle } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
 
 interface AssessmentReportProps {
@@ -27,6 +27,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [checkingCompletion, setCheckingCompletion] = useState(false);
 
   useEffect(() => {
     async function loadAssessment() {
@@ -77,6 +78,38 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
     }
   }
 
+  async function handleCheckCompletion() {
+    setCheckingCompletion(true);
+    try {
+      const response = await fetch(`/api/assessments/${params.id}/check-completion`, {
+        method: "POST",
+      });
+
+      if (!response.ok) throw new Error("Failed to check completion");
+
+      const result = await response.json();
+      console.log("Completion check result:", result);
+      
+      // Reload the assessment to get updated status
+      const assessmentResponse = await fetch(`/api/assessments/${params.id}`);
+      if (assessmentResponse.ok) {
+        const data = await assessmentResponse.json();
+        setAssessment(data);
+      }
+      
+      if (result.statusChanged) {
+        alert(`Assessment status updated from ${result.currentStatus} to ${result.newStatus}`);
+      } else {
+        alert(`Assessment status is correct: ${result.newStatus}`);
+      }
+    } catch (error) {
+      console.error("Error checking completion:", error);
+      alert("Error checking completion status");
+    } finally {
+      setCheckingCompletion(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -116,7 +149,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                Assessment Complete
+                {assessment.status === "COMPLETED" ? "Assessment Complete" : "Assessment Report"}
               </h1>
               <p className="mt-2 text-sm text-gray-600">
                 {assessment.organization.name}
@@ -128,9 +161,18 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
               )}
             </div>
             
-            <div className="flex items-center space-x-2 text-cropper-mint-600">
-              <CheckCircle className="h-6 w-6" />
-              <span className="font-medium">Completed</span>
+            <div className="flex items-center space-x-2">
+              {assessment.status === "COMPLETED" ? (
+                <div className="flex items-center space-x-2 text-cropper-mint-600">
+                  <CheckCircle className="h-6 w-6" />
+                  <span className="font-medium">Completed</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 text-cropper-brown-600">
+                  <Clock className="h-6 w-6" />
+                  <span className="font-medium">In Progress</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -180,35 +222,92 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           </h2>
           
           <div className="space-y-4">
-            <p className="text-gray-600">
-              Your assessment has been completed successfully. You can now download a detailed report 
-              that includes your responses, scores, and recommendations for improving your organization's 
-              CSO practices.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={handleDownloadReport}
-                disabled={downloading}
-                className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
-              >
-                {downloading ? (
-                  "Downloading..."
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Report
-                  </>
-                )}
-              </button>
-              
-              <Link
-                href="/organization/dashboard"
-                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
-              >
-                Return to Dashboard
-              </Link>
-            </div>
+            {assessment.status === "COMPLETED" ? (
+              <>
+                <p className="text-gray-600">
+                  Your assessment has been completed successfully. You can now download a detailed report 
+                  that includes your responses, scores, and recommendations for improving your organization's 
+                  CSO practices.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={handleDownloadReport}
+                    disabled={downloading}
+                    className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
+                  >
+                    {downloading ? (
+                      "Downloading..."
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4 mr-2" />
+                        Download Report
+                      </>
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={handleCheckCompletion}
+                    disabled={checkingCompletion}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center"
+                  >
+                    {checkingCompletion ? (
+                      "Checking..."
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Check Completion Status
+                      </>
+                    )}
+                  </button>
+                  
+                  <Link
+                    href="/organization/dashboard"
+                    className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
+                  >
+                    Return to Dashboard
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-600">
+                  Your assessment is still in progress. You can continue working on it or return to the dashboard 
+                  to manage your assessments.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href={`/assessment/${assessment.id}`}
+                    className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
+                  >
+                    Continue Assessment
+                  </Link>
+                  
+                  <button
+                    onClick={handleCheckCompletion}
+                    disabled={checkingCompletion}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center"
+                  >
+                    {checkingCompletion ? (
+                      "Checking..."
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Check Completion Status
+                      </>
+                    )}
+                  </button>
+                  
+                  <Link
+                    href="/organization/dashboard"
+                    className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
+                  >
+                    Return to Dashboard
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

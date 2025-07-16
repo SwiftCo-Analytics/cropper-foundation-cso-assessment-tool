@@ -68,18 +68,44 @@ export async function POST(
       )
     );
 
-    // If not saveOnly, check if this is the last section and mark assessment as completed
+    // If not saveOnly, check if all sections are completed and mark assessment as completed
     if (!saveOnly) {
       const allSections = await prisma.section.findMany({
         orderBy: { order: 'asc' },
       });
       
-      const currentSection = await prisma.section.findUnique({
-        where: { id: sectionId },
+      // Get all questions for all sections
+      const allQuestions = await prisma.question.findMany({
+        where: {
+          sectionId: {
+            in: allSections.map(s => s.id)
+          }
+        }
       });
-
-      if (currentSection && currentSection.order === allSections.length) {
-        // This is the last section, mark assessment as completed
+      
+      // Get all responses for this assessment
+      const allResponses = await prisma.response.findMany({
+        where: { assessmentId: params.id }
+      });
+      
+      // Check if all mandatory questions have been answered
+      const mandatoryQuestions = allQuestions.filter(q => q.mandatory);
+      const answeredMandatoryQuestions = mandatoryQuestions.filter(q => {
+        const response = allResponses.find(r => r.questionId === q.id);
+        return response && response.value !== null && response.value !== undefined && response.value !== "";
+      });
+      
+      console.log(`Assessment ${params.id} completion check:`, {
+        totalMandatoryQuestions: mandatoryQuestions.length,
+        answeredMandatoryQuestions: answeredMandatoryQuestions.length,
+        mandatoryQuestions: mandatoryQuestions.map(q => ({ id: q.id, text: q.text })),
+        answeredQuestions: answeredMandatoryQuestions.map(q => ({ id: q.id, text: q.text })),
+        allResponses: allResponses.map(r => ({ questionId: r.questionId, value: r.value }))
+      });
+      
+      // If all mandatory questions are answered, mark assessment as completed
+      if (answeredMandatoryQuestions.length === mandatoryQuestions.length && mandatoryQuestions.length > 0) {
+        console.log(`Marking assessment ${params.id} as completed`);
         await prisma.assessment.update({
           where: { id: params.id },
           data: {
@@ -87,6 +113,8 @@ export async function POST(
             completedAt: new Date(),
           },
         });
+      } else {
+        console.log(`Assessment ${params.id} not completed yet. Missing ${mandatoryQuestions.length - answeredMandatoryQuestions.length} mandatory questions`);
       }
     }
 

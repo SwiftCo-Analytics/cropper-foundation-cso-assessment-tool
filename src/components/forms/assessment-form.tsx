@@ -42,6 +42,8 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
   const [savedResponses, setSavedResponses] = useState<Record<string, any>>({});
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [assessmentStatus, setAssessmentStatus] = useState<"IN_PROGRESS" | "COMPLETED" | null>(null);
+  const [showFinishConfirmation, setShowFinishConfirmation] = useState(false);
 
   const form = useForm<ResponseFormValues>({
     resolver: zodResolver(responseSchema),
@@ -71,8 +73,21 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
   useEffect(() => {
     if (sections.length > 0) {
       loadExistingResponses();
+      loadAssessmentStatus();
     }
   }, [sections, assessmentId]);
+
+  async function loadAssessmentStatus() {
+    try {
+      const response = await fetch(`/api/assessments/${assessmentId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAssessmentStatus(data.status);
+      }
+    } catch (error) {
+      console.error("Error loading assessment status:", error);
+    }
+  }
 
   async function loadExistingResponses() {
     try {
@@ -180,6 +195,16 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
       return;
     }
 
+    // If this is the last section and assessment is in progress, show confirmation dialog
+    if (currentSectionIndex === sections.length - 1 && assessmentStatus === "IN_PROGRESS") {
+      setShowFinishConfirmation(true);
+      return;
+    }
+
+    await submitResponses(data);
+  }
+
+  async function submitResponses(data: ResponseFormValues) {
     try {
       const response = await fetch(`/api/assessments/${assessmentId}/responses`, {
         method: "POST",
@@ -220,6 +245,64 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
 
   if (!currentSection) {
     return <div>No sections found</div>;
+  }
+
+  // If assessment is completed, show read-only view
+  if (assessmentStatus === "COMPLETED") {
+    return (
+      <div className="space-y-8">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-blue-600 mr-2" />
+            <span className="text-blue-800 font-medium">Assessment Completed</span>
+          </div>
+          <p className="text-blue-700 mt-1">
+            This assessment has been completed and cannot be edited. You can view your responses or download the report.
+          </p>
+        </div>
+        
+        <div className="space-y-6">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {currentSection.title}
+          </h2>
+          {currentSection.description && (
+            <p className="text-sm text-gray-600">{currentSection.description}</p>
+          )}
+          
+          <div className="space-y-6">
+            {currentSection.questions.map((question) => (
+              <div key={question.id} className="border rounded-lg p-4 bg-gray-50">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {question.text}
+                  {question.mandatory && <span className="text-red-500 ml-1">*</span>}
+                </h3>
+                {question.description && (
+                  <p className="text-sm text-gray-600 mb-3">{question.description}</p>
+                )}
+                <div className="text-gray-700">
+                  <strong>Response:</strong> {savedResponses[question.id] || "No response provided"}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex space-x-4">
+          <button
+            onClick={() => router.push(`/assessment/${assessmentId}/report`)}
+            className="bg-cropper-mint-600 text-white px-6 py-2 rounded-lg hover:bg-cropper-mint-700 transition-colors duration-300"
+          >
+            View Report
+          </button>
+          <button
+            onClick={() => router.push("/organization/dashboard")}
+            className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -372,15 +455,49 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
             )}
           </button>
           
-          <button
-            type="submit"
-            className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            {currentSectionIndex === sections.length - 1 ? "Finish" : "Next"}
-          </button>
+          {assessmentStatus === "IN_PROGRESS" && (
+            <button
+              type="submit"
+              className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              {currentSectionIndex === sections.length - 1 ? "Finish" : "Next"}
+            </button>
+          )}
+        </div>
+              </div>
+      </form>
+
+    {/* Confirmation Dialog */}
+    {showFinishConfirmation && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Complete Assessment
+          </h3>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to complete this assessment? Once completed, you will not be able to edit your responses.
+          </p>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowFinishConfirmation(false)}
+              className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                setShowFinishConfirmation(false);
+                const formData = form.getValues();
+                await submitResponses(formData);
+              }}
+              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300"
+            >
+              Complete Assessment
+            </button>
+          </div>
         </div>
       </div>
-    </form>
+    )}
     </div>
   );
 }

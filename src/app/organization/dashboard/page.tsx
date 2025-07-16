@@ -151,6 +151,39 @@ export default function OrganizationDashboard() {
     setEditingName("");
   }
 
+  async function handleDeleteAssessment(assessmentId: string) {
+    // Find the assessment to check its status
+    const assessment = assessments.find(a => a.id === assessmentId);
+    
+    // Prevent deletion of completed assessments
+    if (assessment?.status === "COMPLETED") {
+      alert("Completed assessments cannot be deleted.");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to delete this assessment? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("org_token");
+      const response = await fetch(`/api/organizations/assessments/${assessmentId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setAssessments(prev => prev.filter(a => a.id !== assessmentId));
+      } else {
+        console.error("Failed to delete assessment");
+      }
+    } catch (error) {
+      console.error("Error deleting assessment:", error);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -357,40 +390,59 @@ export default function OrganizationDashboard() {
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center space-x-4">
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center space-x-4">
+                              {assessment.status === "IN_PROGRESS" ? (
+                                <>
+                                  <button
+                                    onClick={() => startEditing(assessment)}
+                                    className="text-cropper-blue-600 hover:text-cropper-blue-700 font-medium"
+                                  >
+                                    Rename
+                                  </button>
+                                  <button
+                                    onClick={() => router.push(`/assessment/${assessment.id}`)}
+                                    className="btn-primary"
+                                  >
+                                    Continue Assessment
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => router.push(`/assessment/${assessment.id}/report`)}
+                                    className="nav-link flex items-center"
+                                  >
+                                    View Report
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDownloadReport(assessment.id)}
+                                    className="btn-secondary"
+                                  >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Download Report
+                                  </button>
+                                </>
+                              )}
+                            </div>
                             {assessment.status === "IN_PROGRESS" ? (
-                              <>
-                                <button
-                                  onClick={() => startEditing(assessment)}
-                                  className="text-cropper-blue-600 hover:text-cropper-blue-700 font-medium"
-                                >
-                                  Rename
-                                </button>
-                                <button
-                                  onClick={() => router.push(`/assessment/${assessment.id}`)}
-                                  className="btn-primary"
-                                >
-                                  Continue Assessment
-                                  <ArrowRight className="ml-2 h-4 w-4" />
-                                </button>
-                              </>
+                              <button
+                                onClick={() => handleDeleteAssessment(assessment.id)}
+                                className="text-red-600 hover:text-red-700 font-medium flex items-center"
+                                title="Delete assessment"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
                             ) : (
-                              <>
-                                <button
-                                  onClick={() => router.push(`/assessment/${assessment.id}`)}
-                                  className="nav-link flex items-center"
-                                >
-                                  View Responses
-                                  <ArrowRight className="ml-2 h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleDownloadReport(assessment.id)}
-                                  className="btn-secondary"
-                                >
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Download Report
-                                </button>
-                              </>
+                              <button
+                                className="text-gray-400 cursor-not-allowed flex items-center"
+                                title="Completed assessments cannot be deleted"
+                                disabled
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
                             )}
                           </div>
                         )}

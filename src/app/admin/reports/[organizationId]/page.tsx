@@ -190,19 +190,19 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="content-container section-spacing">
       <FadeIn>
-        <div className="mb-8">
+        <div className="page-header">
           <Link
             href="/admin/dashboard"
-            className="inline-flex items-center text-cropper-green-600 hover:text-cropper-green-700 mb-4"
+            className="inline-flex items-center text-cropper-mint-600 hover:text-cropper-mint-700 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Link>
           
           <motion.h1 
-            className="text-4xl font-bold text-gray-900"
+            className="page-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -210,7 +210,7 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
             Organization Report
           </motion.h1>
           <motion.p 
-            className="text-xl text-gray-600 mt-2"
+            className="page-subtitle"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
@@ -221,48 +221,53 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
       </FadeIn>
 
       {/* Organization Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid-stats mb-16">
         {[
           {
             title: "Total Assessments",
             value: organization.assessments.length,
             icon: BarChart,
             color: "blue",
-            delay: 0
+            delay: 0,
+            description: "All assessments created"
           },
           {
             title: "Completed",
             value: completedAssessments.length,
             icon: CheckCircle,
             color: "green",
-            delay: 0.1
+            delay: 0.1,
+            description: "Successfully finished"
           },
           {
             title: "In Progress",
             value: inProgressAssessments.length,
             icon: Clock,
             color: "orange",
-            delay: 0.2
+            delay: 0.2,
+            description: "Currently being worked on"
           },
           {
             title: "Total Responses",
             value: totalResponses,
             icon: Users,
             color: "purple",
-            delay: 0.3
+            delay: 0.3,
+            description: "All responses collected"
           }
         ].map((stat, index) => (
           <SlideIn key={index} direction="up" delay={stat.delay}>
             <Hover>
-              <div className={`bg-white rounded-xl p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300 border border-${stat.color}-100`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className={`text-lg font-semibold text-cropper-${stat.color}-800`}>{stat.title}</h3>
-                    <p className={`text-3xl font-bold text-cropper-${stat.color}-600`}>{stat.value}</p>
+              <div className={`card border-${stat.color}-100 h-full`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`h-16 w-16 rounded-xl bg-cropper-${stat.color}-100 flex items-center justify-center`}>
+                    <stat.icon className={`h-8 w-8 text-cropper-${stat.color}-600`} />
                   </div>
-                  <div className={`h-12 w-12 rounded-lg bg-cropper-${stat.color}-100 flex items-center justify-center`}>
-                    <stat.icon className={`h-6 w-6 text-cropper-${stat.color}-600`} />
-                  </div>
+                </div>
+                <div>
+                  <h3 className={`text-2xl font-bold text-cropper-${stat.color}-800 mb-2`}>{stat.value}</h3>
+                  <p className="text-subheading text-gray-900 mb-1">{stat.title}</p>
+                  <p className="text-caption">{stat.description}</p>
                 </div>
               </div>
             </Hover>
@@ -272,14 +277,14 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
 
       {/* Section Statistics */}
       <ScaleIn delay={0.4}>
-        <div className="bg-white rounded-xl shadow-soft p-6 mb-8">
+        <div className="card card-lg mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">Section Completion Statistics</h2>
+            <h2 className="text-heading">Section Completion Statistics</h2>
             <Hover>
               <button
                 onClick={handleDownloadReport}
                 disabled={downloading}
-                className="bg-cropper-green-600 text-white px-6 py-2 rounded-full hover:bg-cropper-green-700 transition-colors duration-300 flex items-center"
+                className="btn-primary"
               >
                 {downloading ? (
                   "Downloading..."
@@ -299,7 +304,7 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
                 <Hover>
                   <div className="border rounded-lg p-4 hover:border-cropper-green-300 transition-all duration-300">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-medium">{section.sectionTitle}</h3>
+                      <h3 className="text-subheading">{section.sectionTitle}</h3>
                       <span className="text-sm font-medium text-gray-600">
                         {section.answeredQuestions} / {section.totalQuestions} questions
                       </span>
@@ -333,8 +338,8 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
 
       {/* Assessment Timeline */}
       <ScaleIn delay={0.6}>
-        <div className="bg-white rounded-xl shadow-soft p-6">
-          <h2 className="text-2xl font-semibold mb-6">Assessment Timeline</h2>
+        <div className="card card-lg">
+          <h2 className="text-heading mb-6">Assessment Timeline</h2>
           <div className="space-y-4">
             {organization.assessments.map((assessment, index) => (
               <SlideIn key={assessment.id} direction="up" delay={index * 0.1}>
@@ -342,7 +347,7 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
                   <div className="border rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-medium">
+                        <h3 className="text-subheading">
                           {assessment.name || `Assessment ${assessment.id.slice(0, 8)}`}
                         </h3>
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">

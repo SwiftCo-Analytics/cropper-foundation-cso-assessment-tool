@@ -5,10 +5,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { QuestionType, SuggestionType } from "@/generated/prisma";
 import { 
-  Loader2, Plus, Trash2, Edit2, Save, X, ArrowRight, 
+  Loader2, Plus, Trash2, Edit2, Save, X, ArrowRight, ArrowLeft,
   Settings, Target, Layers, FileText, AlertCircle, CheckCircle,
   ChevronDown, ChevronRight, ChevronUp, Star, Weight, BarChart
 } from "lucide-react";
+import Link from "next/link";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 
@@ -281,11 +282,19 @@ export default function SuggestionsManagement() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-7xl">
+    <div className="content-container section-spacing">
       <FadeIn>
-        <div className="mb-8">
+        <div className="page-header">
+          <Link
+            href="/admin/dashboard"
+            className="inline-flex items-center text-cropper-mint-600 hover:text-cropper-mint-700 mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Link>
+          
           <motion.h1 
-            className="text-4xl font-bold text-gray-900 mb-4"
+            className="page-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -293,7 +302,7 @@ export default function SuggestionsManagement() {
             Suggestions Management
           </motion.h1>
           <motion.p 
-            className="text-xl text-gray-600"
+            className="page-subtitle"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
@@ -304,13 +313,13 @@ export default function SuggestionsManagement() {
 
         {/* Usage Guide */}
         <motion.div 
-          className="bg-gradient-to-r from-cropper-blue-50 to-cropper-green-50 border border-cropper-blue-200 rounded-2xl p-6 mb-8"
+          className="bg-gradient-to-r from-cropper-mint-50 to-cropper-blue-50 border border-cropper-mint-200 rounded-2xl p-6 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">How to Use the Suggestion System</h3>
+                          <h3 className="text-subheading text-gray-900">How to Use the Suggestion System</h3>
             <button
               onClick={() => setShowGuide(!showGuide)}
               className="text-cropper-blue-600 hover:text-cropper-blue-700 flex items-center space-x-2"
@@ -330,14 +339,14 @@ export default function SuggestionsManagement() {
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">How to Use the Suggestion System</h3>
+              <h3 className="text-subheading text-gray-900 mb-3">How to Use the Suggestion System</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Question Suggestions */}
                 <div className="bg-white rounded-lg p-4 border border-cropper-blue-200">
                   <div className="flex items-center space-x-2 mb-3">
                     <Target className="h-5 w-5 text-cropper-blue-600" />
-                    <h4 className="font-medium text-gray-900">Question Suggestions</h4>
+                    <h4 className="text-subheading text-gray-900">Question Suggestions</h4>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">
                     Trigger based on specific response values to individual questions.
@@ -362,7 +371,7 @@ export default function SuggestionsManagement() {
                 <div className="bg-white rounded-lg p-4 border border-cropper-green-200">
                   <div className="flex items-center space-x-2 mb-3">
                     <Layers className="h-5 w-5 text-cropper-green-600" />
-                    <h4 className="font-medium text-gray-900">Section Suggestions</h4>
+                    <h4 className="text-subheading text-gray-900">Section Suggestions</h4>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">
                     Trigger based on aggregated scores within a section.
@@ -387,7 +396,7 @@ export default function SuggestionsManagement() {
                 <div className="bg-white rounded-lg p-4 border border-cropper-brown-200">
                   <div className="flex items-center space-x-2 mb-3">
                     <FileText className="h-5 w-5 text-cropper-brown-600" />
-                    <h4 className="font-medium text-gray-900">Assessment Suggestions</h4>
+                    <h4 className="text-subheading text-gray-900">Assessment Suggestions</h4>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">
                     Trigger based on overall assessment performance.
@@ -411,7 +420,7 @@ export default function SuggestionsManagement() {
 
               {/* Configuration Tips */}
               <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                <h4 className="text-subheading text-gray-900 mb-3 flex items-center">
                   <Settings className="h-4 w-4 mr-2 text-gray-600" />
                   Configuration Tips
                 </h4>
@@ -438,7 +447,7 @@ export default function SuggestionsManagement() {
 
               {/* Scoring System */}
               <div className="mt-4 bg-white rounded-lg p-4 border border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                <h4 className="text-subheading text-gray-900 mb-3 flex items-center">
                   <BarChart className="h-4 w-4 mr-2 text-gray-600" />
                   Scoring System
                 </h4>
@@ -509,13 +518,13 @@ export default function SuggestionsManagement() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Question-Level Suggestions</h2>
-                <p className="text-gray-600">Configure suggestions based on specific question responses</p>
+                <h2 className="text-heading mb-2">Question-Level Suggestions</h2>
+                <p className="text-body">Configure suggestions based on specific question responses</p>
               </div>
               <Hover>
                 <button
                   onClick={() => setShowQuestionForm(true)}
-                  className="bg-cropper-green-600 text-white px-6 py-3 rounded-xl hover:bg-cropper-green-700 transition-all duration-300 flex items-center shadow-soft"
+                  className="btn-primary btn-lg"
                 >
                   <Plus className="mr-2 h-5 w-5" />
                   Add Question Suggestion
@@ -525,7 +534,7 @@ export default function SuggestionsManagement() {
 
             <div className="space-y-4">
               {sections.map((section) => (
-                <div key={section.id} className="bg-white rounded-2xl shadow-soft p-6">
+                <div key={section.id} className="card">
                   <div 
                     className="flex items-center justify-between cursor-pointer"
                     onClick={() => toggleSection(section.id)}
@@ -538,7 +547,7 @@ export default function SuggestionsManagement() {
                           <ChevronRight className="h-5 w-5" />
                         )}
                       </button>
-                      <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
+                      <h3 className="text-subheading text-gray-900">{section.title}</h3>
                       <span className="px-3 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-sm font-medium">
                         Weight: {section.weight}
                       </span>
@@ -567,7 +576,7 @@ export default function SuggestionsManagement() {
                                 )}
                               </button>
                               <div>
-                                <h4 className="font-medium text-gray-900">{question.text}</h4>
+                                <h4 className="text-subheading text-gray-900">{question.text}</h4>
                                 <p className="text-sm text-gray-500">
                                   {question.type} • Weight: {question.weight}
                                 </p>
@@ -704,13 +713,13 @@ export default function SuggestionsManagement() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Section-Level Suggestions</h2>
-                <p className="text-gray-600">Configure suggestions based on section scores</p>
+                <h2 className="text-heading mb-2">Section-Level Suggestions</h2>
+                <p className="text-body">Configure suggestions based on section scores</p>
               </div>
               <Hover>
                 <button
                   onClick={() => setShowSectionForm(true)}
-                  className="bg-cropper-green-600 text-white px-6 py-3 rounded-xl hover:bg-cropper-green-700 transition-all duration-300 flex items-center shadow-soft"
+                  className="btn-primary btn-lg"
                 >
                   <Plus className="mr-2 h-5 w-5" />
                   Add Section Suggestion
@@ -720,9 +729,9 @@ export default function SuggestionsManagement() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {sections.map((section) => (
-                <div key={section.id} className="bg-white rounded-2xl shadow-soft p-6">
+                <div key={section.id} className="card">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
+                    <h3 className="text-subheading text-gray-900">{section.title}</h3>
                     <span className="px-3 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-sm font-medium">
                       Weight: {section.weight}
                     </span>
@@ -788,13 +797,13 @@ export default function SuggestionsManagement() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Assessment-Level Suggestions</h2>
-                <p className="text-gray-600">Configure suggestions based on overall assessment scores</p>
+                <h2 className="text-heading mb-2">Assessment-Level Suggestions</h2>
+                <p className="text-body">Configure suggestions based on overall assessment scores</p>
               </div>
               <Hover>
                 <button
                   onClick={() => setShowAssessmentForm(true)}
-                  className="bg-cropper-green-600 text-white px-6 py-3 rounded-xl hover:bg-cropper-green-700 transition-all duration-300 flex items-center shadow-soft"
+                  className="btn-primary btn-lg"
                 >
                   <Plus className="mr-2 h-5 w-5" />
                   Add Assessment Suggestion
@@ -804,7 +813,7 @@ export default function SuggestionsManagement() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {assessmentSuggestions.map((suggestion) => (
-                <div key={suggestion.id} className="bg-white rounded-2xl shadow-soft p-6">
+                <div key={suggestion.id} className="card">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
@@ -858,7 +867,7 @@ export default function SuggestionsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Add Question Suggestion</h3>
+              <h3 className="text-heading">Add Question Suggestion</h3>
               <button
                 onClick={() => setShowQuestionForm(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -1115,13 +1124,13 @@ export default function SuggestionsManagement() {
                 <button
                   type="button"
                   onClick={() => setShowQuestionForm(false)}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-cropper-green-600 text-white rounded-lg hover:bg-cropper-green-700"
+                  className="btn-primary"
                 >
                   Add Suggestion
                 </button>
@@ -1136,7 +1145,7 @@ export default function SuggestionsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Add Section Suggestion</h3>
+              <h3 className="text-heading">Add Section Suggestion</h3>
               <button
                 onClick={() => setShowSectionForm(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -1263,13 +1272,13 @@ export default function SuggestionsManagement() {
                 <button
                   type="button"
                   onClick={() => setShowSectionForm(false)}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-cropper-green-600 text-white rounded-lg hover:bg-cropper-green-700"
+                  className="btn-primary"
                 >
                   Add Suggestion
                 </button>
@@ -1284,7 +1293,7 @@ export default function SuggestionsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Add Assessment Suggestion</h3>
+              <h3 className="text-heading">Add Assessment Suggestion</h3>
               <button
                 onClick={() => setShowAssessmentForm(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -1421,13 +1430,13 @@ export default function SuggestionsManagement() {
                 <button
                   type="button"
                   onClick={() => setShowAssessmentForm(false)}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-cropper-green-600 text-white rounded-lg hover:bg-cropper-green-700"
+                  className="btn-primary"
                 >
                   Add Suggestion
                 </button>

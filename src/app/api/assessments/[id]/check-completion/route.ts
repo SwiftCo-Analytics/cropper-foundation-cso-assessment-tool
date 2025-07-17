@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { SuggestionEngine } from "@/lib/suggestion-engine";
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,14 @@ export async function POST(
       });
       statusChanged = true;
       newStatus = "COMPLETED";
+      
+      // Generate suggestions for the newly completed assessment
+      try {
+        await SuggestionEngine.generateSuggestions(params.id);
+      } catch (error) {
+        console.error("Error generating suggestions:", error);
+        // Don't fail the completion check if suggestions fail
+      }
     }
     // If assessment shouldn't be completed but is, update it
     else if (!isCompleted && assessment?.status === "COMPLETED") {

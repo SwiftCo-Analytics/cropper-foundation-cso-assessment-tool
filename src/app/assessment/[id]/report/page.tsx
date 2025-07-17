@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, ArrowLeft, CheckCircle, Clock } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target } from "lucide-react";
 import Link from "next/link";
 
 interface AssessmentReportProps {
@@ -22,12 +22,24 @@ interface Assessment {
   };
 }
 
+interface Suggestion {
+  id: string;
+  type: string;
+  sourceId?: string;
+  suggestion: string;
+  priority: number;
+  weight: number;
+  metadata?: any;
+}
+
 export default function AssessmentReport({ params }: AssessmentReportProps) {
   const router = useRouter();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [checkingCompletion, setCheckingCompletion] = useState(false);
+  const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
 
   useEffect(() => {
     async function loadAssessment() {
@@ -39,6 +51,11 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         }
         const data = await response.json();
         setAssessment(data);
+        
+        // Load suggestions if assessment is completed
+        if (data.status === "COMPLETED") {
+          loadSuggestions();
+        }
       } catch (error) {
         console.error("Error loading assessment:", error);
         router.push("/organization/dashboard");
@@ -49,6 +66,18 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
 
     loadAssessment();
   }, [params.id, router]);
+
+  async function loadSuggestions() {
+    try {
+      const response = await fetch(`/api/assessments/${params.id}/suggestions`);
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.suggestions || []);
+      }
+    } catch (error) {
+      console.error("Error loading suggestions:", error);
+    }
+  }
 
   async function handleDownloadReport() {
     setDownloading(true);
@@ -95,6 +124,11 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
       if (assessmentResponse.ok) {
         const data = await assessmentResponse.json();
         setAssessment(data);
+        
+        // Load suggestions if assessment is now completed
+        if (data.status === "COMPLETED") {
+          loadSuggestions();
+        }
       }
       
       if (result.statusChanged) {
@@ -107,6 +141,26 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
       alert("Error checking completion status");
     } finally {
       setCheckingCompletion(false);
+    }
+  }
+
+  async function handleGenerateSuggestions() {
+    setGeneratingSuggestions(true);
+    try {
+      const response = await fetch(`/api/assessments/${params.id}/suggestions`, {
+        method: "POST",
+      });
+
+      if (!response.ok) throw new Error("Failed to generate suggestions");
+
+      const result = await response.json();
+      setSuggestions(result.suggestions || []);
+      alert(`Generated ${result.suggestions?.length || 0} suggestions`);
+    } catch (error) {
+      console.error("Error generating suggestions:", error);
+      alert("Error generating suggestions");
+    } finally {
+      setGeneratingSuggestions(false);
     }
   }
 
@@ -215,6 +269,74 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
             </div>
           </div>
         </div>
+
+        {/* Suggestions Section */}
+        {assessment.status === "COMPLETED" && (
+          <div className="bg-white rounded-xl shadow-soft p-8 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 flex items-center">
+                <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
+                Suggestions & Recommendations
+              </h2>
+              <button
+                onClick={handleGenerateSuggestions}
+                disabled={generatingSuggestions}
+                className="bg-cropper-blue-600 text-white px-4 py-2 rounded-lg hover:bg-cropper-blue-700 transition-colors duration-300 flex items-center"
+              >
+                {generatingSuggestions ? (
+                  "Generating..."
+                ) : (
+                  <>
+                    <Target className="h-4 w-4 mr-2" />
+                    Generate Suggestions
+                  </>
+                )}
+              </button>
+            </div>
+            
+            {suggestions.length > 0 ? (
+              <div className="space-y-4">
+                {suggestions
+                  .sort((a, b) => b.priority - a.priority)
+                  .map((suggestion) => (
+                    <div key={suggestion.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
+                            <Target className="h-4 w-4 text-cropper-blue-600" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded text-xs font-medium">
+                              {suggestion.metadata?.category || suggestion.type}
+                            </span>
+                            <span className="px-2 py-1 bg-cropper-green-100 text-cropper-green-800 rounded text-xs font-medium">
+                              Priority: {suggestion.priority}
+                            </span>
+                            {suggestion.metadata?.isStrategic && (
+                              <span className="px-2 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded text-xs font-medium">
+                                Strategic
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-gray-900">{suggestion.suggestion}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Lightbulb className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No suggestions available yet.</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  Click "Generate Suggestions" to get personalized suggestions and recommendations based on your assessment results.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-soft p-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">

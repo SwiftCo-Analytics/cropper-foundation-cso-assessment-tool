@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BarChart, Calendar, Users, CheckCircle, Clock, TrendingUp, TrendingDown, Target, Activity, Award, FileText } from "lucide-react";
+import { ArrowLeft, BarChart, Calendar, Users, CheckCircle, Clock, TrendingUp, TrendingDown, Target, Activity, Award, FileText, Lightbulb } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -49,6 +49,15 @@ interface ReportsData {
     mostCommonCount: number;
     averageScore: number;
     responseCounts: Record<string, number>;
+  }>;
+  suggestions: Array<{
+    id: string;
+    type: string;
+    sourceId?: string;
+    suggestion: string;
+    priority: number;
+    weight: number;
+    metadata?: any;
   }>;
 }
 
@@ -116,7 +125,7 @@ export default function OrganizationReports() {
     );
   }
 
-  const { overview, assessmentScores, sectionAnalysis, monthlyProgress, improvementTrends, topResponsePatterns } = reportsData;
+  const { overview, assessmentScores, sectionAnalysis, monthlyProgress, improvementTrends, topResponsePatterns, suggestions } = reportsData;
 
   return (
     <div className="content-container section-spacing">
@@ -178,7 +187,7 @@ export default function OrganizationReports() {
           },
           {
             title: "Completion Rate",
-            value: `${overview.completionRate.toFixed(1)}%`,
+            value: `${overview.completionRate != null ? overview.completionRate.toFixed(1) : 0.00}%`,
             icon: Target,
             color: "blue",
             delay: 0.3,
@@ -330,7 +339,7 @@ export default function OrganizationReports() {
                     <div className="mb-3">
                       <div className="flex justify-between text-sm text-gray-600 mb-1">
                         <span>Completion Rate</span>
-                        <span>{section.completionRate.toFixed(1)}%</span>
+                        <span>{section.completionRate != null ? section.completionRate.toFixed(1) : 0.00}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
@@ -394,14 +403,61 @@ export default function OrganizationReports() {
         </ScaleIn>
       )}
 
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <ScaleIn delay={1.0}>
+          <div className="card card-lg mb-16">
+            <h2 className="text-heading mb-6 flex items-center">
+              <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
+              Suggestions & Recommendations
+            </h2>
+            <div className="space-y-4">
+              {suggestions
+                .sort((a: any, b: any) => b.priority - a.priority)
+                .map((suggestion: any, index: number) => (
+                  <SlideIn key={suggestion.id} direction="up" delay={1.1 + index * 0.1}>
+                    <Hover>
+                      <div className="border rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
+                              <Target className="h-4 w-4 text-cropper-blue-600" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded text-xs font-medium">
+                                {suggestion.metadata?.category || suggestion.type}
+                              </span>
+                              <span className="px-2 py-1 bg-cropper-green-100 text-cropper-green-800 rounded text-xs font-medium">
+                                Priority: {suggestion.priority}
+                              </span>
+                              {suggestion.metadata?.isStrategic && (
+                                <span className="px-2 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded text-xs font-medium">
+                                  Strategic
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-900">{suggestion.suggestion}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Hover>
+                  </SlideIn>
+                ))}
+            </div>
+          </div>
+        </ScaleIn>
+      )}
+
       {/* Response Patterns */}
       {topResponsePatterns.length > 0 && (
-        <ScaleIn delay={1.0}>
+        <ScaleIn delay={1.2}>
           <div className="card card-lg">
             <h2 className="text-heading mb-6">Common Response Patterns</h2>
             <div className="space-y-4">
               {topResponsePatterns.slice(0, 5).map((pattern, index) => (
-                <SlideIn key={pattern.questionId} direction="up" delay={1.1 + index * 0.1}>
+                <SlideIn key={pattern.questionId} direction="up" delay={1.3 + index * 0.1}>
                   <Hover>
                     <div className="border rounded-lg p-4 hover:border-cropper-brown-300 transition-all duration-300">
                       <div className="flex items-start justify-between">

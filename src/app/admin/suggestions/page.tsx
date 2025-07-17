@@ -74,7 +74,7 @@ export default function SuggestionsManagement() {
   const [activeTab, setActiveTab] = useState<'questions' | 'sections' | 'assessment'>('questions');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
-  const [showGuide, setShowGuide] = useState(true);
+  const [showGuide, setShowGuide] = useState(false);
   
   // Form states
   const [showQuestionForm, setShowQuestionForm] = useState(false);
@@ -98,7 +98,9 @@ export default function SuggestionsManagement() {
     suggestion: '',
     priority: 0,
     weight: 1.0,
-    isActive: true
+    isActive: true,
+    useAdvancedCondition: false,
+    advancedCondition: ''
   });
 
   const [assessmentSuggestionData, setAssessmentSuggestionData] = useState({
@@ -106,8 +108,20 @@ export default function SuggestionsManagement() {
     suggestion: '',
     priority: 0,
     weight: 1.0,
-    isActive: true
+    isActive: true,
+    useAdvancedCondition: false,
+    advancedCondition: ''
   });
+
+  const QUESTION_TYPE = {
+    TEXT: "Text",
+    BOOLEAN: "Yes/No",
+    LIKERT_SCALE: "Likert Scale",
+    NUMERIC: "Numeric",
+    DATE: "Date",
+    SINGLE_CHOICE: "Single Choice",
+    MULTIPLE_CHOICE: "Multiple Choice",
+  };
 
   useEffect(() => {
     if (status === "loading") return;
@@ -192,12 +206,29 @@ export default function SuggestionsManagement() {
 
   async function handleAddSectionSuggestion(sectionId: string) {
     try {
+      // Prepare condition based on form type
+      let condition;
+      if (sectionSuggestionData.useAdvancedCondition) {
+        try {
+          condition = JSON.parse(sectionSuggestionData.advancedCondition);
+        } catch (error) {
+          alert("Invalid JSON in advanced condition");
+          return;
+        }
+      } else {
+        condition = sectionSuggestionData.condition;
+      }
+
       const response = await fetch("/api/suggestions/section", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sectionId,
-          ...sectionSuggestionData
+          condition,
+          suggestion: sectionSuggestionData.suggestion,
+          priority: sectionSuggestionData.priority,
+          weight: sectionSuggestionData.weight,
+          isActive: sectionSuggestionData.isActive
         }),
       });
 
@@ -207,7 +238,9 @@ export default function SuggestionsManagement() {
           suggestion: '',
           priority: 0,
           weight: 1.0,
-          isActive: true
+          isActive: true,
+          useAdvancedCondition: false,
+          advancedCondition: ''
         });
         setShowSectionForm(false);
         fetchData();
@@ -219,10 +252,29 @@ export default function SuggestionsManagement() {
 
   async function handleAddAssessmentSuggestion() {
     try {
+      // Prepare condition based on form type
+      let condition;
+      if (assessmentSuggestionData.useAdvancedCondition) {
+        try {
+          condition = JSON.parse(assessmentSuggestionData.advancedCondition);
+        } catch (error) {
+          alert("Invalid JSON in advanced condition");
+          return;
+        }
+      } else {
+        condition = assessmentSuggestionData.condition;
+      }
+
       const response = await fetch("/api/suggestions/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(assessmentSuggestionData),
+        body: JSON.stringify({
+          condition,
+          suggestion: assessmentSuggestionData.suggestion,
+          priority: assessmentSuggestionData.priority,
+          weight: assessmentSuggestionData.weight,
+          isActive: assessmentSuggestionData.isActive
+        }),
       });
 
       if (response.ok) {
@@ -231,7 +283,9 @@ export default function SuggestionsManagement() {
           suggestion: '',
           priority: 0,
           weight: 1.0,
-          isActive: true
+          isActive: true,
+          useAdvancedCondition: false,
+          advancedCondition: ''
         });
         setShowAssessmentForm(false);
         fetchData();
@@ -271,6 +325,57 @@ export default function SuggestionsManagement() {
     } catch (error) {
       console.error("Error deleting suggestion:", error);
     }
+  }
+
+  function formatCondition(condition: any): string {
+    if (!condition) return "No condition";
+    
+    // Handle score range conditions
+    if (condition.minScore !== undefined || condition.maxScore !== undefined) {
+      const min = condition.minScore !== undefined ? Math.round(condition.minScore * 100) : 0;
+      const max = condition.maxScore !== undefined ? Math.round(condition.maxScore * 100) : 100;
+      return `Score range: ${min}% - ${max}%`;
+    }
+    
+    // Handle overall score conditions
+    if (condition.overallScore) {
+      const min = condition.overallScore.min !== undefined ? Math.round(condition.overallScore.min * 100) : 0;
+      const max = condition.overallScore.max !== undefined ? Math.round(condition.overallScore.max * 100) : 100;
+      return `Overall score: ${min}% - ${max}%`;
+    }
+    
+    // Handle question percentage conditions
+    if (condition.questionPercentage) {
+      const { operator, value, questionType, expectedValue } = condition.questionPercentage;
+      const operatorText = operator === 'less_than' ? 'less than' : 
+                          operator === 'greater_than' ? 'greater than' : 
+                          operator === 'equals' ? 'equals' : operator;
+      const typeText = questionType ? ` ${questionType} questions` : ' questions';
+      const valueText = expectedValue !== undefined ? ` with value "${expectedValue}"` : '';
+      return `${operatorText} ${value}% of${typeText}${valueText}`;
+    }
+    
+    // Handle section count conditions
+    if (condition.sectionCount) {
+      const { operator, value, belowThreshold } = condition.sectionCount;
+      const thresholdPercent = Math.round(belowThreshold * 100);
+      const operatorText = operator === 'greater_than' ? 'more than' : 
+                          operator === 'less_than' ? 'less than' : 
+                          operator === 'equals' ? 'exactly' : operator;
+      return `${operatorText} ${value} sections below ${thresholdPercent}%`;
+    }
+    
+    // Handle response value conditions
+    if (condition.value !== undefined && condition.operator) {
+      const operatorText = condition.operator === 'equals' ? 'equals' :
+                          condition.operator === 'contains' ? 'contains' :
+                          condition.operator === 'greater_than' ? 'greater than' :
+                          condition.operator === 'less_than' ? 'less than' : condition.operator;
+      return `${operatorText} "${condition.value}"`;
+    }
+    
+    // Fallback for complex JSON
+    return "Custom condition";
   }
 
   if (loading) {
@@ -319,13 +424,12 @@ export default function SuggestionsManagement() {
           transition={{ duration: 0.7, delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-subheading text-gray-900">How to Use the Suggestion System</h3>
             <button
               onClick={() => setShowGuide(!showGuide)}
               className="text-cropper-blue-600 hover:text-cropper-blue-700 flex items-center space-x-2"
             >
-              <span className="text-sm font-medium">
-                {showGuide ? 'Hide Guide' : 'Show Guide'}
+              <span className="text-lg font-medium">
+                {showGuide ? 'Hide Suggestion System Guide' : 'Show Suggestion System Guide'}
               </span>
               {showGuide ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </button>
@@ -340,7 +444,16 @@ export default function SuggestionsManagement() {
             </div>
             <div className="flex-1">
               <h3 className="text-subheading text-gray-900 mb-3">How to Use the Suggestion System</h3>
-              
+              <div className="mb-4 text-sm text-gray-700">
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>All <b>weights</b> and <b>score ranges</b> are entered and displayed as <b>percentages</b> for clarity (e.g., 100% = normal weight, 50% = half weight).</li>
+                  <li>Conditions are shown in <b>user-friendly language</b> (e.g., "Score range: 30% - 70%", "less than 50% of Yes/No questions").</li>
+                  <li>Question types are labeled clearly (e.g., "Yes/No", "Likert Scale", "Single Choice").</li>
+                  <li>You can use <b>form-based</b> conditions for common cases, or switch to <b>Advanced (JSON)</b> for custom logic.</li>
+                  <li>Click a section to quickly add a suggestion for that section.</li>
+                  <li>Mandatory fields are marked with <b>*</b> and must be filled out.</li>
+                </ul>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Question Suggestions */}
                 <div className="bg-white rounded-lg p-4 border border-cropper-blue-200">
@@ -354,11 +467,11 @@ export default function SuggestionsManagement() {
                   <div className="space-y-2 text-xs text-gray-600">
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-blue-400 rounded-full"></span>
-                      <span>Set conditions like "equals", "contains", "greater_than"</span>
+                      <span>Set conditions like "equals", "contains", "greater than"</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-blue-400 rounded-full"></span>
-                      <span>Example: If response = "low", suggest improvement</span>
+                      <span>Example: If response = "No", suggest improvement</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-blue-400 rounded-full"></span>
@@ -379,11 +492,11 @@ export default function SuggestionsManagement() {
                   <div className="space-y-2 text-xs text-gray-600">
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-green-400 rounded-full"></span>
-                      <span>Set score ranges (0.0 to 1.0)</span>
+                      <span>Set score ranges (as percentages, e.g., 30% - 70%)</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-green-400 rounded-full"></span>
-                      <span>Example: Score 0.3-0.6 = "needs improvement"</span>
+                      <span>Example: Score 30% - 60% = "needs improvement"</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-green-400 rounded-full"></span>
@@ -399,88 +512,26 @@ export default function SuggestionsManagement() {
                     <h4 className="text-subheading text-gray-900">Assessment Suggestions</h4>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">
-                    Trigger based on overall assessment performance.
+                    Trigger based on overall assessment scores or patterns across sections/questions.
                   </p>
                   <div className="space-y-2 text-xs text-gray-600">
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-brown-400 rounded-full"></span>
-                      <span>Set overall score ranges</span>
+                      <span>Set overall score ranges (as percentages, e.g., 60% - 100%)</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-brown-400 rounded-full"></span>
-                      <span>Example: Score 0.8+ = "excellent performance"</span>
+                      <span>Advanced: Use JSON for custom logic (e.g., "more than 2 sections below 60%")</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="w-2 h-2 bg-cropper-brown-400 rounded-full"></span>
-                      <span>Use for high-level strategic advice</span>
+                      <span>Use for strategic, organization-wide recommendations</span>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Configuration Tips */}
-              <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
-                <h4 className="text-subheading text-gray-900 mb-3 flex items-center">
-                  <Settings className="h-4 w-4 mr-2 text-gray-600" />
-                  Configuration Tips
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                  <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Priority & Weight</h5>
-                    <ul className="space-y-1">
-                      <li>• <strong>Priority</strong>: Higher numbers appear first (0-10)</li>
-                      <li>• <strong>Weight</strong>: Affects scoring calculations (0.1-5.0)</li>
-                      <li>• <strong>Active</strong>: Toggle to enable/disable suggestions</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Best Practices</h5>
-                    <ul className="space-y-1">
-                      <li>• Start with high-priority suggestions</li>
-                      <li>• Use clear, actionable language</li>
-                      <li>• Test conditions thoroughly</li>
-                      <li>• Balance positive and improvement feedback</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Scoring System */}
-              <div className="mt-4 bg-white rounded-lg p-4 border border-gray-200">
-                <h4 className="text-subheading text-gray-900 mb-3 flex items-center">
-                  <BarChart className="h-4 w-4 mr-2 text-gray-600" />
-                  Scoring System
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Question Types</h5>
-                    <ul className="space-y-1 text-gray-600">
-                      <li>• <strong>Boolean</strong>: True = 1.0, False = 0.0</li>
-                      <li>• <strong>Likert Scale</strong>: Normalized to 0-1 range</li>
-                      <li>• <strong>Single Choice</strong>: Default 0.5 (configurable)</li>
-                      <li>• <strong>Multiple Choice</strong>: Based on selections</li>
-                      <li>• <strong>Text</strong>: Neutral 0.5 (future: sentiment analysis)</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Weight Calculation</h5>
-                    <ul className="space-y-1 text-gray-600">
-                      <li>• <strong>Question Weight</strong>: Within section (default: 1.0)</li>
-                      <li>• <strong>Section Weight</strong>: Within assessment (default: 1.0)</li>
-                      <li>• <strong>Combined</strong>: Question × Section weight</li>
-                      <li>• <strong>Final Score</strong>: Weighted average of all responses</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Score Ranges</h5>
-                    <ul className="space-y-1 text-gray-600">
-                      <li>• <strong>0.0-0.3</strong>: Poor performance</li>
-                      <li>• <strong>0.3-0.6</strong>: Needs improvement</li>
-                      <li>• <strong>0.6-0.8</strong>: Good performance</li>
-                      <li>• <strong>0.8-1.0</strong>: Excellent performance</li>
-                    </ul>
-                  </div>
-                </div>
+              <div className="mt-6 text-xs text-gray-500">
+                <b>Tip:</b> Use the <b>Advanced (JSON)</b> toggle for custom conditions, but most use cases are covered by the form-based options.
               </div>
             </div>
           </div>
@@ -548,9 +599,9 @@ export default function SuggestionsManagement() {
                         )}
                       </button>
                       <h3 className="text-subheading text-gray-900">{section.title}</h3>
-                      <span className="px-3 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-sm font-medium">
-                        Weight: {section.weight}
-                      </span>
+                                          <span className="px-3 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-sm font-medium">
+                      Weight: {Math.round(section.weight * 100)}%
+                    </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-500">
@@ -578,7 +629,7 @@ export default function SuggestionsManagement() {
                               <div>
                                 <h4 className="text-subheading text-gray-900">{question.text}</h4>
                                 <p className="text-sm text-gray-500">
-                                  {question.type} • Weight: {question.weight}
+                                  {QUESTION_TYPE[question.type]} • Weight: {Math.round(question.weight * 100)}%
                                 </p>
                                 {question.options && question.options.length > 0 && (
                                   <div className="mt-2">
@@ -614,7 +665,7 @@ export default function SuggestionsManagement() {
                                 )}
                                 {question.type === 'BOOLEAN' && (
                                   <div className="mt-2">
-                                    <p className="text-xs text-gray-600 font-medium">Boolean values:</p>
+                                    <p className="text-xs text-gray-600 font-medium">Yes/No:</p>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                       {['true', 'false'].map((value) => (
                                         <span 
@@ -622,7 +673,7 @@ export default function SuggestionsManagement() {
                                           className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded border"
                                           title={`Use this value in your condition: "${value}"`}
                                         >
-                                          {value}
+                                          {value === 'true' ? 'Yes' : 'No'}
                                         </span>
                                       ))}
                                     </div>
@@ -665,12 +716,12 @@ export default function SuggestionsManagement() {
                                           Priority: {suggestion.priority}
                                         </span>
                                         <span className="px-2 py-1 bg-cropper-brown-100 text-cropper-brown-800 rounded text-xs font-medium">
-                                          Weight: {suggestion.weight}
+                                          Weight: {Math.round(suggestion.weight * 100)}%
                                         </span>
                                       </div>
                                       <p className="text-sm text-gray-900 mb-2">{suggestion.suggestion}</p>
                                       <p className="text-xs text-gray-500">
-                                        Condition: {JSON.stringify(suggestion.condition)}
+                                        Condition: {formatCondition(suggestion.condition)}
                                       </p>
                                     </div>
                                     <div className="flex items-center space-x-2">
@@ -729,11 +780,14 @@ export default function SuggestionsManagement() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {sections.map((section) => (
-                <div key={section.id} className="card">
+                <div key={section.id} className="card cursor-pointer hover:shadow-md transition-shadow" onClick={() => {
+                  setSelectedSection(section.id);
+                  setShowSectionForm(true);
+                }}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-subheading text-gray-900">{section.title}</h3>
                     <span className="px-3 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-sm font-medium">
-                      Weight: {section.weight}
+                      Weight: {Math.round(section.weight * 100)}%
                     </span>
                   </div>
                   
@@ -754,12 +808,12 @@ export default function SuggestionsManagement() {
                                 Priority: {suggestion.priority}
                               </span>
                               <span className="px-2 py-1 bg-cropper-brown-100 text-cropper-brown-800 rounded text-xs font-medium">
-                                Weight: {suggestion.weight}
+                                Weight: {Math.round(suggestion.weight * 100)}%
                               </span>
                             </div>
                             <p className="text-sm text-gray-900 mb-2">{suggestion.suggestion}</p>
                             <p className="text-xs text-gray-500">
-                              Condition: {JSON.stringify(suggestion.condition)}
+                              Condition: {formatCondition(suggestion.condition)}
                             </p>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -828,12 +882,12 @@ export default function SuggestionsManagement() {
                           Priority: {suggestion.priority}
                         </span>
                         <span className="px-2 py-1 bg-cropper-brown-100 text-cropper-brown-800 rounded text-xs font-medium">
-                          Weight: {suggestion.weight}
+                          Weight: {Math.round(suggestion.weight * 100)}%
                         </span>
                       </div>
                       <p className="text-sm text-gray-900 mb-2">{suggestion.suggestion}</p>
                       <p className="text-xs text-gray-500">
-                        Condition: {JSON.stringify(suggestion.condition)}
+                        Condition: {formatCondition(suggestion.condition)}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -892,7 +946,7 @@ export default function SuggestionsManagement() {
                   </p>
                   <div className="flex items-center space-x-4 text-xs text-blue-700">
                     <span>Type: {sections.flatMap(s => s.questions).find(q => q.id === selectedQuestion)?.type}</span>
-                    <span>Weight: {sections.flatMap(s => s.questions).find(q => q.id === selectedQuestion)?.weight}</span>
+                    <span>Weight: {Math.round((sections.flatMap(s => s.questions).find(q => q.id === selectedQuestion)?.weight || 0) * 100)}%</span>
                   </div>
                 </div>
               )}
@@ -1043,7 +1097,7 @@ export default function SuggestionsManagement() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Suggestion Text
+                  Suggestion Text *
                   <span className="text-xs text-gray-500 ml-2">(The advice that will be shown to the organization)</span>
                 </label>
                 <textarea
@@ -1056,6 +1110,7 @@ export default function SuggestionsManagement() {
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
                   placeholder="Enter actionable advice... (e.g., 'Consider implementing regular training sessions to improve team skills')"
                   title="Write clear, actionable advice that the organization can follow. Be specific and constructive."
+                  required
                 />
                 <p className="text-xs text-gray-500 mt-1">Provide specific, actionable advice that will help the organization improve</p>
               </div>
@@ -1088,19 +1143,19 @@ export default function SuggestionsManagement() {
                   </label>
                   <input
                     type="number"
-                    step="0.1"
-                    min="0.1"
-                    max="5.0"
-                    value={questionSuggestionData.weight}
+                    step="1"
+                    min="10"
+                    max="500"
+                    value={Math.round(questionSuggestionData.weight * 100)}
                     onChange={(e) => setQuestionSuggestionData({
                       ...questionSuggestionData,
-                      weight: parseFloat(e.target.value)
+                      weight: parseFloat(e.target.value) / 100
                     })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    placeholder="1.0"
-                    title="Weight affects how this suggestion influences overall scoring. Default is 1.0."
+                    placeholder="100"
+                    title="Weight affects how this suggestion influences overall scoring. Default is 100%."
                   />
-                  <p className="text-xs text-gray-500 mt-1">0.1 = low impact, 5.0 = high impact</p>
+                  <p className="text-xs text-gray-500 mt-1">10% = low impact, 500% = high impact</p>
                 </div>
                 <div className="flex items-center">
                   <label className="flex items-center">
@@ -1160,52 +1215,160 @@ export default function SuggestionsManagement() {
                 handleAddSectionSuggestion(selectedSection);
               }
             }} className="space-y-6">
+              
+              {/* Section Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Score Range
-                  <span className="text-xs text-gray-500 ml-2">(When the section score falls within this range, the suggestion will be shown)</span>
+                  Select Section
+                  <span className="text-xs text-gray-500 ml-2">(Choose which section this suggestion applies to)</span>
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="1"
-                      placeholder="Min Score (0.0-1.0)"
-                      value={sectionSuggestionData.condition.minScore}
-                      onChange={(e) => setSectionSuggestionData({
-                        ...sectionSuggestionData,
-                        condition: { ...sectionSuggestionData.condition, minScore: parseFloat(e.target.value) }
-                      })}
-                      className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
-                      title="Minimum score that triggers this suggestion. 0.0 = poor, 1.0 = excellent."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Minimum score (0.0 = poor performance)</p>
+                <select
+                  value={selectedSection || ''}
+                  onChange={(e) => setSelectedSection(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select a section...</option>
+                  {sections.map((section) => (
+                    <option key={section.id} value={section.id}>
+                      {section.title} ({section.questions.length} questions)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Selected Section Info */}
+              {selectedSection && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-blue-900 mb-2">Adding suggestion for:</h4>
+                  <p className="text-sm text-blue-800 mb-2">
+                    {sections.find(s => s.id === selectedSection)?.title}
+                  </p>
+                  <div className="flex items-center space-x-4 text-xs text-blue-700">
+                    <span>Questions: {sections.find(s => s.id === selectedSection)?.questions.length || 0}</span>
+                    <span>Weight: {Math.round((sections.find(s => s.id === selectedSection)?.weight || 0) * 100)}%</span>
                   </div>
-                  <div>
+                </div>
+              )}
+
+              {/* Condition Type Toggle */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Condition Type
+                </label>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
                     <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="1"
-                      placeholder="Max Score (0.0-1.0)"
-                      value={sectionSuggestionData.condition.maxScore}
-                      onChange={(e) => setSectionSuggestionData({
+                      type="radio"
+                      name="conditionType"
+                      checked={!sectionSuggestionData.useAdvancedCondition}
+                      onChange={() => setSectionSuggestionData({
                         ...sectionSuggestionData,
-                        condition: { ...sectionSuggestionData.condition, maxScore: parseFloat(e.target.value) }
+                        useAdvancedCondition: false
                       })}
-                      className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
-                      title="Maximum score that triggers this suggestion. 0.0 = poor, 1.0 = excellent."
+                      className="mr-2"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Maximum score (1.0 = excellent performance)</p>
-                  </div>
+                    <span className="text-sm text-gray-700">Form-based</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="conditionType"
+                      checked={sectionSuggestionData.useAdvancedCondition}
+                      onChange={() => setSectionSuggestionData({
+                        ...sectionSuggestionData,
+                        useAdvancedCondition: true
+                      })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Advanced (JSON)</span>
+                  </label>
                 </div>
               </div>
 
+              {/* Form-based Condition */}
+              {!sectionSuggestionData.useAdvancedCondition && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Score Range
+                    <span className="text-xs text-gray-500 ml-2">(When the section score falls within this range, the suggestion will be shown)</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        max="100"
+                        placeholder="Min Score (0-100%)"
+                        value={Math.round((sectionSuggestionData.condition.minScore || 0) * 100)}
+                        onChange={(e) => setSectionSuggestionData({
+                          ...sectionSuggestionData,
+                          condition: { ...sectionSuggestionData.condition, minScore: parseFloat(e.target.value) / 100 }
+                        })}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
+                        title="Minimum score that triggers this suggestion. 0% = poor, 100% = excellent."
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Minimum score (0% = poor performance)</p>
+                    </div>
+                    <div>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        max="100"
+                        placeholder="Max Score (0-100%)"
+                        value={Math.round((sectionSuggestionData.condition.maxScore || 1) * 100)}
+                        onChange={(e) => setSectionSuggestionData({
+                          ...sectionSuggestionData,
+                          condition: { ...sectionSuggestionData.condition, maxScore: parseFloat(e.target.value) / 100 }
+                        })}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
+                        title="Maximum score that triggers this suggestion. 0% = poor, 100% = excellent."
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Maximum score (100% = excellent performance)</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Advanced JSON Condition */}
+              {sectionSuggestionData.useAdvancedCondition && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Advanced Condition (JSON)
+                    <span className="text-xs text-gray-500 ml-2">(Custom JSON condition for advanced logic)</span>
+                  </label>
+                  <textarea
+                    value={sectionSuggestionData.advancedCondition}
+                    onChange={(e) => setSectionSuggestionData({
+                      ...sectionSuggestionData,
+                      advancedCondition: e.target.value
+                    })}
+                    rows={6}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent font-mono text-sm"
+                    placeholder={`{
+  "minScore": 0.3,
+  "maxScore": 0.7,
+  "questionPercentage": {
+    "operator": "less_than",
+    "value": 50,
+    "questionType": "BOOLEAN",
+    "expectedValue": true
+  }
+}`}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Use JSON to define complex conditions. Available context: section, questions, responses, scores.
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Suggestion Text
+                  Suggestion Text *
                   <span className="text-xs text-gray-500 ml-2">(The advice that will be shown to the organization)</span>
                 </label>
                 <textarea
@@ -1218,6 +1381,7 @@ export default function SuggestionsManagement() {
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
                   placeholder="Enter actionable advice... (e.g., 'This area needs significant improvement. Consider implementing comprehensive training programs.')"
                   title="Write clear, actionable advice for the entire section. Focus on broader improvements rather than specific questions."
+                  required
                 />
                 <p className="text-xs text-gray-500 mt-1">Provide section-wide advice based on overall performance in this area</p>
               </div>
@@ -1243,14 +1407,18 @@ export default function SuggestionsManagement() {
                   </label>
                   <input
                     type="number"
-                    step="0.1"
-                    value={sectionSuggestionData.weight}
+                    step="1"
+                    min="10"
+                    max="500"
+                    value={Math.round(sectionSuggestionData.weight * 100)}
                     onChange={(e) => setSectionSuggestionData({
                       ...sectionSuggestionData,
-                      weight: parseFloat(e.target.value)
+                      weight: parseFloat(e.target.value) / 100
                     })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                    placeholder="100"
                   />
+                  <p className="text-xs text-gray-500 mt-1">10% = low impact, 500% = high impact</p>
                 </div>
                 <div className="flex items-center">
                   <label className="flex items-center">
@@ -1306,64 +1474,144 @@ export default function SuggestionsManagement() {
               e.preventDefault();
               handleAddAssessmentSuggestion();
             }} className="space-y-6">
+              
+              {/* Condition Type Toggle */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Overall Score Range
-                  <span className="text-xs text-gray-500 ml-2">(When the overall assessment score falls within this range, the suggestion will be shown)</span>
+                  Condition Type
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
                     <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="1"
-                      placeholder="Min Score (0.0-1.0)"
-                      value={assessmentSuggestionData.condition.overallScore.min}
-                      onChange={(e) => setAssessmentSuggestionData({
+                      type="radio"
+                      name="assessmentConditionType"
+                      checked={!assessmentSuggestionData.useAdvancedCondition}
+                      onChange={() => setAssessmentSuggestionData({
                         ...assessmentSuggestionData,
-                        condition: { 
-                          ...assessmentSuggestionData.condition, 
-                          overallScore: { 
-                            ...assessmentSuggestionData.condition.overallScore, 
-                            min: parseFloat(e.target.value) 
-                          } 
-                        }
+                        useAdvancedCondition: false
                       })}
-                      className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
-                      title="Minimum overall score that triggers this suggestion. 0.0 = poor overall performance, 1.0 = excellent."
+                      className="mr-2"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Minimum overall score (0.0 = poor performance)</p>
-                  </div>
-                  <div>
+                    <span className="text-sm text-gray-700">Form-based</span>
+                  </label>
+                  <label className="flex items-center">
                     <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="1"
-                      placeholder="Max Score (0.0-1.0)"
-                      value={assessmentSuggestionData.condition.overallScore.max}
-                      onChange={(e) => setAssessmentSuggestionData({
+                      type="radio"
+                      name="assessmentConditionType"
+                      checked={assessmentSuggestionData.useAdvancedCondition}
+                      onChange={() => setAssessmentSuggestionData({
                         ...assessmentSuggestionData,
-                        condition: { 
-                          ...assessmentSuggestionData.condition, 
-                          overallScore: { 
-                            ...assessmentSuggestionData.condition.overallScore, 
-                            max: parseFloat(e.target.value) 
-                          } 
-                        }
+                        useAdvancedCondition: true
                       })}
-                      className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
-                      title="Maximum overall score that triggers this suggestion. 0.0 = poor overall performance, 1.0 = excellent."
+                      className="mr-2"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Maximum overall score (1.0 = excellent performance)</p>
-                  </div>
+                    <span className="text-sm text-gray-700">Advanced (JSON)</span>
+                  </label>
                 </div>
               </div>
 
+              {/* Form-based Condition */}
+              {!assessmentSuggestionData.useAdvancedCondition && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Overall Score Range
+                    <span className="text-xs text-gray-500 ml-2">(When the overall assessment score falls within this range, the suggestion will be shown)</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        max="100"
+                        placeholder="Min Score (0-100%)"
+                        value={Math.round((assessmentSuggestionData.condition.overallScore.min || 0) * 100)}
+                        onChange={(e) => setAssessmentSuggestionData({
+                          ...assessmentSuggestionData,
+                          condition: { 
+                            ...assessmentSuggestionData.condition, 
+                            overallScore: { 
+                              ...assessmentSuggestionData.condition.overallScore, 
+                              min: parseFloat(e.target.value) / 100 
+                            } 
+                          }
+                        })}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
+                        title="Minimum overall score that triggers this suggestion. 0% = poor, 100% = excellent."
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Minimum overall score (0% = poor performance)</p>
+                    </div>
+                    <div>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        max="100"
+                        placeholder="Max Score (0-100%)"
+                        value={Math.round((assessmentSuggestionData.condition.overallScore.max || 1) * 100)}
+                        onChange={(e) => setAssessmentSuggestionData({
+                          ...assessmentSuggestionData,
+                          condition: { 
+                            ...assessmentSuggestionData.condition, 
+                            overallScore: { 
+                              ...assessmentSuggestionData.condition.overallScore, 
+                              max: parseFloat(e.target.value) / 100 
+                            } 
+                          }
+                        })}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
+                        title="Maximum overall score that triggers this suggestion. 0% = poor, 100% = excellent."
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Maximum overall score (100% = excellent performance)</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Advanced JSON Condition */}
+              {assessmentSuggestionData.useAdvancedCondition && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Advanced Condition (JSON)
+                    <span className="text-xs text-gray-500 ml-2">(Custom JSON condition for advanced logic)</span>
+                  </label>
+                  <textarea
+                    value={assessmentSuggestionData.advancedCondition}
+                    onChange={(e) => setAssessmentSuggestionData({
+                      ...assessmentSuggestionData,
+                      advancedCondition: e.target.value
+                    })}
+                    rows={6}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent font-mono text-sm"
+                    placeholder={`{
+  "overallScore": {
+    "min": 0.3,
+    "max": 0.7
+  },
+  "sectionCount": {
+    "operator": "greater_than",
+    "value": 2,
+    "belowThreshold": 0.6
+  },
+  "questionPercentage": {
+    "operator": "less_than",
+    "value": 30,
+    "questionType": "BOOLEAN",
+    "expectedValue": true
+  }
+}`}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Use JSON to define complex conditions. Available context: assessment, sections, questions, responses, scores.
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Suggestion Text
+                  Suggestion Text *
                   <span className="text-xs text-gray-500 ml-2">(The high-level strategic advice that will be shown to the organization)</span>
                 </label>
                 <textarea
@@ -1376,6 +1624,7 @@ export default function SuggestionsManagement() {
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
                   placeholder="Enter strategic advice... (e.g., 'Your organization shows excellent overall performance. Consider focusing on continuous improvement and knowledge sharing.')"
                   title="Write high-level strategic advice for the entire organization. Focus on overall performance and strategic direction."
+                  required
                 />
                 <p className="text-xs text-gray-500 mt-1">Provide organization-wide strategic advice based on overall assessment performance</p>
               </div>
@@ -1401,14 +1650,18 @@ export default function SuggestionsManagement() {
                   </label>
                   <input
                     type="number"
-                    step="0.1"
-                    value={assessmentSuggestionData.weight}
+                    step="1"
+                    min="10"
+                    max="500"
+                    value={Math.round(assessmentSuggestionData.weight * 100)}
                     onChange={(e) => setAssessmentSuggestionData({
                       ...assessmentSuggestionData,
-                      weight: parseFloat(e.target.value)
+                      weight: parseFloat(e.target.value) / 100
                     })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                    placeholder="100"
                   />
+                  <p className="text-xs text-gray-500 mt-1">10% = low impact, 500% = high impact</p>
                 </div>
                 <div className="flex items-center">
                   <label className="flex items-center">

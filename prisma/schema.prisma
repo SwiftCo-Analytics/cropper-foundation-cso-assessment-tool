@@ -120,23 +120,13 @@ model AssessmentSuggestion {
   updatedAt   DateTime @updatedAt
 }
 
-model Recommendation {
-  id          String   @id @default(cuid())
-  category    String   // Maps to section or specific question
-  condition   Json     // Conditions that trigger this recommendation
-  text        String
-  priority    Int      @default(0)
-  reports     Report[] @relation("ReportRecommendations")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+
 
 model Report {
   id           String     @id @default(cuid())
   assessmentId String     @unique
   assessment   Assessment @relation(fields: [assessmentId], references: [id])
-  content      Json       // The report content including scores and recommendations
-  recommendations Recommendation[] @relation("ReportRecommendations")
+  content      Json       // The report content including scores and suggestions
   suggestions  ReportSuggestion[] // Generated suggestions for this report
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

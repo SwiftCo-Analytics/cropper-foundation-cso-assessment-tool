@@ -481,7 +481,7 @@ export default function AdminDashboard() {
                       {section.description && (
                         <p className="text-caption">{section.description}</p>
                       )}
-                      <p className="text-caption">Weight: {section.weight}</p>
+                      <p className="text-caption">Weight: {Math.round(section.weight * 100)}%</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">

@@ -211,6 +211,27 @@ export async function GET(request: Request) {
       .sort((a, b) => b.totalResponses - a.totalResponses)
       .slice(0, 10);
 
+    // Get suggestions from latest completed assessment
+    let suggestions: any[] = [];
+    const latestCompletedAssessment = organization.assessments
+      .filter(a => a.status === "COMPLETED")
+      .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())[0];
+
+    if (latestCompletedAssessment) {
+      const report = await prisma.report.findUnique({
+        where: { assessmentId: latestCompletedAssessment.id },
+        include: {
+          suggestions: {
+            orderBy: { priority: 'desc' }
+          }
+        }
+      });
+      
+      if (report) {
+        suggestions = report.suggestions;
+      }
+    }
+
     return NextResponse.json({
       overview: {
         totalAssessments,
@@ -226,6 +247,7 @@ export async function GET(request: Request) {
       monthlyProgress: Object.fromEntries(monthlyProgress),
       improvementTrends,
       topResponsePatterns,
+      suggestions,
     });
   } catch (error) {
     console.error("Error fetching organization reports:", error);

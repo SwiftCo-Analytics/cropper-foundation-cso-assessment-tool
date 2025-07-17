@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FileText, CheckCircle, Clock, Plus, ArrowRight, Calendar, AlertCircle, Download, Edit2, X, BarChart } from "lucide-react";
+import { FileText, CheckCircle, Clock, Plus, ArrowRight, Calendar, AlertCircle, Download, Edit2, X, BarChart, Lightbulb, Target } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 
@@ -23,6 +23,16 @@ interface Assessment {
   };
 }
 
+interface Suggestion {
+  id: string;
+  type: string;
+  sourceId?: string;
+  suggestion: string;
+  priority: number;
+  weight: number;
+  metadata?: any;
+}
+
 interface Organization {
   id: string;
   name: string;
@@ -33,6 +43,7 @@ export default function OrganizationDashboard() {
   const router = useRouter();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [latestSuggestions, setLatestSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingAssessment, setEditingAssessment] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -58,6 +69,9 @@ export default function OrganizationDashboard() {
         const data = await response.json();
         setOrganization(data.organization);
         setAssessments(data.assessments || []);
+        
+        // Load suggestions from latest completed assessment
+        await loadLatestSuggestions(token);
       } else {
         localStorage.removeItem("org_token");
         router.push("/organization/login");
@@ -68,6 +82,31 @@ export default function OrganizationDashboard() {
       router.push("/organization/login");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadLatestSuggestions(token: string) {
+    try {
+      // Find the latest completed assessment
+      const completedAssessments = assessments.filter(a => a.status === "COMPLETED");
+      const latestAssessment = completedAssessments.sort((a, b) => 
+        new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime()
+      )[0];
+
+      if (latestAssessment) {
+        const response = await fetch(`/api/assessments/${latestAssessment.id}/suggestions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setLatestSuggestions(data.suggestions || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading suggestions:", error);
     }
   }
 
@@ -288,6 +327,67 @@ export default function OrganizationDashboard() {
           </SlideIn>
         ))}
       </div>
+
+      {/* Latest Suggestions */}
+      {latestSuggestions.length > 0 && (
+        <ScaleIn>
+          <div className="card mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-heading mb-2 flex items-center">
+                  <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
+                  Latest Suggestions
+                </h2>
+                <p className="text-body">Based on your most recent assessment</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {latestSuggestions
+                .sort((a, b) => b.priority - a.priority)
+                .slice(0, 3) // Show top 3 suggestions
+                .map((suggestion) => (
+                  <div key={suggestion.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
+                          <Target className="h-4 w-4 text-cropper-blue-600" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded text-xs font-medium">
+                            {suggestion.metadata?.category || suggestion.type}
+                          </span>
+                          <span className="px-2 py-1 bg-cropper-green-100 text-cropper-green-800 rounded text-xs font-medium">
+                            Priority: {suggestion.priority}
+                          </span>
+                          {suggestion.metadata?.isStrategic && (
+                            <span className="px-2 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded text-xs font-medium">
+                              Strategic
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-900">{suggestion.suggestion}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              
+              {latestSuggestions.length > 3 && (
+                <div className="text-center pt-4">
+                  <Link
+                    href="/organization/reports"
+                    className="text-cropper-blue-600 hover:text-cropper-blue-700 text-sm font-medium"
+                  >
+                    View all suggestions →
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </ScaleIn>
+      )}
 
       <ScaleIn>
         <div className="space-y-8">

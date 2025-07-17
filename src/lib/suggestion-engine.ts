@@ -54,6 +54,10 @@ export class SuggestionEngine {
       const assessmentSuggestions = await this.generateAssessmentSuggestions(assessment);
       suggestions.push(...assessmentSuggestions);
 
+      // Generate strategic recommendations
+      const strategicSuggestions = await this.generateStrategicSuggestions(assessment);
+      suggestions.push(...strategicSuggestions);
+
       // Save suggestions to database
       await this.saveSuggestions(assessmentId, suggestions);
 
@@ -125,7 +129,7 @@ export class SuggestionEngine {
       });
 
       for (const suggestion of sectionSuggestions) {
-        if (this.evaluateSectionCondition(sectionScore, suggestion.condition)) {
+        if (this.evaluateSectionCondition(sectionScore, suggestion.condition, section, responses)) {
           suggestions.push({
             type: SuggestionType.SECTION,
             sourceId: sectionId,
@@ -135,7 +139,9 @@ export class SuggestionEngine {
             metadata: {
               sectionTitle: section.title,
               sectionScore,
-              condition: suggestion.condition
+              condition: suggestion.condition,
+              questionCount: section.questions?.length || 0,
+              responseCount: responses.length
             }
           });
         }
@@ -153,6 +159,7 @@ export class SuggestionEngine {
 
     // Calculate overall assessment score
     const overallScore = this.calculateOverallScore(assessment.responses);
+    const sectionScores = this.calculateSectionScores(assessment.responses);
 
     // Get assessment suggestions
     const assessmentSuggestions = await prisma.assessmentSuggestion.findMany({
@@ -161,7 +168,7 @@ export class SuggestionEngine {
     });
 
     for (const suggestion of assessmentSuggestions) {
-      if (this.evaluateAssessmentCondition(overallScore, suggestion.condition)) {
+      if (this.evaluateAssessmentCondition(overallScore, suggestion.condition, assessment, sectionScores)) {
         suggestions.push({
           type: SuggestionType.ASSESSMENT,
           suggestion: suggestion.suggestion,
@@ -169,7 +176,108 @@ export class SuggestionEngine {
           weight: suggestion.weight,
           metadata: {
             overallScore,
-            condition: suggestion.condition
+            condition: suggestion.condition,
+            sectionCount: assessment.responses.reduce((acc: string[], r: any) => {
+              if (!acc.includes(r.question.section.id)) acc.push(r.question.section.id);
+              return acc;
+            }, [] as string[]).length,
+            questionCount: assessment.responses.length,
+            sectionScores
+          }
+        });
+      }
+    }
+
+    return suggestions;
+  }
+
+  /**
+   * Generate strategic recommendations based on assessment patterns
+   */
+  private static async generateStrategicSuggestions(assessment: any): Promise<SuggestionResult[]> {
+    const suggestions: SuggestionResult[] = [];
+
+    // Calculate scores
+    const overallScore = this.calculateOverallScore(assessment.responses);
+    const sectionScores = this.calculateSectionScores(assessment.responses);
+
+    // Strategic recommendations based on patterns
+    const strategicRecommendations = [
+      {
+        condition: { overallScore: { max: 0.6 } },
+        suggestion: "Your organization shows significant opportunities for improvement. Consider implementing a comprehensive improvement plan with clear milestones and regular progress reviews.",
+        priority: 10,
+        category: "Strategic"
+      },
+      {
+        condition: { overallScore: { min: 0.6, max: 0.8 } },
+        suggestion: "Your organization demonstrates good practices with room for enhancement. Focus on specific areas of weakness to achieve excellence.",
+        priority: 8,
+        category: "Strategic"
+      },
+      {
+        condition: { overallScore: { min: 0.8 } },
+        suggestion: "Excellent performance! Continue maintaining high standards and consider sharing best practices with other organizations.",
+        priority: 6,
+        category: "Strategic"
+      },
+      {
+        condition: { 
+          responses: { 'security-q1': false },
+          category: "Security"
+        },
+        suggestion: "Develop and implement a comprehensive security policy that covers all aspects of your organization's operations.",
+        priority: 9,
+        category: "Security"
+      },
+      {
+        condition: { 
+          responses: { 'security-q2': 'Never' },
+          category: "Security"
+        },
+        suggestion: "Implement regular security awareness training programs to ensure all employees understand security best practices.",
+        priority: 8,
+        category: "Security"
+      },
+      {
+        condition: { 
+          responses: { 'compliance-q1': false },
+          category: "Compliance"
+        },
+        suggestion: "Appoint a dedicated compliance officer to oversee regulatory requirements and ensure ongoing compliance.",
+        priority: 9,
+        category: "Compliance"
+      },
+      {
+        condition: { 
+          responses: { 'operations-q1': false },
+          category: "Operations"
+        },
+        suggestion: "Document all key operational procedures to ensure consistency and enable effective training and quality control.",
+        priority: 7,
+        category: "Operations"
+      },
+      {
+        condition: {},
+        suggestion: "Consider conducting regular assessments to track progress and identify areas for continuous improvement.",
+        priority: 5,
+        category: "General"
+      }
+    ];
+
+    // Evaluate each strategic recommendation
+    for (const recommendation of strategicRecommendations) {
+      if (this.evaluateStrategicCondition(recommendation.condition, assessment, sectionScores, overallScore)) {
+        suggestions.push({
+          type: SuggestionType.ASSESSMENT, // Use ASSESSMENT type for strategic suggestions
+          suggestion: recommendation.suggestion,
+          priority: recommendation.priority,
+          weight: 1.0,
+          metadata: {
+            category: recommendation.category,
+            overallScore,
+            sectionScores,
+            isStrategic: true
           }
         });
       }
@@ -203,20 +311,104 @@ export class SuggestionEngine {
   }
 
   /**
-   * Evaluate a section condition against a section score
+   * Evaluate a section condition against a section score and context
    */
-  private static evaluateSectionCondition(sectionScore: number, condition: any): boolean {
-    const { minScore, maxScore } = condition;
-    return sectionScore >= minScore && sectionScore <= maxScore;
+  private static evaluateSectionCondition(sectionScore: number, condition: any, section: any, responses: any[]): boolean {
+    // Handle simple score range conditions
+    if (condition.minScore !== undefined || condition.maxScore !== undefined) {
+      const { minScore = 0, maxScore = 1 } = condition;
+      return sectionScore >= minScore && sectionScore <= maxScore;
+    }
+
+    // Handle advanced conditions with full context
+    if (condition.questionPercentage) {
+      const { operator, value, questionType, expectedValue } = condition.questionPercentage;
+      const matchingResponses = responses.filter(r => {
+        if (questionType && r.question.type !== questionType) return false;
+        if (expectedValue !== undefined && r.value !== expectedValue) return false;
+        return true;
+      });
+      const percentage = (matchingResponses.length / responses.length) * 100;
+      
+      switch (operator) {
+        case 'less_than':
+          return percentage < value;
+        case 'greater_than':
+          return percentage > value;
+        case 'equals':
+          return Math.abs(percentage - value) < 1; // Within 1%
+        default:
+          return false;
+      }
+    }
+
+    // Handle custom JSON conditions
+    if (typeof condition === 'object' && !condition.minScore && !condition.maxScore) {
+      // For advanced JSON conditions, we can add more complex logic here
+      // For now, fall back to the strategic condition evaluator
+      return this.evaluateStrategicCondition(condition, { responses }, { [section.id]: sectionScore }, sectionScore);
+    }
+
+    return false;
   }
 
   /**
-   * Evaluate an assessment condition against an overall score
+   * Evaluate an assessment condition against an overall score and context
    */
-  private static evaluateAssessmentCondition(overallScore: number, condition: any): boolean {
-    const { overallScore: scoreRange } = condition;
-    const { min, max } = scoreRange;
-    return overallScore >= min && overallScore <= max;
+  private static evaluateAssessmentCondition(overallScore: number, condition: any, assessment: any, sectionScores: Record<string, number>): boolean {
+    // Handle simple score range conditions
+    if (condition.overallScore) {
+      const { min = 0, max = 1 } = condition.overallScore;
+      return overallScore >= min && overallScore <= max;
+    }
+
+    // Handle section count conditions
+    if (condition.sectionCount) {
+      const { operator, value, belowThreshold } = condition.sectionCount;
+      const sectionsBelowThreshold = Object.values(sectionScores).filter(score => score < belowThreshold).length;
+      
+      switch (operator) {
+        case 'greater_than':
+          return sectionsBelowThreshold > value;
+        case 'less_than':
+          return sectionsBelowThreshold < value;
+        case 'equals':
+          return sectionsBelowThreshold === value;
+        default:
+          return false;
+      }
+    }
+
+    // Handle question percentage conditions
+    if (condition.questionPercentage) {
+      const { operator, value, questionType, expectedValue } = condition.questionPercentage;
+      const matchingResponses = assessment.responses.filter((r: any) => {
+        if (questionType && r.question.type !== questionType) return false;
+        if (expectedValue !== undefined && r.value !== expectedValue) return false;
+        return true;
+      });
+      const percentage = (matchingResponses.length / assessment.responses.length) * 100;
+      
+      switch (operator) {
+        case 'less_than':
+          return percentage < value;
+        case 'greater_than':
+          return percentage > value;
+        case 'equals':
+          return Math.abs(percentage - value) < 1; // Within 1%
+        default:
+          return false;
+      }
+    }
+
+    // Handle custom JSON conditions
+    if (typeof condition === 'object' && !condition.overallScore && !condition.sectionCount && !condition.questionPercentage) {
+      // For advanced JSON conditions, we can add more complex logic here
+      // For now, fall back to the strategic condition evaluator
+      return this.evaluateStrategicCondition(condition, assessment, sectionScores, overallScore);
+    }
+
+    return false;
   }
 
   /**
@@ -259,6 +451,70 @@ export class SuggestionEngine {
     }
 
     return totalWeight > 0 ? weightedSum / totalWeight : 0;
+  }
+
+  /**
+   * Calculate scores for each section
+   */
+  private static calculateSectionScores(responses: any[]): Record<string, number> {
+    const sectionScores: Record<string, number> = {};
+    const sectionResponses = new Map<string, any[]>();
+
+    // Group responses by section
+    for (const response of responses) {
+      const sectionId = response.question.section.id;
+      if (!sectionResponses.has(sectionId)) {
+        sectionResponses.set(sectionId, []);
+      }
+      sectionResponses.get(sectionId)!.push(response);
+    }
+
+    // Calculate scores for each section
+    for (const [sectionId, sectionResps] of sectionResponses) {
+      const numericResponses = sectionResps.filter(r => 
+        typeof r.value === 'number' && r.value >= 1 && r.value <= 5
+      );
+      
+      if (numericResponses.length > 0) {
+        const totalScore = numericResponses.reduce((sum, r) => sum + (r.value as number), 0);
+        sectionScores[sectionId] = totalScore / numericResponses.length;
+      } else {
+        sectionScores[sectionId] = 0;
+      }
+    }
+
+    return sectionScores;
+  }
+
+  /**
+   * Evaluate strategic condition
+   */
+  private static evaluateStrategicCondition(
+    condition: any,
+    assessment: any,
+    sectionScores: Record<string, number>,
+    overallScore: number
+  ): boolean {
+    if (!condition || Object.keys(condition).length === 0) {
+      return true; // No condition means always apply
+    }
+
+    // Check overall score conditions
+    if (condition.overallScore) {
+      const { min, max } = condition.overallScore;
+      if (min !== undefined && overallScore < min) return false;
+      if (max !== undefined && overallScore > max) return false;
+    }
+
+    // Check response value conditions
+    if (condition.responses) {
+      for (const [questionId, expectedValue] of Object.entries(condition.responses)) {
+        const response = assessment.responses.find((r: any) => r.questionId === questionId);
+        if (response && response.value !== expectedValue) return false;
+      }
+    }
+
+    return true;
   }
 
   /**

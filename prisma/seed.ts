@@ -1,154 +1,177 @@
-import { PrismaClient, QuestionType } from '../src/generated/prisma';
+import { PrismaClient } from '../src/generated/prisma';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Clear existing data
-  await prisma.response.deleteMany();
-  await prisma.question.deleteMany();
-  await prisma.section.deleteMany();
-  await prisma.assessment.deleteMany();
-  await prisma.organization.deleteMany();
-  await prisma.recommendation.deleteMany();
-  await prisma.report.deleteMany();
+  console.log('🌱 Seeding database...');
 
-  // Create sections and questions
-  const sections = [
-    {
-      title: "Organizational Governance",
-      description: "Assessment of your organization's governance structure and practices",
-      questions: [
-        {
-          text: "Does your organization have a formal board of directors?",
-          type: QuestionType.BOOLEAN,
-          description: "A formal board provides oversight and strategic direction",
-        },
-        {
-          text: "How often does your board meet?",
-          type: QuestionType.SINGLE_CHOICE,
-          description: "Regular board meetings are essential for effective governance",
-          options: ["Monthly", "Quarterly", "Bi-annually", "Annually", "As needed"],
-        },
-        {
-          text: "Rate your organization's transparency in decision-making",
-          type: QuestionType.LIKERT_SCALE,
-          description: "1 = Not transparent, 5 = Highly transparent",
-        },
-      ],
+  // Create admin user
+  const admin = await prisma.admin.upsert({
+    where: { email: 'admin@cropper.com' },
+    update: {},
+    create: {
+      name: 'Admin User',
+      email: 'admin@cropper.com',
+      password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8i', // password: admin123
     },
-    {
-      title: "Financial Management",
-      description: "Evaluation of financial practices and controls",
-      questions: [
-        {
-          text: "Which financial controls does your organization have in place?",
-          type: QuestionType.MULTIPLE_CHOICE,
-          description: "Select all that apply",
-          options: [
-            "Annual budgeting process",
-            "Regular financial audits",
-            "Segregation of duties",
-            "Written financial policies",
-            "Asset management system",
-          ],
-        },
-        {
-          text: "How would you rate your organization's financial sustainability?",
-          type: QuestionType.LIKERT_SCALE,
-          description: "1 = Highly dependent on single source, 5 = Diverse and sustainable funding",
-        },
-        {
-          text: "Describe your organization's approach to financial risk management",
-          type: QuestionType.TEXT,
-          description: "Include key strategies and challenges",
-        },
-      ],
-    },
-    {
-      title: "Program Implementation",
-      description: "Assessment of program delivery and impact",
-      questions: [
-        {
-          text: "Does your organization have a formal M&E system?",
-          type: QuestionType.BOOLEAN,
-          description: "Monitoring and Evaluation system for tracking program outcomes",
-        },
-        {
-          text: "How do you measure program success?",
-          type: QuestionType.MULTIPLE_CHOICE,
-          description: "Select all applicable methods",
-          options: [
-            "Quantitative indicators",
-            "Qualitative feedback",
-            "External evaluations",
-            "Beneficiary surveys",
-            "Impact assessments",
-          ],
-        },
-        {
-          text: "Rate your organization's ability to adapt programs based on learning",
-          type: QuestionType.LIKERT_SCALE,
-          description: "1 = Rigid approach, 5 = Highly adaptive",
-        },
-      ],
-    },
-  ];
+  });
 
-  for (const [sectionIndex, section] of sections.entries()) {
-    const createdSection = await prisma.section.create({
-      data: {
-        title: section.title,
-        description: section.description,
-        order: sectionIndex + 1,
-        questions: {
-          create: section.questions.map((question, questionIndex) => ({
-            text: question.text,
-            description: question.description,
-            type: question.type,
-            options: question.options || [],
-            order: questionIndex + 1,
-          })),
-        },
+  // Create sections
+  const securitySection = await prisma.section.upsert({
+    where: { id: 'security-section' },
+    update: {},
+    create: {
+      id: 'security-section',
+      title: 'Security Practices',
+      description: 'Assessment of security measures and protocols',
+      order: 1,
+      weight: 1.0,
+    },
+  });
+
+  const complianceSection = await prisma.section.upsert({
+    where: { id: 'compliance-section' },
+    update: {},
+    create: {
+      id: 'compliance-section',
+      title: 'Compliance & Governance',
+      description: 'Evaluation of compliance frameworks and governance structures',
+      order: 2,
+      weight: 1.0,
+    },
+  });
+
+  const operationsSection = await prisma.section.upsert({
+    where: { id: 'operations-section' },
+    update: {},
+    create: {
+      id: 'operations-section',
+      title: 'Operations & Processes',
+      description: 'Assessment of operational procedures and workflows',
+      order: 3,
+      weight: 1.0,
+    },
+  });
+
+  // Create questions for Security section
+  const securityQuestions = await Promise.all([
+    prisma.question.upsert({
+      where: { id: 'security-q1' },
+      update: {},
+      create: {
+        id: 'security-q1',
+        sectionId: securitySection.id,
+        text: 'Does your organization have a formal security policy?',
+        description: 'A documented security policy that outlines roles, responsibilities, and procedures',
+        type: 'BOOLEAN',
+        order: 1,
+        weight: 1.0,
+        mandatory: true,
       },
-    });
+    }),
+    prisma.question.upsert({
+      where: { id: 'security-q2' },
+      update: {},
+      create: {
+        id: 'security-q2',
+        sectionId: securitySection.id,
+        text: 'How often do you conduct security training for employees?',
+        description: 'Regular security awareness training for all staff members',
+        type: 'SINGLE_CHOICE',
+        options: ['Never', 'Annually', 'Semi-annually', 'Quarterly', 'Monthly'],
+        order: 2,
+        weight: 1.0,
+        mandatory: true,
+      },
+    }),
+    prisma.question.upsert({
+      where: { id: 'security-q3' },
+      update: {},
+      create: {
+        id: 'security-q3',
+        sectionId: securitySection.id,
+        text: 'Rate your organization\'s incident response capability',
+        description: 'Ability to detect, respond to, and recover from security incidents',
+        type: 'LIKERT_SCALE',
+        order: 3,
+        weight: 1.0,
+        mandatory: true,
+      },
+    }),
+  ]);
 
-    console.log(`Created section: ${createdSection.title}`);
-  }
+  // Create questions for Compliance section
+  const complianceQuestions = await Promise.all([
+    prisma.question.upsert({
+      where: { id: 'compliance-q1' },
+      update: {},
+      create: {
+        id: 'compliance-q1',
+        sectionId: complianceSection.id,
+        text: 'Do you have a designated compliance officer?',
+        description: 'A person responsible for overseeing compliance activities',
+        type: 'BOOLEAN',
+        order: 1,
+        weight: 1.0,
+        mandatory: true,
+      },
+    }),
+    prisma.question.upsert({
+      where: { id: 'compliance-q2' },
+      update: {},
+      create: {
+        id: 'compliance-q2',
+        sectionId: complianceSection.id,
+        text: 'How would you rate your current compliance monitoring?',
+        description: 'Ongoing monitoring and assessment of compliance status',
+        type: 'LIKERT_SCALE',
+        order: 2,
+        weight: 1.0,
+        mandatory: true,
+      },
+    }),
+  ]);
 
-  // Create some sample recommendations
-  const recommendations = [
-    {
-      category: "governance",
-      condition: { score: { lt: 0.6 } },
-      text: "Consider establishing a formal board of directors with regular meetings to improve governance",
-      priority: 1,
-    },
-    {
-      category: "financial",
-      condition: { score: { lt: 0.7 } },
-      text: "Implement additional financial controls and develop a financial sustainability strategy",
-      priority: 1,
-    },
-    {
-      category: "programs",
-      condition: { score: { lt: 0.5 } },
-      text: "Develop a formal M&E system to better track and demonstrate program impact",
-      priority: 2,
-    },
-  ];
+  // Create questions for Operations section
+  const operationsQuestions = await Promise.all([
+    prisma.question.upsert({
+      where: { id: 'operations-q1' },
+      update: {},
+      create: {
+        id: 'operations-q1',
+        sectionId: operationsSection.id,
+        text: 'Do you have documented standard operating procedures?',
+        description: 'Written procedures for key operational activities',
+        type: 'BOOLEAN',
+        order: 1,
+        weight: 1.0,
+        mandatory: true,
+      },
+    }),
+    prisma.question.upsert({
+      where: { id: 'operations-q2' },
+      update: {},
+      create: {
+        id: 'operations-q2',
+        sectionId: operationsSection.id,
+        text: 'Rate your organization\'s process documentation',
+        description: 'Quality and completeness of process documentation',
+        type: 'LIKERT_SCALE',
+        order: 2,
+        weight: 1.0,
+        mandatory: true,
+      },
+    }),
+  ]);
 
-  for (const recommendation of recommendations) {
-    await prisma.recommendation.create({
-      data: recommendation,
-    });
-  }
 
-  console.log(`Seeding completed.`);
+
+  console.log('✅ Database seeded successfully');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

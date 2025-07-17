@@ -70,39 +70,39 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                         <Hover>
                           <Link 
                             href="/" 
-                            className="card card-sm text-center hover:shadow-soft-lg transition-all duration-300 group"
+                            className="bg-white rounded-lg border border-cropper-mint-200 p-4 text-center hover:shadow-soft-lg hover:scale-105 transition-all duration-300 group"
                           >
                             <div className="h-12 w-12 rounded-lg bg-cropper-mint-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-mint-200 transition-colors duration-200">
                               <Home className="h-6 w-6 text-cropper-mint-600" />
                             </div>
-                            <h3 className="text-subheading mb-2">Go Home</h3>
-                            <p className="text-caption text-gray-600">Return to the main page</p>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Go Home</h3>
+                            <p className="text-sm text-gray-600">Return to the main page</p>
                           </Link>
                         </Hover>
 
                         <Hover>
                           <Link 
                             href="/organization/login" 
-                            className="card card-sm text-center hover:shadow-soft-lg transition-all duration-300 group"
+                            className="bg-white rounded-lg border border-cropper-mint-200 p-4 text-center hover:shadow-soft-lg hover:scale-105 transition-all duration-300 group"
                           >
                             <div className="h-12 w-12 rounded-lg bg-cropper-blue-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-blue-200 transition-colors duration-200">
                               <Building2 className="h-6 w-6 text-cropper-blue-600" />
                             </div>
-                            <h3 className="text-subheading mb-2">Organization Login</h3>
-                            <p className="text-caption text-gray-600">Access your organization dashboard</p>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Organization Login</h3>
+                            <p className="text-sm text-gray-600">Access your organization dashboard</p>
                           </Link>
                         </Hover>
 
                         <Hover>
                           <Link 
                             href="/admin/login" 
-                            className="card card-sm text-center hover:shadow-soft-lg transition-all duration-300 group"
+                            className="bg-white rounded-lg border border-cropper-mint-200 p-4 text-center hover:shadow-soft-lg hover:scale-105 transition-all duration-300 group"
                           >
                             <div className="h-12 w-12 rounded-lg bg-cropper-brown-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-brown-200 transition-colors duration-200">
                               <Shield className="h-6 w-6 text-cropper-brown-600" />
                             </div>
-                            <h3 className="text-subheading mb-2">Admin Access</h3>
-                            <p className="text-caption text-gray-600">Administrative dashboard</p>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Admin Access</h3>
+                            <p className="text-sm text-gray-600">Administrative dashboard</p>
                           </Link>
                         </Hover>
                       </div>

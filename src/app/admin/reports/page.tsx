@@ -409,9 +409,9 @@ export default function AdminReports() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Completion:</span>
-                                               <span className="font-medium text-cropper-green-600">
-                           {section.completionRate.toFixed(1)}%
-                         </span>
+                      <span className="font-medium text-cropper-green-600">
+                        {section.completionRate != null ? section.completionRate.toFixed(1) : 0.00}%
+                      </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                                              <div 

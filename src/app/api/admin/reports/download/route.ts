@@ -58,6 +58,11 @@ export async function GET() {
                 },
               },
             },
+            report: {
+              include: {
+                suggestions: true,
+              },
+            },
           },
         },
       },

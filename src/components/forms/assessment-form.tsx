@@ -102,15 +102,27 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
         
         setSavedResponses(responsesMap);
         
-          // Determine which sections are completed (all mandatory questions must be answered)
+          // Determine which sections are completed 
+          // (all mandatory questions answered + at least one response in the section)
   const completed = new Set<string>();
   sections.forEach(section => {
     const mandatoryQuestions = section.questions.filter(q => q.mandatory).map(q => q.id);
-    const hasAllMandatoryResponses = mandatoryQuestions.every(qId => {
+    const allQuestions = section.questions.map(q => q.id);
+    
+    // Check if all mandatory questions are answered
+    const hasAllMandatoryResponses = mandatoryQuestions.length === 0 || mandatoryQuestions.every(qId => {
       const response = responsesMap[qId];
       return response !== undefined && response !== null && response !== "";
     });
-    if (hasAllMandatoryResponses) {
+    
+    // Check if section has any responses (to indicate user visited it)
+    const hasAnyResponse = allQuestions.some(qId => {
+      const response = responsesMap[qId];
+      return response !== undefined && response !== null && response !== "";
+    });
+    
+    // Section is complete if mandatory questions are answered and user has engaged with it
+    if (hasAllMandatoryResponses && hasAnyResponse) {
       completed.add(section.id);
     }
   });
@@ -342,7 +354,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 rounded-full bg-cropper-mint-100 border border-cropper-mint-300"></div>
-                <span>Complete</span>
+                <span>Ready</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 rounded-full bg-red-100 border border-red-300"></div>

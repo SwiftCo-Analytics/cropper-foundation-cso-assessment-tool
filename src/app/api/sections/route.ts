@@ -31,13 +31,11 @@ export async function GET() {
           },
           include: {
             suggestions: {
-              where: { isActive: true },
               orderBy: { priority: 'desc' }
             }
           }
         },
         suggestions: {
-          where: { isActive: true },
           orderBy: { priority: 'desc' }
         }
       },

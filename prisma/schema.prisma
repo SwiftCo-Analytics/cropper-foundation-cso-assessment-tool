@@ -87,6 +87,7 @@ model QuestionSuggestion {
   question    Question @relation(fields: [questionId], references: [id])
   condition   Json     // Conditions that trigger this suggestion (e.g., {"value": "low", "operator": "equals"})
   suggestion  String   // The suggestion text
+  category    String?  // Category for organizing suggestions (e.g., "Security", "Operations", "Training")
   priority    Int      @default(0) // Priority level (higher = more important)
   weight      Float    @default(1.0) // Weight of this suggestion
   isActive    Boolean  @default(true)
@@ -101,6 +102,7 @@ model SectionSuggestion {
   section     Section  @relation(fields: [sectionId], references: [id])
   condition   Json     // Conditions that trigger this suggestion (e.g., {"minScore": 0.6, "maxScore": 0.8})
   suggestion  String   // The suggestion text
+  category    String?  // Category for organizing suggestions (e.g., "Security", "Operations", "Training")
   priority    Int      @default(0) // Priority level (higher = more important)
   weight      Float    @default(1.0) // Weight of this suggestion
   isActive    Boolean  @default(true)
@@ -113,6 +115,7 @@ model AssessmentSuggestion {
   id          String   @id @default(cuid())
   condition   Json     // Conditions that trigger this suggestion (e.g., {"overallScore": {"min": 0.7, "max": 0.9}})
   suggestion  String   // The suggestion text
+  category    String?  // Category for organizing suggestions (e.g., "Strategic", "Leadership", "Overall Performance")
   priority    Int      @default(0) // Priority level (higher = more important)
   weight      Float    @default(1.0) // Weight of this suggestion
   isActive    Boolean  @default(true)

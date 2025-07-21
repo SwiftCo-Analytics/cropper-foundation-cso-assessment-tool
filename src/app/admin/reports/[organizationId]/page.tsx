@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, BarChart, Calendar, Users, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, Download, BarChart, Calendar, Users, CheckCircle, Clock, Lightbulb, Target, AlertTriangle } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -29,6 +29,10 @@ interface Assessment {
   startedAt: string;
   completedAt: string | null;
   responses: Response[];
+  report?: {
+    id: string;
+    suggestions: Suggestion[];
+  };
 }
 
 interface Response {
@@ -46,6 +50,16 @@ interface Response {
   };
 }
 
+interface Suggestion {
+  id: string;
+  type: string;
+  sourceId?: string;
+  suggestion: string;
+  priority: number;
+  weight: number;
+  metadata?: any;
+}
+
 interface SectionStats {
   sectionId: string;
   sectionTitle: string;
@@ -53,6 +67,93 @@ interface SectionStats {
   answeredQuestions: number;
   completionRate: number;
   responses: Response[];
+}
+
+// Helper function to format suggestions contextually
+function formatSuggestionContext(suggestion: Suggestion): { prefix: string; category: string; priorityLabel: string } {
+  const { type, metadata } = suggestion;
+  
+  let prefix = "";
+  let category = "";
+  let priorityLabel = "";
+
+  // Determine priority label
+  if (suggestion.priority >= 9) {
+    priorityLabel = "Critical Priority";
+  } else if (suggestion.priority >= 7) {
+    priorityLabel = "High Priority";
+  } else if (suggestion.priority >= 5) {
+    priorityLabel = "Medium Priority";
+  } else {
+    priorityLabel = "Low Priority";
+  }
+
+  switch (type) {
+    case "QUESTION":
+      if (metadata && typeof metadata === 'object' && metadata !== null) {
+        const meta = metadata as any;
+        if (meta.questionText && meta.responseValue !== undefined) {
+          prefix = `Based on response "${meta.responseValue}" to "${meta.questionText.substring(0, 40)}${meta.questionText.length > 40 ? '...' : ''}"`;
+          category = "Question Response";
+        } else {
+          prefix = "Based on a specific question response";
+          category = "Question Response";
+        }
+      } else {
+        prefix = "Based on a specific question response";
+        category = "Question Response";
+      }
+      break;
+      
+    case "SECTION":
+      if (metadata && typeof metadata === 'object' && metadata !== null) {
+        const meta = metadata as any;
+        if (meta.sectionTitle && meta.sectionScore !== undefined) {
+          const scorePercentage = Math.round(meta.sectionScore * 100);
+          prefix = `Based on ${scorePercentage}% score in "${meta.sectionTitle}" section`;
+          category = meta.sectionTitle;
+        } else {
+          prefix = "Based on section performance";
+          category = "Section Analysis";
+        }
+      } else {
+        prefix = "Based on section performance";
+        category = "Section Analysis";
+      }
+      break;
+      
+    case "ASSESSMENT":
+      if (metadata && typeof metadata === 'object' && metadata !== null) {
+        const meta = metadata as any;
+        if (meta.isStrategic) {
+          if (meta.overallScore !== undefined) {
+            const scorePercentage = Math.round(meta.overallScore * 100);
+            prefix = `Based on overall assessment score of ${scorePercentage}%`;
+          } else {
+            prefix = "Based on overall assessment performance";
+          }
+          category = meta.category || "Strategic Recommendation";
+        } else {
+          if (meta.overallScore !== undefined) {
+            const scorePercentage = Math.round(meta.overallScore * 100);
+            prefix = `Based on overall score of ${scorePercentage}%`;
+          } else {
+            prefix = "Based on overall performance";
+          }
+          category = "Overall Assessment";
+        }
+      } else {
+        prefix = "Based on overall performance";
+        category = "Overall Assessment";
+      }
+      break;
+      
+    default:
+      prefix = "Based on assessment";
+      category = metadata?.category || type;
+  }
+
+  return { prefix, category, priorityLabel };
 }
 
 export default function OrganizationReport({ params }: OrganizationReportProps) {
@@ -189,6 +290,11 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
     total + assessment.responses.length, 0
   );
 
+  // Aggregate all suggestions for this organization
+  const allSuggestions = organization.assessments
+    .filter(a => a.report && a.report.suggestions)
+    .flatMap(a => a.report!.suggestions);
+
   return (
     <div className="content-container section-spacing">
       <FadeIn>
@@ -275,32 +381,158 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
         ))}
       </div>
 
-      {/* Section Statistics */}
-      <ScaleIn delay={0.4}>
-        <div className="card card-lg mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-heading">Section Completion Statistics</h2>
-            <Hover>
-              <button
-                onClick={handleDownloadReport}
-                disabled={downloading}
-                className="btn-primary"
-              >
-                {downloading ? (
-                  "Downloading..."
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Full Report
-                  </>
-                )}
-              </button>
-            </Hover>
+      {/* Organization Suggestions */}
+      {allSuggestions.length > 0 && (
+        <ScaleIn delay={0.5}>
+          <div className="card card-lg mb-16">
+            <h2 className="text-heading mb-6 flex items-center">
+              <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
+              Generated Recommendations
+            </h2>
+            
+            {/* Suggestion Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="card border-blue-100">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-12 w-12 rounded-lg bg-cropper-blue-100 flex items-center justify-center">
+                    <Target className="h-6 w-6 text-cropper-blue-600" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-cropper-blue-800 mb-2">{allSuggestions.length}</h3>
+                  <p className="text-subheading text-gray-900 mb-1">Total Recommendations</p>
+                  <p className="text-caption">Generated across all assessments</p>
+                </div>
+              </div>
+
+              <div className="card border-orange-100">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-12 w-12 rounded-lg bg-cropper-orange-100 flex items-center justify-center">
+                    <AlertTriangle className="h-6 w-6 text-cropper-orange-600" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-cropper-orange-800 mb-2">
+                    {allSuggestions.filter(s => s.priority >= 7).length}
+                  </h3>
+                  <p className="text-subheading text-gray-900 mb-1">High Priority</p>
+                  <p className="text-caption">Critical and high priority items</p>
+                </div>
+              </div>
+
+              <div className="card border-green-100">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-12 w-12 rounded-lg bg-cropper-green-100 flex items-center justify-center">
+                    <CheckCircle className="h-6 w-6 text-cropper-green-600" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-cropper-green-800 mb-2">
+                    {organization.assessments.filter(a => a.report && a.report.suggestions && a.report.suggestions.length > 0).length}
+                  </h3>
+                  <p className="text-subheading text-gray-900 mb-1">Assessments with Recommendations</p>
+                  <p className="text-caption">Out of {completedAssessments.length} completed</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Recommendations */}
+            <div className="mb-8">
+              <h3 className="text-subheading font-semibold mb-4">Top Priority Recommendations</h3>
+              <div className="space-y-4">
+                {allSuggestions
+                  .sort((a, b) => b.priority - a.priority)
+                  .slice(0, 8)
+                  .map((suggestion, index) => {
+                    const { prefix, category, priorityLabel } = formatSuggestionContext(suggestion);
+                    
+                    return (
+                      <SlideIn key={suggestion.id} direction="up" delay={0.6 + index * 0.1}>
+                        <Hover>
+                          <div className="border rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-shrink-0">
+                                <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
+                                  <Target className="h-4 w-4 text-cropper-blue-600" />
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded text-xs font-medium">
+                                    {category}
+                                  </span>
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                    suggestion.priority >= 9 
+                                      ? 'bg-red-100 text-red-800'
+                                      : suggestion.priority >= 7
+                                      ? 'bg-orange-100 text-orange-800'
+                                      : suggestion.priority >= 5
+                                      ? 'bg-yellow-100 text-yellow-800'
+                                      : 'bg-green-100 text-green-800'
+                                  }`}>
+                                    {priorityLabel}
+                                  </span>
+                                </div>
+                                <div className="mb-1">
+                                  <p className="text-xs text-gray-600 font-medium">{prefix}:</p>
+                                </div>
+                                <p className="text-gray-900 text-sm leading-relaxed">{suggestion.suggestion}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </Hover>
+                      </SlideIn>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Recommendation Categories */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {['QUESTION', 'SECTION', 'ASSESSMENT'].map(type => {
+                const typeSuggestions = allSuggestions.filter(s => s.type === type);
+                const categoryName = type === 'QUESTION' ? 'Question-Based' :
+                                   type === 'SECTION' ? 'Section-Based' :
+                                   'Overall Assessment';
+                
+                if (typeSuggestions.length === 0) return null;
+                
+                const avgPriority = typeSuggestions.reduce((sum, s) => sum + s.priority, 0) / typeSuggestions.length;
+                
+                return (
+                  <div key={type} className="border rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">{categoryName}</h4>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <div className="flex justify-between">
+                        <span>Count:</span>
+                        <span className="font-medium">{typeSuggestions.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Avg Priority:</span>
+                        <span className="font-medium">{avgPriority.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>High Priority:</span>
+                        <span className="font-medium text-orange-600">
+                          {typeSuggestions.filter(s => s.priority >= 7).length}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          
+        </ScaleIn>
+      )}
+
+      {/* Section Statistics */}
+      <ScaleIn delay={sectionStats.length > 0 ? 0.5 : 0.4}>
+        <div className="card card-lg mb-16">
+          <h2 className="text-heading mb-6">Section Completion Analysis</h2>
           <div className="space-y-4">
             {sectionStats.map((section, index) => (
-              <SlideIn key={section.sectionId} direction="right" delay={index * 0.1}>
+              <SlideIn key={section.sectionId} direction="up" delay={0.6 + index * 0.1}>
                 <Hover>
                   <div className="border rounded-lg p-4 hover:border-cropper-green-300 transition-all duration-300">
                     <div className="flex items-center justify-between mb-3">
@@ -365,17 +597,23 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
                             <Users className="h-4 w-4 mr-1" />
                             {assessment.responses.length} responses
                           </span>
+                          {assessment.report && assessment.report.suggestions && (
+                            <span className="flex items-center">
+                              <Lightbulb className="h-4 w-4 mr-1" />
+                              {assessment.report.suggestions.length} recommendations
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      <div className="flex items-center space-x-2">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                           assessment.status === "COMPLETED"
                             ? "bg-cropper-green-100 text-cropper-green-800"
-                            : "bg-cropper-orange-100 text-cropper-orange-800"
-                        }`}
-                      >
-                        {assessment.status === "COMPLETED" ? "Completed" : "In Progress"}
-                      </span>
+                            : "bg-cropper-brown-100 text-cropper-brown-800"
+                        }`}>
+                          {assessment.status === "COMPLETED" ? "Completed" : "In Progress"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Hover>
@@ -384,6 +622,31 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
           </div>
         </div>
       </ScaleIn>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 mt-16">
+        <button
+          onClick={handleDownloadReport}
+          disabled={downloading}
+          className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
+        >
+          {downloading ? (
+            "Generating Report..."
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              Download Full Report
+            </>
+          )}
+        </button>
+        
+        <Link
+          href="/admin/dashboard"
+          className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
+        >
+          Return to Dashboard
+        </Link>
+      </div>
     </div>
   );
 } 

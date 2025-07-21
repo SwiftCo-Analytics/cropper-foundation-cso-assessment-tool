@@ -88,6 +88,7 @@ export default function SuggestionsManagement() {
   const [questionSuggestionData, setQuestionSuggestionData] = useState({
     condition: { value: '', operator: 'equals' },
     suggestion: '',
+    category: '',
     priority: 0,
     weight: 1.0,
     isActive: true
@@ -96,6 +97,7 @@ export default function SuggestionsManagement() {
   const [sectionSuggestionData, setSectionSuggestionData] = useState({
     condition: { minScore: 0, maxScore: 1 },
     suggestion: '',
+    category: '',
     priority: 0,
     weight: 1.0,
     isActive: true,
@@ -106,6 +108,7 @@ export default function SuggestionsManagement() {
   const [assessmentSuggestionData, setAssessmentSuggestionData] = useState({
     condition: { overallScore: { min: 0, max: 1 } },
     suggestion: '',
+    category: '',
     priority: 0,
     weight: 1.0,
     isActive: true,
@@ -179,6 +182,12 @@ export default function SuggestionsManagement() {
 
   async function handleAddQuestionSuggestion(questionId: string) {
     try {
+      // Check if we're editing an existing suggestion
+      if (editingSuggestion && editingSuggestion.type === 'question') {
+        await handleUpdateSuggestion(editingSuggestion.id, 'question', questionSuggestionData);
+        return;
+      }
+
       const response = await fetch("/api/suggestions/question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -189,14 +198,7 @@ export default function SuggestionsManagement() {
       });
 
       if (response.ok) {
-        setQuestionSuggestionData({
-          condition: { value: '', operator: 'equals' },
-          suggestion: '',
-          priority: 0,
-          weight: 1.0,
-          isActive: true
-        });
-        setShowQuestionForm(false);
+        resetForms();
         fetchData();
       }
     } catch (error) {
@@ -219,6 +221,19 @@ export default function SuggestionsManagement() {
         condition = sectionSuggestionData.condition;
       }
 
+      // Check if we're editing an existing suggestion
+      if (editingSuggestion && editingSuggestion.type === 'section') {
+        await handleUpdateSuggestion(editingSuggestion.id, 'section', {
+          condition,
+          suggestion: sectionSuggestionData.suggestion,
+          category: sectionSuggestionData.category,
+          priority: sectionSuggestionData.priority,
+          weight: sectionSuggestionData.weight,
+          isActive: sectionSuggestionData.isActive
+        });
+        return;
+      }
+
       const response = await fetch("/api/suggestions/section", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -226,6 +241,7 @@ export default function SuggestionsManagement() {
           sectionId,
           condition,
           suggestion: sectionSuggestionData.suggestion,
+          category: sectionSuggestionData.category,
           priority: sectionSuggestionData.priority,
           weight: sectionSuggestionData.weight,
           isActive: sectionSuggestionData.isActive
@@ -233,16 +249,7 @@ export default function SuggestionsManagement() {
       });
 
       if (response.ok) {
-        setSectionSuggestionData({
-          condition: { minScore: 0, maxScore: 1 },
-          suggestion: '',
-          priority: 0,
-          weight: 1.0,
-          isActive: true,
-          useAdvancedCondition: false,
-          advancedCondition: ''
-        });
-        setShowSectionForm(false);
+        resetForms();
         fetchData();
       }
     } catch (error) {
@@ -265,12 +272,26 @@ export default function SuggestionsManagement() {
         condition = assessmentSuggestionData.condition;
       }
 
+      // Check if we're editing an existing suggestion
+      if (editingSuggestion && editingSuggestion.type === 'assessment') {
+        await handleUpdateSuggestion(editingSuggestion.id, 'assessment', {
+          condition,
+          suggestion: assessmentSuggestionData.suggestion,
+          category: assessmentSuggestionData.category,
+          priority: assessmentSuggestionData.priority,
+          weight: assessmentSuggestionData.weight,
+          isActive: assessmentSuggestionData.isActive
+        });
+        return;
+      }
+
       const response = await fetch("/api/suggestions/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           condition,
           suggestion: assessmentSuggestionData.suggestion,
+          category: assessmentSuggestionData.category,
           priority: assessmentSuggestionData.priority,
           weight: assessmentSuggestionData.weight,
           isActive: assessmentSuggestionData.isActive
@@ -278,16 +299,7 @@ export default function SuggestionsManagement() {
       });
 
       if (response.ok) {
-        setAssessmentSuggestionData({
-          condition: { overallScore: { min: 0, max: 1 } },
-          suggestion: '',
-          priority: 0,
-          weight: 1.0,
-          isActive: true,
-          useAdvancedCondition: false,
-          advancedCondition: ''
-        });
-        setShowAssessmentForm(false);
+        resetForms();
         fetchData();
       }
     } catch (error) {
@@ -325,6 +337,102 @@ export default function SuggestionsManagement() {
     } catch (error) {
       console.error("Error deleting suggestion:", error);
     }
+  }
+
+  async function handleEditSuggestion(suggestion: any, type: string) {
+    setEditingSuggestion({ ...suggestion, type });
+    
+    if (type === 'question') {
+      setQuestionSuggestionData({
+        condition: suggestion.condition,
+        suggestion: suggestion.suggestion,
+        category: suggestion.category || '',
+        priority: suggestion.priority,
+        weight: suggestion.weight,
+        isActive: suggestion.isActive
+      });
+      setSelectedQuestion(suggestion.questionId);
+      setShowQuestionForm(true);
+    } else if (type === 'section') {
+      setSectionSuggestionData({
+        condition: suggestion.condition,
+        suggestion: suggestion.suggestion,
+        category: suggestion.category || '',
+        priority: suggestion.priority,
+        weight: suggestion.weight,
+        isActive: suggestion.isActive,
+        useAdvancedCondition: typeof suggestion.condition === 'object' && !suggestion.condition.minScore && !suggestion.condition.maxScore,
+        advancedCondition: typeof suggestion.condition === 'object' && !suggestion.condition.minScore && !suggestion.condition.maxScore ? JSON.stringify(suggestion.condition, null, 2) : ''
+      });
+      setSelectedSection(suggestion.sectionId);
+      setShowSectionForm(true);
+    } else if (type === 'assessment') {
+      setAssessmentSuggestionData({
+        condition: suggestion.condition,
+        suggestion: suggestion.suggestion,
+        category: suggestion.category || '',
+        priority: suggestion.priority,
+        weight: suggestion.weight,
+        isActive: suggestion.isActive,
+        useAdvancedCondition: typeof suggestion.condition === 'object' && !suggestion.condition.overallScore,
+        advancedCondition: typeof suggestion.condition === 'object' && !suggestion.condition.overallScore ? JSON.stringify(suggestion.condition, null, 2) : ''
+      });
+      setShowAssessmentForm(true);
+    }
+  }
+
+  async function handleUpdateSuggestion(suggestionId: string, type: string, data: any) {
+    try {
+      const response = await fetch(`/api/suggestions/${type}/${suggestionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setEditingSuggestion(null);
+        resetForms();
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error updating suggestion:", error);
+    }
+  }
+
+  function resetForms() {
+    setQuestionSuggestionData({
+      condition: { value: '', operator: 'equals' },
+      suggestion: '',
+      category: '',
+      priority: 0,
+      weight: 1.0,
+      isActive: true
+    });
+    setSectionSuggestionData({
+      condition: { minScore: 0, maxScore: 1 },
+      suggestion: '',
+      category: '',
+      priority: 0,
+      weight: 1.0,
+      isActive: true,
+      useAdvancedCondition: false,
+      advancedCondition: ''
+    });
+    setAssessmentSuggestionData({
+      condition: { overallScore: { min: 0, max: 1 } },
+      suggestion: '',
+      category: '',
+      priority: 0,
+      weight: 1.0,
+      isActive: true,
+      useAdvancedCondition: false,
+      advancedCondition: ''
+    });
+    setShowQuestionForm(false);
+    setShowSectionForm(false);
+    setShowAssessmentForm(false);
+    setSelectedQuestion(null);
+    setSelectedSection(null);
   }
 
   function formatCondition(condition: any): string {
@@ -741,6 +849,12 @@ export default function SuggestionsManagement() {
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </button>
+                                      <button
+                                        onClick={() => handleEditSuggestion(suggestion, 'question')}
+                                        className="text-cropper-blue-600 hover:text-cropper-blue-700 p-1 rounded"
+                                      >
+                                        <Edit2 className="h-4 w-4" />
+                                      </button>
                                     </div>
                                   </div>
                                 </div>
@@ -833,6 +947,12 @@ export default function SuggestionsManagement() {
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
+                            <button
+                              onClick={() => handleEditSuggestion(suggestion, 'section')}
+                              className="text-cropper-blue-600 hover:text-cropper-blue-700 p-1 rounded"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -907,6 +1027,12 @@ export default function SuggestionsManagement() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
+                      <button
+                        onClick={() => handleEditSuggestion(suggestion, 'assessment')}
+                        className="text-cropper-blue-600 hover:text-cropper-blue-700 p-1 rounded"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -921,9 +1047,14 @@ export default function SuggestionsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-heading">Add Question Suggestion</h3>
+              <h3 className="text-heading">
+                {editingSuggestion && editingSuggestion.type === 'question' ? 'Edit Question Suggestion' : 'Add Question Suggestion'}
+              </h3>
               <button
-                onClick={() => setShowQuestionForm(false)}
+                onClick={() => {
+                  setShowQuestionForm(false);
+                  setEditingSuggestion(null);
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <X className="h-6 w-6" />
@@ -1115,26 +1246,59 @@ export default function SuggestionsManagement() {
                 <p className="text-xs text-gray-500 mt-1">Provide specific, actionable advice that will help the organization improve</p>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                  <span className="text-xs text-gray-500 ml-2">(Helps organize and filter suggestions)</span>
+                </label>
+                <input
+                  type="text"
+                  value={questionSuggestionData.category}
+                  onChange={(e) => setQuestionSuggestionData({
+                    ...questionSuggestionData,
+                    category: e.target.value
+                  })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                  placeholder="e.g., Security, Operations, Training, Compliance..."
+                  title="Add a category to help organize suggestions by topic or domain"
+                />
+                <p className="text-xs text-gray-500 mt-1">Examples: Security, Operations, Training, Compliance, HR, Finance</p>
+              </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Priority
-                    <span className="text-xs text-gray-500 ml-2">(Higher numbers appear first)</span>
+                    Priority Level
+                    <span className="text-xs text-gray-500 ml-2">(Determines suggestion order and urgency)</span>
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="10"
+                  <select
                     value={questionSuggestionData.priority}
                     onChange={(e) => setQuestionSuggestionData({
                       ...questionSuggestionData,
                       priority: parseInt(e.target.value)
                     })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                    placeholder="0-10"
-                    title="Higher priority suggestions appear first in the list. Use 0-10 scale."
-                  />
-                  <p className="text-xs text-gray-500 mt-1">0 = lowest, 10 = highest priority</p>
+                    title="Select the appropriate priority level based on importance and urgency"
+                  >
+                    <option value={0}>0 - Informational (Nice to know)</option>
+                    <option value={1}>1 - Minor Enhancement</option>
+                    <option value={2}>2 - Moderate Improvement</option>
+                    <option value={3}>3 - Recommended Action</option>
+                    <option value={4}>4 - Important Improvement</option>
+                    <option value={5}>5 - Significant Issue</option>
+                    <option value={6}>6 - Major Improvement Needed</option>
+                    <option value={7}>7 - High Priority Action</option>
+                    <option value={8}>8 - Critical Issue</option>
+                    <option value={9}>9 - Urgent Action Required</option>
+                    <option value={10}>10 - Emergency/Immediate Risk</option>
+                  </select>
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                    <p className="font-medium text-blue-800 mb-1">Priority Guidelines:</p>
+                    <p className="text-blue-700">• <strong>0-2:</strong> Low impact suggestions</p>
+                    <p className="text-blue-700">• <strong>3-5:</strong> Moderate improvements needed</p>
+                    <p className="text-blue-700">• <strong>6-7:</strong> High priority actions</p>
+                    <p className="text-blue-700">• <strong>8-10:</strong> Critical/urgent issues</p>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1187,7 +1351,7 @@ export default function SuggestionsManagement() {
                   type="submit"
                   className="btn-primary"
                 >
-                  Add Suggestion
+                  {editingSuggestion && editingSuggestion.type === 'question' ? 'Update Suggestion' : 'Add Suggestion'}
                 </button>
               </div>
             </form>
@@ -1200,9 +1364,14 @@ export default function SuggestionsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-heading">Add Section Suggestion</h3>
+              <h3 className="text-heading">
+                {editingSuggestion && editingSuggestion.type === 'section' ? 'Edit Section Suggestion' : 'Add Section Suggestion'}
+              </h3>
               <button
-                onClick={() => setShowSectionForm(false)}
+                onClick={() => {
+                  setShowSectionForm(false);
+                  setEditingSuggestion(null);
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <X className="h-6 w-6" />
@@ -1386,20 +1555,59 @@ export default function SuggestionsManagement() {
                 <p className="text-xs text-gray-500 mt-1">Provide section-wide advice based on overall performance in this area</p>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                  <span className="text-xs text-gray-500 ml-2">(Helps organize and filter suggestions)</span>
+                </label>
+                <input
+                  type="text"
+                  value={sectionSuggestionData.category}
+                  onChange={(e) => setSectionSuggestionData({
+                    ...sectionSuggestionData,
+                    category: e.target.value
+                  })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                  placeholder="e.g., Security, Operations, Training, Compliance..."
+                  title="Add a category to help organize suggestions by topic or domain"
+                />
+                <p className="text-xs text-gray-500 mt-1">Examples: Security, Operations, Training, Compliance, HR, Finance</p>
+              </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Priority
+                    Priority Level
+                    <span className="text-xs text-gray-500 ml-2">(Section-wide urgency)</span>
                   </label>
-                  <input
-                    type="number"
+                  <select
                     value={sectionSuggestionData.priority}
                     onChange={(e) => setSectionSuggestionData({
                       ...sectionSuggestionData,
                       priority: parseInt(e.target.value)
                     })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                  />
+                    title="Select priority based on section performance impact"
+                  >
+                    <option value={0}>0 - Informational (Nice to know)</option>
+                    <option value={1}>1 - Minor Enhancement</option>
+                    <option value={2}>2 - Moderate Improvement</option>
+                    <option value={3}>3 - Recommended Action</option>
+                    <option value={4}>4 - Important Improvement</option>
+                    <option value={5}>5 - Significant Issue</option>
+                    <option value={6}>6 - Major Improvement Needed</option>
+                    <option value={7}>7 - High Priority Action</option>
+                    <option value={8}>8 - Critical Issue</option>
+                    <option value={9}>9 - Urgent Action Required</option>
+                    <option value={10}>10 - Emergency/Immediate Risk</option>
+                  </select>
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                    <p className="font-medium text-blue-800 mb-1">Section Priority Guidelines:</p>
+                    <p className="text-blue-700">• <strong>0-2:</strong> Areas working well, minor tweaks</p>
+                    <p className="text-blue-700">• <strong>3-5:</strong> Moderate gaps, improvement needed</p>
+                    <p className="text-blue-700">• <strong>6-7:</strong> Significant weaknesses, high priority</p>
+                    <p className="text-blue-700">• <strong>8-10:</strong> Critical gaps, immediate attention</p>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1448,7 +1656,7 @@ export default function SuggestionsManagement() {
                   type="submit"
                   className="btn-primary"
                 >
-                  Add Suggestion
+                  {editingSuggestion && editingSuggestion.type === 'section' ? 'Update Suggestion' : 'Add Suggestion'}
                 </button>
               </div>
             </form>
@@ -1461,9 +1669,14 @@ export default function SuggestionsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-heading">Add Assessment Suggestion</h3>
+              <h3 className="text-heading">
+                {editingSuggestion && editingSuggestion.type === 'assessment' ? 'Edit Assessment Suggestion' : 'Add Assessment Suggestion'}
+              </h3>
               <button
-                onClick={() => setShowAssessmentForm(false)}
+                onClick={() => {
+                  setShowAssessmentForm(false);
+                  setEditingSuggestion(null);
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <X className="h-6 w-6" />
@@ -1629,20 +1842,59 @@ export default function SuggestionsManagement() {
                 <p className="text-xs text-gray-500 mt-1">Provide organization-wide strategic advice based on overall assessment performance</p>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                  <span className="text-xs text-gray-500 ml-2">(Helps organize and filter suggestions)</span>
+                </label>
+                <input
+                  type="text"
+                  value={assessmentSuggestionData.category}
+                  onChange={(e) => setAssessmentSuggestionData({
+                    ...assessmentSuggestionData,
+                    category: e.target.value
+                  })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
+                  placeholder="e.g., Strategic, Leadership, Overall Performance..."
+                  title="Add a category to help organize suggestions by topic or domain"
+                />
+                <p className="text-xs text-gray-500 mt-1">Examples: Strategic, Leadership, Overall Performance, Governance, Risk Management</p>
+              </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Priority
+                    Priority Level
+                    <span className="text-xs text-gray-500 ml-2">(Strategic importance)</span>
                   </label>
-                  <input
-                    type="number"
+                  <select
                     value={assessmentSuggestionData.priority}
                     onChange={(e) => setAssessmentSuggestionData({
                       ...assessmentSuggestionData,
                       priority: parseInt(e.target.value)
                     })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent"
-                  />
+                    title="Select priority based on organizational impact"
+                  >
+                    <option value={0}>0 - Informational (Nice to know)</option>
+                    <option value={1}>1 - Minor Enhancement</option>
+                    <option value={2}>2 - Moderate Improvement</option>
+                    <option value={3}>3 - Recommended Action</option>
+                    <option value={4}>4 - Important Improvement</option>
+                    <option value={5}>5 - Significant Issue</option>
+                    <option value={6}>6 - Major Improvement Needed</option>
+                    <option value={7}>7 - High Priority Action</option>
+                    <option value={8}>8 - Critical Issue</option>
+                    <option value={9}>9 - Urgent Action Required</option>
+                    <option value={10}>10 - Emergency/Immediate Risk</option>
+                  </select>
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                    <p className="font-medium text-blue-800 mb-1">Strategic Priority Guidelines:</p>
+                    <p className="text-blue-700">• <strong>0-2:</strong> Organization performing well</p>
+                    <p className="text-blue-700">• <strong>3-5:</strong> Organizational improvements needed</p>
+                    <p className="text-blue-700">• <strong>6-7:</strong> Strategic gaps requiring attention</p>
+                    <p className="text-blue-700">• <strong>8-10:</strong> Critical organizational risks</p>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1691,7 +1943,7 @@ export default function SuggestionsManagement() {
                   type="submit"
                   className="btn-primary"
                 >
-                  Add Suggestion
+                  {editingSuggestion && editingSuggestion.type === 'assessment' ? 'Update Suggestion' : 'Add Suggestion'}
                 </button>
               </div>
             </form>

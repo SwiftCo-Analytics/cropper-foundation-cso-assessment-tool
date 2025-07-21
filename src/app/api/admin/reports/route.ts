@@ -16,6 +16,33 @@ export async function GET() {
       );
     }
 
+    // Helper function to normalize response values to 0-1 scale
+    const normalizeResponseValue = (value: any, questionType: string): number => {
+      switch (questionType) {
+        case 'BOOLEAN':
+          return value === true ? 1 : 0;
+        case 'LIKERT_SCALE':
+          // Assuming 5-point scale (1-5)
+          return (Number(value) - 1) / 4;
+        case 'SINGLE_CHOICE':
+          // For single choice, we need to know the options to normalize
+          // This is a simplified version - you might want to store option weights
+          return 0.5; // Default middle value
+        case 'MULTIPLE_CHOICE':
+          // For multiple choice, count selected options vs total options
+          if (Array.isArray(value)) {
+            return value.length > 0 ? 0.7 : 0; // Simplified
+          }
+          return 0;
+        case 'TEXT':
+          // For text, we could implement sentiment analysis or keyword matching
+          // For now, return a neutral score
+          return 0.5;
+        default:
+          return 0;
+      }
+    };
+
     // Get all organizations with their assessments and responses
     const organizations = await prisma.organization.findMany({
       include: {
@@ -29,6 +56,13 @@ export async function GET() {
                   },
                 },
               },
+            },
+            report: {
+              include: {
+                suggestions: {
+                  orderBy: { priority: 'desc' }
+                }
+              }
             },
           },
         },
@@ -108,10 +142,9 @@ export async function GET() {
             const valueStr = String(value);
             analysis.responseCounts.set(valueStr, (analysis.responseCounts.get(valueStr) || 0) + 1);
             
-            // For numeric responses, calculate average
-            if (typeof value === 'number') {
-              analysis.scores.push(value);
-            }
+            // Normalize the score for all response types
+            const normalizedScore = normalizeResponseValue(value, response.question.type);
+            analysis.scores.push(normalizedScore);
           }
         });
       });
@@ -128,7 +161,7 @@ export async function GET() {
           mostCommonResponse: mostCommonResponse ? mostCommonResponse[0] : null,
           mostCommonCount: mostCommonResponse ? mostCommonResponse[1] : 0,
           averageScore: analysis.scores.length > 0 
-            ? analysis.scores.reduce((sum: number, score: number) => sum + score, 0) / analysis.scores.length 
+            ? (analysis.scores.reduce((sum: number, score: number) => sum + score, 0) / analysis.scores.length) * 4 + 1
             : 0,
           responseCounts: Object.fromEntries(analysis.responseCounts),
         };
@@ -178,6 +211,87 @@ export async function GET() {
       ), 0
     );
 
+    // SUGGESTION ANALYTICS
+    const suggestionAnalysis = new Map<string, {
+      suggestion: string;
+      type: string;
+      count: number;
+      organizations: Set<string>;
+      averagePriority: number;
+      totalPriority: number;
+      metadata: any[];
+    }>();
+
+    const suggestionsByType = new Map<string, number>();
+    const suggestionsByPriority = new Map<string, number>();
+    let totalSuggestions = 0;
+    const organizationsWithSuggestions = new Set<string>();
+
+    // Analyze all suggestions across all organizations
+    organizations.forEach(org => {
+      org.assessments.forEach(assessment => {
+        if (assessment.report && assessment.report.suggestions) {
+          assessment.report.suggestions.forEach(suggestion => {
+            totalSuggestions++;
+            organizationsWithSuggestions.add(org.id);
+            
+            // Track suggestion text frequency
+            const suggestionKey = suggestion.suggestion.trim().toLowerCase();
+            if (!suggestionAnalysis.has(suggestionKey)) {
+              suggestionAnalysis.set(suggestionKey, {
+                suggestion: suggestion.suggestion,
+                type: suggestion.type,
+                count: 0,
+                organizations: new Set(),
+                averagePriority: 0,
+                totalPriority: 0,
+                metadata: []
+              });
+            }
+            
+            const analysis = suggestionAnalysis.get(suggestionKey)!;
+            analysis.count++;
+            analysis.organizations.add(org.id);
+            analysis.totalPriority += suggestion.priority;
+            analysis.averagePriority = analysis.totalPriority / analysis.count;
+            analysis.metadata.push(suggestion.metadata);
+            
+            // Track by type
+            suggestionsByType.set(suggestion.type, (suggestionsByType.get(suggestion.type) || 0) + 1);
+            
+            // Track by priority level
+            const priorityLevel = suggestion.priority >= 9 ? 'Critical' :
+                                 suggestion.priority >= 7 ? 'High' :
+                                 suggestion.priority >= 5 ? 'Medium' : 'Low';
+            suggestionsByPriority.set(priorityLevel, (suggestionsByPriority.get(priorityLevel) || 0) + 1);
+          });
+        }
+      });
+    });
+
+    // Get most common suggestions
+    const mostCommonSuggestions = Array.from(suggestionAnalysis.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+      .map(analysis => ({
+        suggestion: analysis.suggestion,
+        type: analysis.type,
+        count: analysis.count,
+        organizationCount: analysis.organizations.size,
+        averagePriority: Math.round(analysis.averagePriority * 10) / 10,
+        prevalence: Math.round((analysis.count / totalSuggestions) * 100 * 10) / 10
+      }));
+
+    // Calculate suggestion coverage metrics
+    const suggestionCoverage = {
+      totalSuggestions,
+      organizationsWithSuggestions: organizationsWithSuggestions.size,
+      coveragePercentage: Math.round((organizationsWithSuggestions.size / totalOrganizations) * 100 * 10) / 10,
+      averageSuggestionsPerOrganization: Math.round((totalSuggestions / organizationsWithSuggestions.size) * 10) / 10,
+      suggestionsByType: Object.fromEntries(suggestionsByType),
+      suggestionsByPriority: Object.fromEntries(suggestionsByPriority)
+    };
+
     return NextResponse.json({
       overview: {
         totalOrganizations,
@@ -193,6 +307,29 @@ export async function GET() {
       topQuestions,
       sectionAnalysis,
       monthlyActivity: Object.fromEntries(monthlyActivity),
+      suggestionAnalytics: {
+        coverage: suggestionCoverage,
+        mostCommonSuggestions,
+        insights: [
+          {
+            title: "Most Addressed Area",
+            value: mostCommonSuggestions[0]?.type || "No data",
+            description: "The most common suggestion type across organizations"
+          },
+          {
+            title: "Avg Priority Level",
+            value: mostCommonSuggestions.length > 0 
+              ? Math.round(mostCommonSuggestions.reduce((sum, s) => sum + s.averagePriority, 0) / mostCommonSuggestions.length * 10) / 10
+              : 0,
+            description: "Average priority of all suggestions"
+          },
+          {
+            title: "Organizations Needing Help",
+            value: `${Math.round((suggestionCoverage.organizationsWithSuggestions / totalOrganizations) * 100)}%`,
+            description: "Percentage of organizations with actionable suggestions"
+          }
+        ]
+      }
     });
   } catch (error) {
     console.error("Error fetching admin reports data:", error);

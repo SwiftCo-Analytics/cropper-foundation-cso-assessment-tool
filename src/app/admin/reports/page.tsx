@@ -17,7 +17,10 @@ import {
   PieChart,
   FileText,
   Eye,
-  Award
+  Award,
+  Lightbulb,
+  AlertTriangle,
+  TrendingDown
 } from "lucide-react";
 
 const formatQuestionType = (type: string) => {
@@ -75,6 +78,29 @@ interface ReportsData {
     averageScore: number;
   }>;
   monthlyActivity: Record<string, number>;
+  suggestionAnalytics: {
+    coverage: {
+      totalSuggestions: number;
+      organizationsWithSuggestions: number;
+      coveragePercentage: number;
+      averageSuggestionsPerOrganization: number;
+      suggestionsByType: Record<string, number>;
+      suggestionsByPriority: Record<string, number>;
+    };
+    mostCommonSuggestions: Array<{
+      suggestion: string;
+      type: string;
+      count: number;
+      organizationCount: number;
+      averagePriority: number;
+      prevalence: number;
+    }>;
+    insights: Array<{
+      title: string;
+      value: string | number;
+      description: string;
+    }>;
+  };
 }
 
 export default function AdminReports() {
@@ -160,7 +186,7 @@ export default function AdminReports() {
     );
   }
 
-  const { overview, mostActiveOrganizations, topQuestions, sectionAnalysis, monthlyActivity } = reportsData;
+  const { overview, mostActiveOrganizations, topQuestions, sectionAnalysis, monthlyActivity, suggestionAnalytics } = reportsData;
 
   return (
     <div className="content-container section-spacing">
@@ -272,6 +298,150 @@ export default function AdminReports() {
         ))}
       </div>
 
+      {/* Suggestion Analytics */}
+      {suggestionAnalytics && suggestionAnalytics.coverage.totalSuggestions > 0 && (
+        <ScaleIn delay={0.8}>
+          <div className="card card-lg mb-16">
+            <h2 className="text-heading mb-6 flex items-center">
+              <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
+              Suggestion Analytics
+            </h2>
+            
+            {/* Suggestion Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {suggestionAnalytics.insights.map((insight, index) => (
+                <SlideIn key={insight.title} direction="up" delay={0.9 + index * 0.1}>
+                  <Hover>
+                    <div className="card border-blue-100">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`h-12 w-12 rounded-lg bg-cropper-blue-100 flex items-center justify-center`}>
+                          {insight.title.includes('Priority') ? (
+                            <AlertTriangle className="h-6 w-6 text-cropper-blue-600" />
+                          ) : insight.title.includes('Organizations') ? (
+                            <Users className="h-6 w-6 text-cropper-blue-600" />
+                          ) : (
+                            <Lightbulb className="h-6 w-6 text-cropper-blue-600" />
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-cropper-blue-800 mb-2">{insight.value}</h3>
+                        <p className="text-subheading text-gray-900 mb-1">{insight.title}</p>
+                        <p className="text-caption">{insight.description}</p>
+                      </div>
+                    </div>
+                  </Hover>
+                </SlideIn>
+              ))}
+            </div>
+
+            {/* Most Common Suggestions */}
+            <div className="mb-8">
+              <h3 className="text-subheading font-semibold mb-4">Most Common Recommendations</h3>
+              <div className="space-y-4">
+                {suggestionAnalytics.mostCommonSuggestions.slice(0, 5).map((suggestion, index) => (
+                  <SlideIn key={index} direction="up" delay={1.2 + index * 0.1}>
+                    <Hover>
+                      <div className="border rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-300">
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-bold text-cropper-blue-600">{index + 1}</span>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded text-xs font-medium">
+                                {suggestion.type === 'QUESTION' ? 'Question-Based' :
+                                 suggestion.type === 'SECTION' ? 'Section-Based' :
+                                 suggestion.type === 'ASSESSMENT' ? 'Overall Assessment' : suggestion.type}
+                              </span>
+                              <span className="px-2 py-1 bg-cropper-green-100 text-cropper-green-800 rounded text-xs font-medium">
+                                {suggestion.count} organizations ({suggestion.prevalence}%)
+                              </span>
+                              <span className="px-2 py-1 bg-cropper-orange-100 text-cropper-orange-800 rounded text-xs font-medium">
+                                Avg Priority: {suggestion.averagePriority}
+                              </span>
+                            </div>
+                            <p className="text-gray-900 text-sm leading-relaxed">{suggestion.suggestion}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Hover>
+                  </SlideIn>
+                ))}
+              </div>
+            </div>
+
+            {/* Suggestion Distribution */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* By Type */}
+              <div>
+                <h4 className="text-subheading font-medium mb-3">By Category</h4>
+                <div className="space-y-2">
+                  {Object.entries(suggestionAnalytics.coverage.suggestionsByType).map(([type, count]) => {
+                    const percentage = Math.round((count / suggestionAnalytics.coverage.totalSuggestions) * 100);
+                    const categoryName = type === 'QUESTION' ? 'Question-Based' :
+                                        type === 'SECTION' ? 'Section-Based' :
+                                        type === 'ASSESSMENT' ? 'Overall Assessment' : type;
+                    
+                    return (
+                      <div key={type} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span className="text-sm font-medium">{categoryName}</span>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-600">{count}</span>
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-cropper-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500 w-8">{percentage}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* By Priority */}
+              <div>
+                <h4 className="text-subheading font-medium mb-3">By Priority Level</h4>
+                <div className="space-y-2">
+                  {Object.entries(suggestionAnalytics.coverage.suggestionsByPriority).map(([priority, count]) => {
+                    const percentage = Math.round((count / suggestionAnalytics.coverage.totalSuggestions) * 100);
+                    
+                    return (
+                      <div key={priority} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span className={`text-sm font-medium ${
+                          priority === 'Critical' ? 'text-red-700' :
+                          priority === 'High' ? 'text-orange-700' :
+                          priority === 'Medium' ? 'text-yellow-700' : 'text-green-700'
+                        }`}>{priority} Priority</span>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-600">{count}</span>
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full transition-all duration-300 ${
+                                priority === 'Critical' ? 'bg-red-500' :
+                                priority === 'High' ? 'bg-orange-500' :
+                                priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500 w-8">{percentage}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ScaleIn>
+      )}
+
       {/* Most Active Organizations */}
       <div className="mb-16">
         <motion.h2 
@@ -342,7 +512,7 @@ export default function AdminReports() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h3 className="text-subheading font-semibold mb-2">{question.questionText}</h3>
-                                             <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                      <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
                          <span className="bg-cropper-blue-100 text-cropper-blue-800 px-2 py-1 rounded">
                            {question.sectionTitle}
                          </span>
@@ -414,7 +584,7 @@ export default function AdminReports() {
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                                             <div 
+                      <div 
                          className="bg-cropper-green-600 h-2 rounded-full transition-all duration-300"
                          style={{ width: `${Math.min(section.completionRate, 100)}%` }}
                        ></div>
@@ -460,28 +630,23 @@ export default function AdminReports() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button
-          onClick={handleDownloadReport}
-          disabled={downloading}
-          className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
-        >
-          {downloading ? (
-            "Generating Report..."
-          ) : (
-            <>
-              <Download className="h-4 w-4 mr-2" />
-              Download Full Report
-            </>
-          )}
-        </button>
-        
-        <Link
-          href="/admin/dashboard"
-          className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
-        >
-          Return to Dashboard
-        </Link>
+      <div className="flex justify-center">
+        <SlideIn direction="up" delay={1.4}>
+          <button
+            onClick={handleDownloadReport}
+            disabled={downloading}
+            className="btn-primary"
+          >
+            {downloading ? (
+              "Generating Report..."
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Download Full Report
+              </>
+            )}
+          </button>
+        </SlideIn>
       </div>
     </div>
   );

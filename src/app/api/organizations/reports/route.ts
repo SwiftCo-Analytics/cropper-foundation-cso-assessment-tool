@@ -65,24 +65,59 @@ export async function GET(request: Request) {
     );
     const completionRate = totalAssessments > 0 ? (completedAssessments / totalAssessments) * 100 : 0;
 
+    // Helper function to normalize response values to 0-1 scale
+    const normalizeResponseValue = (value: any, questionType: string): number => {
+      switch (questionType) {
+        case 'BOOLEAN':
+          return value === true ? 1 : 0;
+        case 'LIKERT_SCALE':
+          // Assuming 5-point scale (1-5)
+          return (Number(value) - 1) / 4;
+        case 'SINGLE_CHOICE':
+          // For single choice, we need to know the options to normalize
+          // This is a simplified version - you might want to store option weights
+          return 0.5; // Default middle value
+        case 'MULTIPLE_CHOICE':
+          // For multiple choice, count selected options vs total options
+          if (Array.isArray(value)) {
+            return value.length > 0 ? 0.7 : 0; // Simplified
+          }
+          return 0;
+        case 'TEXT':
+          // For text, we could implement sentiment analysis or keyword matching
+          // For now, return a neutral score
+          return 0.5;
+        default:
+          return 0;
+      }
+    };
+
     // Calculate average scores per assessment
     const assessmentScores = organization.assessments
       .filter(a => a.status === "COMPLETED")
       .map(assessment => {
-        const numericResponses = assessment.responses.filter(r => 
-          typeof r.value === 'number' && r.value >= 1 && r.value <= 5
+        const validResponses = assessment.responses.filter(r => 
+          r.value !== null && r.value !== undefined && r.value !== ""
         );
-        const averageScore = numericResponses.length > 0 
-          ? numericResponses.reduce((sum, r) => sum + (r.value as number), 0) / numericResponses.length 
+        
+        const normalizedScores = validResponses.map(r => 
+          normalizeResponseValue(r.value, r.question.type)
+        );
+        
+        const averageScore = normalizedScores.length > 0 
+          ? normalizedScores.reduce((sum, score) => sum + score, 0) / normalizedScores.length 
           : 0;
+        
+        // Convert to 1-5 scale for display
+        const displayScore = averageScore * 4 + 1;
         
         return {
           id: assessment.id,
           name: assessment.name,
           completedAt: assessment.completedAt,
-          averageScore,
+          averageScore: displayScore,
           totalResponses: assessment.responses.length,
-          numericResponses: numericResponses.length,
+          numericResponses: normalizedScores.length,
         };
       })
       .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime());
@@ -119,12 +154,20 @@ export async function GET(request: Request) {
           section.questions.some(q => q.id === r.questionId)
         )
       );
-      const numericResponses = sectionResponses.filter(r => 
-        typeof r.value === 'number' && r.value >= 1 && r.value <= 5
+      const validResponses = sectionResponses.filter(r => 
+        r.value !== null && r.value !== undefined && r.value !== ""
       );
-      const averageScore = numericResponses.length > 0 
-        ? numericResponses.reduce((sum, r) => sum + (r.value as number), 0) / numericResponses.length 
+      
+      const normalizedScores = validResponses.map(r => 
+        normalizeResponseValue(r.value, r.question.type)
+      );
+      
+      const averageScore = normalizedScores.length > 0 
+        ? normalizedScores.reduce((sum, score) => sum + score, 0) / normalizedScores.length 
         : 0;
+      
+      // Convert to 1-5 scale for display
+      const displayScore = averageScore * 4 + 1;
       
       return {
         sectionId: section.id,
@@ -132,7 +175,7 @@ export async function GET(request: Request) {
         totalQuestions,
         totalResponses,
         completionRate,
-        averageScore,
+        averageScore: displayScore,
       };
     });
 
@@ -185,9 +228,9 @@ export async function GET(request: Request) {
           const valueStr = String(value);
           pattern.responseCounts.set(valueStr, (pattern.responseCounts.get(valueStr) || 0) + 1);
           
-          if (typeof value === 'number') {
-            pattern.scores.push(value);
-          }
+          // Normalize the score for all response types
+          const normalizedScore = normalizeResponseValue(value, response.question.type);
+          pattern.scores.push(normalizedScore);
         }
       });
     });
@@ -203,7 +246,7 @@ export async function GET(request: Request) {
           mostCommonResponse: mostCommonResponse ? mostCommonResponse[0] : null,
           mostCommonCount: mostCommonResponse ? mostCommonResponse[1] : 0,
           averageScore: pattern.scores.length > 0 
-            ? pattern.scores.reduce((sum: number, score: number) => sum + score, 0) / pattern.scores.length 
+            ? (pattern.scores.reduce((sum: number, score: number) => sum + score, 0) / pattern.scores.length) * 4 + 1
             : 0,
           responseCounts: Object.fromEntries(pattern.responseCounts),
         };

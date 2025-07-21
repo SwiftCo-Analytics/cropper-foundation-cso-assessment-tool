@@ -37,7 +37,13 @@ export async function GET(
                 },
               },
             },
-            report: true,
+            report: {
+              include: {
+                suggestions: {
+                  orderBy: { priority: 'desc' }
+                }
+              }
+            },
           },
         },
       },
@@ -270,15 +276,18 @@ export async function GET(
       }
       addBulletPoint(`Responses: ${assessment.responses.length}`, 10, 15);
       
-      // Add report recommendations if available
-      if (assessment.report) {
-        const reportContent = assessment.report.content as any;
-        if (reportContent.recommendations && reportContent.recommendations.length > 0) {
-          addBulletPoint("Recommendations:", 10, 15);
-          reportContent.recommendations.forEach((rec: string) => {
-            addBulletPoint(rec, 10, 25);
+      // Add report suggestions if available
+      if (assessment.report && assessment.report.suggestions && assessment.report.suggestions.length > 0) {
+        addBulletPoint("Recommendations:", 10, 15);
+        assessment.report.suggestions
+          .sort((a: any, b: any) => b.priority - a.priority)
+          .slice(0, 5) // Show top 5 suggestions per assessment
+          .forEach((suggestion: any) => {
+            const priorityLabel = suggestion.priority >= 9 ? 'Critical' :
+                                 suggestion.priority >= 7 ? 'High' :
+                                 suggestion.priority >= 5 ? 'Medium' : 'Low';
+            addBulletPoint(`[${priorityLabel}] ${suggestion.suggestion}`, 9, 25);
           });
-        }
       }
       
       yPosition += 10;
@@ -330,6 +339,126 @@ export async function GET(
     });
 
     addDivider();
+
+    // Comprehensive Suggestions Analysis
+    const allSuggestions = organization.assessments
+      .filter(a => a.report && a.report.suggestions)
+      .flatMap(a => a.report!.suggestions!);
+
+    if (allSuggestions.length > 0) {
+      addText("Personalized Recommendations", 16, true, margin, 'center');
+      yPosition += 10;
+
+      // Group suggestions by type and priority
+      const suggestionsByType = new Map();
+      const suggestionsByPriority = new Map();
+      
+      allSuggestions.forEach(suggestion => {
+        // By type
+        const type = suggestion.type;
+        if (!suggestionsByType.has(type)) {
+          suggestionsByType.set(type, []);
+        }
+        suggestionsByType.get(type).push(suggestion);
+        
+        // By priority
+        const priorityLevel = suggestion.priority >= 9 ? 'Critical Priority' :
+                             suggestion.priority >= 7 ? 'High Priority' :
+                             suggestion.priority >= 5 ? 'Medium Priority' : 'Low Priority';
+        if (!suggestionsByPriority.has(priorityLevel)) {
+          suggestionsByPriority.set(priorityLevel, []);
+        }
+        suggestionsByPriority.get(priorityLevel).push(suggestion);
+      });
+
+      // Summary statistics
+      addText(`Total Recommendations: ${allSuggestions.length}`, 12, true);
+      addText(`Assessments with Recommendations: ${organization.assessments.filter(a => a.report && a.report.suggestions && a.report.suggestions.length > 0).length}`, 12, false);
+      yPosition += 10;
+
+      // Top priority recommendations
+      const topRecommendations = allSuggestions
+        .sort((a, b) => b.priority - a.priority)
+        .slice(0, 10);
+
+      addText("Top Priority Recommendations:", 14, true);
+      yPosition += 8;
+
+      topRecommendations.forEach((suggestion, index) => {
+        if (yPosition > pageHeight - 40) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        const priorityLabel = suggestion.priority >= 9 ? 'Critical' :
+                             suggestion.priority >= 7 ? 'High' :
+                             suggestion.priority >= 5 ? 'Medium' : 'Low';
+        
+        // Format context if available
+        let context = "";
+        if (suggestion.metadata && typeof suggestion.metadata === 'object' && suggestion.metadata !== null) {
+          const metadata = suggestion.metadata as any;
+          if (suggestion.type === 'QUESTION' && metadata.questionText) {
+            context = ` (Question: "${metadata.questionText.substring(0, 40)}...")`;
+          } else if (suggestion.type === 'SECTION' && metadata.sectionTitle) {
+            context = ` (Section: ${metadata.sectionTitle})`;
+          } else if (suggestion.type === 'ASSESSMENT' && metadata.overallScore !== undefined) {
+            context = ` (Overall Score: ${Math.round(metadata.overallScore * 100)}%)`;
+          }
+        }
+        
+        addText(`${index + 1}. [${priorityLabel}] ${suggestion.type}${context}`, 11, true);
+        
+        // Handle long suggestion text
+        const suggestionText = suggestion.suggestion;
+        if (suggestionText.length > 90) {
+          const words = suggestionText.split(' ');
+          let line = '';
+          for (const word of words) {
+            if ((line + word).length > 90) {
+              addBulletPoint(line, 10, 15);
+              line = word + ' ';
+            } else {
+              line += word + ' ';
+            }
+          }
+          if (line.trim()) {
+            addBulletPoint(line, 10, 15);
+          }
+        } else {
+          addBulletPoint(suggestionText, 10, 15);
+        }
+        
+        yPosition += 5;
+      });
+
+      // Suggestions by category breakdown
+      if (suggestionsByType.size > 1) {
+        addDivider();
+        addText("Recommendations by Category:", 14, true);
+        yPosition += 8;
+
+        Array.from(suggestionsByType.entries()).forEach(([type, suggestions]) => {
+          if (yPosition > pageHeight - 20) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          const categoryName = type === 'QUESTION' ? 'Question-Based' :
+                              type === 'SECTION' ? 'Section-Based' :
+                              type === 'ASSESSMENT' ? 'Overall Assessment' : type;
+          
+          addText(`${categoryName}: ${suggestions.length} recommendations`, 12, true);
+          
+          // Show avg priority for this category
+          const avgPriority = suggestions.reduce((sum: number, s: any) => sum + s.priority, 0) / suggestions.length;
+          addBulletPoint(`Average Priority: ${avgPriority.toFixed(1)}`, 10, 15);
+          yPosition += 5;
+        });
+      }
+
+      addDivider();
+    }
 
     // Response Analysis
     addText("Response Analysis", 16, true, margin, 'center');

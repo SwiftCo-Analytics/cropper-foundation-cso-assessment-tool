@@ -39,6 +39,75 @@ interface Organization {
   email: string;
 }
 
+// Helper function to format suggestions contextually
+function formatSuggestionContext(suggestion: Suggestion): { prefix: string; category: string; priorityLabel: string } {
+  const { type, metadata } = suggestion;
+  
+  let prefix = "";
+  let category = "";
+  let priorityLabel = "";
+
+  // Determine priority label
+  if (suggestion.priority >= 9) {
+    priorityLabel = "Critical Priority";
+  } else if (suggestion.priority >= 7) {
+    priorityLabel = "High Priority";
+  } else if (suggestion.priority >= 5) {
+    priorityLabel = "Medium Priority";
+  } else {
+    priorityLabel = "Low Priority";
+  }
+
+  switch (type) {
+    case "QUESTION":
+      if (metadata?.questionText && metadata?.responseValue !== undefined) {
+        prefix = `Based on your response of "${metadata.responseValue}" to "${metadata.questionText.substring(0, 40)}${metadata.questionText.length > 40 ? '...' : ''}"`;
+        category = "Question Response";
+      } else {
+        prefix = "Based on a specific question response";
+        category = "Question Response";
+      }
+      break;
+      
+    case "SECTION":
+      if (metadata?.sectionTitle && metadata?.sectionScore !== undefined) {
+        const scorePercentage = Math.round(metadata.sectionScore * 100);
+        prefix = `Based on your ${scorePercentage}% score in the "${metadata.sectionTitle}" section`;
+        category = metadata.sectionTitle;
+      } else {
+        prefix = "Based on your section performance";
+        category = "Section Analysis";
+      }
+      break;
+      
+    case "ASSESSMENT":
+      if (metadata?.isStrategic) {
+        if (metadata?.overallScore !== undefined) {
+          const scorePercentage = Math.round(metadata.overallScore * 100);
+          prefix = `Based on your overall assessment score of ${scorePercentage}%`;
+        } else {
+          prefix = "Based on your overall assessment performance";
+        }
+        category = metadata?.category || "Strategic Recommendation";
+      } else {
+        if (metadata?.overallScore !== undefined) {
+          const scorePercentage = Math.round(metadata.overallScore * 100);
+          prefix = `Based on your overall score of ${scorePercentage}%`;
+        } else {
+          prefix = "Based on your overall performance";
+        }
+        category = "Overall Assessment";
+      }
+      break;
+      
+    default:
+      prefix = "Based on your assessment";
+      category = metadata?.category || type;
+  }
+
+  return { prefix, category, priorityLabel };
+}
+
 export default function OrganizationDashboard() {
   const router = useRouter();
   const [organization, setOrganization] = useState<Organization | null>(null);
@@ -336,7 +405,7 @@ export default function OrganizationDashboard() {
               <div>
                 <h2 className="text-heading mb-2 flex items-center">
                   <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
-                  Latest Suggestions
+                  Latest Recommendations
                 </h2>
                 <p className="text-body">Based on your most recent assessment</p>
               </div>
@@ -346,33 +415,48 @@ export default function OrganizationDashboard() {
               {latestSuggestions
                 .sort((a, b) => b.priority - a.priority)
                 .slice(0, 3) // Show top 3 suggestions
-                .map((suggestion) => (
-                  <div key={suggestion.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
-                          <Target className="h-4 w-4 text-cropper-blue-600" />
+                .map((suggestion) => {
+                  const { prefix, category, priorityLabel } = formatSuggestionContext(suggestion);
+                  
+                  return (
+                    <div key={suggestion.id} className="border border-gray-200 rounded-lg p-4 hover:border-cropper-blue-300 transition-all duration-200">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-cropper-blue-100 rounded-full flex items-center justify-center">
+                            <Target className="h-4 w-4 text-cropper-blue-600" />
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded text-xs font-medium">
-                            {suggestion.metadata?.category || suggestion.type}
-                          </span>
-                          <span className="px-2 py-1 bg-cropper-green-100 text-cropper-green-800 rounded text-xs font-medium">
-                            Priority: {suggestion.priority}
-                          </span>
-                          {suggestion.metadata?.isStrategic && (
-                            <span className="px-2 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded text-xs font-medium">
-                              Strategic
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="px-2 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-xs font-medium">
+                              {category}
                             </span>
-                          )}
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              suggestion.priority >= 9 
+                                ? 'bg-red-100 text-red-800'
+                                : suggestion.priority >= 7
+                                ? 'bg-orange-100 text-orange-800'
+                                : suggestion.priority >= 5
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {priorityLabel}
+                            </span>
+                            {suggestion.metadata?.isStrategic && (
+                              <span className="px-2 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded-full text-xs font-medium">
+                                Strategic
+                              </span>
+                            )}
+                          </div>
+                          <div className="mb-1">
+                            <p className="text-xs text-gray-600 font-medium">{prefix}:</p>
+                          </div>
+                          <p className="text-gray-900 text-sm leading-relaxed">{suggestion.suggestion}</p>
                         </div>
-                        <p className="text-gray-900">{suggestion.suggestion}</p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               
               {latestSuggestions.length > 3 && (
                 <div className="text-center pt-4">
@@ -380,7 +464,7 @@ export default function OrganizationDashboard() {
                     href="/organization/reports"
                     className="text-cropper-blue-600 hover:text-cropper-blue-700 text-sm font-medium"
                   >
-                    View all suggestions →
+                    View all recommendations →
                   </Link>
                 </div>
               )}

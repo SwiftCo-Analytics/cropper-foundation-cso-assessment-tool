@@ -206,19 +206,19 @@ export class SuggestionEngine {
       {
         condition: { overallScore: { max: 0.6 } },
         suggestion: "Your organization shows significant opportunities for improvement. Consider implementing a comprehensive improvement plan with clear milestones and regular progress reviews.",
-        priority: 10,
+        priority: 8, // Critical Issue - poor overall performance
         category: "Strategic"
       },
       {
         condition: { overallScore: { min: 0.6, max: 0.8 } },
         suggestion: "Your organization demonstrates good practices with room for enhancement. Focus on specific areas of weakness to achieve excellence.",
-        priority: 8,
+        priority: 5, // Significant Issue - moderate performance gaps
         category: "Strategic"
       },
       {
         condition: { overallScore: { min: 0.8 } },
         suggestion: "Excellent performance! Continue maintaining high standards and consider sharing best practices with other organizations.",
-        priority: 6,
+        priority: 2, // Moderate Improvement - already performing well
         category: "Strategic"
       },
       {
@@ -227,7 +227,7 @@ export class SuggestionEngine {
           category: "Security"
         },
         suggestion: "Develop and implement a comprehensive security policy that covers all aspects of your organization's operations.",
-        priority: 9,
+        priority: 9, // Urgent Action Required - security policy missing
         category: "Security"
       },
       {
@@ -236,7 +236,7 @@ export class SuggestionEngine {
           category: "Security"
         },
         suggestion: "Implement regular security awareness training programs to ensure all employees understand security best practices.",
-        priority: 8,
+        priority: 7, // High Priority Action - security training gaps
         category: "Security"
       },
       {
@@ -245,7 +245,7 @@ export class SuggestionEngine {
           category: "Compliance"
         },
         suggestion: "Appoint a dedicated compliance officer to oversee regulatory requirements and ensure ongoing compliance.",
-        priority: 9,
+        priority: 8, // Critical Issue - compliance oversight missing
         category: "Compliance"
       },
       {
@@ -254,13 +254,13 @@ export class SuggestionEngine {
           category: "Operations"
         },
         suggestion: "Document all key operational procedures to ensure consistency and enable effective training and quality control.",
-        priority: 7,
+        priority: 6, // Major Improvement Needed - operational documentation gaps
         category: "Operations"
       },
       {
         condition: {},
         suggestion: "Consider conducting regular assessments to track progress and identify areas for continuous improvement.",
-        priority: 5,
+        priority: 3, // Recommended Action - general improvement practice
         category: "General"
       }
     ];

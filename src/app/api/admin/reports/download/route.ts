@@ -17,6 +17,33 @@ export async function GET() {
       );
     }
 
+    // Helper function to normalize response values to 0-1 scale
+    const normalizeResponseValue = (value: any, questionType: string): number => {
+      switch (questionType) {
+        case 'BOOLEAN':
+          return value === true ? 1 : 0;
+        case 'LIKERT_SCALE':
+          // Assuming 5-point scale (1-5)
+          return (Number(value) - 1) / 4;
+        case 'SINGLE_CHOICE':
+          // For single choice, we need to know the options to normalize
+          // This is a simplified version - you might want to store option weights
+          return 0.5; // Default middle value
+        case 'MULTIPLE_CHOICE':
+          // For multiple choice, count selected options vs total options
+          if (Array.isArray(value)) {
+            return value.length > 0 ? 0.7 : 0; // Simplified
+          }
+          return 0;
+        case 'TEXT':
+          // For text, we could implement sentiment analysis or keyword matching
+          // For now, return a neutral score
+          return 0.5;
+        default:
+          return 0;
+      }
+    };
+
     // Get all organizations with their assessments and responses
     const organizations = await prisma.organization.findMany({
       include: {
@@ -108,9 +135,9 @@ export async function GET() {
             const valueStr = String(value);
             analysis.responseCounts.set(valueStr, (analysis.responseCounts.get(valueStr) || 0) + 1);
             
-            if (typeof value === 'number') {
-              analysis.scores.push(value);
-            }
+            // Normalize the score for all response types
+            const normalizedScore = normalizeResponseValue(value, response.question.type);
+            analysis.scores.push(normalizedScore);
           }
         });
       });
@@ -127,7 +154,7 @@ export async function GET() {
           mostCommonResponse: mostCommonResponse ? mostCommonResponse[0] : null,
           mostCommonCount: mostCommonResponse ? mostCommonResponse[1] : 0,
           averageScore: analysis.scores.length > 0 
-            ? analysis.scores.reduce((sum: number, score: number) => sum + score, 0) / analysis.scores.length 
+            ? (analysis.scores.reduce((sum: number, score: number) => sum + score, 0) / analysis.scores.length) * 4 + 1
             : 0,
         };
       })
@@ -387,6 +414,106 @@ export async function GET() {
     });
 
     addDivider();
+
+    // Suggestion Analytics
+    const allSuggestions = organizations
+      .flatMap(org => org.assessments)
+      .filter(assessment => assessment.report && assessment.report.suggestions)
+      .flatMap(assessment => assessment.report!.suggestions!);
+
+    if (allSuggestions.length > 0) {
+      addText("Suggestion Analytics", 16, true, margin, 'center');
+      yPosition += 10;
+
+      // Overall statistics
+      const totalSuggestions = allSuggestions.length;
+      const organizationsWithSuggestions = new Set(
+        organizations
+          .filter(org => org.assessments.some(a => a.report && a.report.suggestions && a.report.suggestions.length > 0))
+          .map(org => org.id)
+      ).size;
+
+      addText(`Total Suggestions Generated: ${totalSuggestions}`, 12, true);
+      addText(`Organizations with Suggestions: ${organizationsWithSuggestions} of ${totalOrganizations}`, 12, false);
+      addText(`Coverage: ${Math.round((organizationsWithSuggestions / totalOrganizations) * 100)}%`, 12, false);
+      yPosition += 10;
+
+      // Most common suggestions
+      const suggestionFrequency = new Map();
+      allSuggestions.forEach(suggestion => {
+        const key = suggestion.suggestion.trim().toLowerCase();
+        suggestionFrequency.set(key, (suggestionFrequency.get(key) || 0) + 1);
+      });
+
+      const mostCommonSuggestions = Array.from(suggestionFrequency.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+      addText("Most Common Suggestions:", 14, true);
+      yPosition += 8;
+
+      mostCommonSuggestions.forEach(([suggestionText, count], index) => {
+        if (yPosition > pageHeight - 30) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        // Find the original suggestion to get metadata
+        const originalSuggestion = allSuggestions.find(s => s.suggestion.trim().toLowerCase() === suggestionText);
+        const percentage = Math.round((count / totalSuggestions) * 100);
+        
+        addText(`${index + 1}. (${count} times, ${percentage}% of all suggestions)`, 11, true);
+        
+        // Handle long suggestion text
+        const displayText = originalSuggestion?.suggestion || suggestionText;
+        if (displayText.length > 90) {
+          const words = displayText.split(' ');
+          let line = '';
+          for (const word of words) {
+            if ((line + word).length > 90) {
+              addBulletPoint(line, 10, 15);
+              line = word + ' ';
+            } else {
+              line += word + ' ';
+            }
+          }
+          if (line.trim()) {
+            addBulletPoint(line, 10, 15);
+          }
+        } else {
+          addBulletPoint(displayText, 10, 15);
+        }
+        
+        yPosition += 5;
+      });
+
+      // Suggestions by type breakdown
+      const suggestionsByType = new Map();
+      allSuggestions.forEach(suggestion => {
+        const type = suggestion.type;
+        suggestionsByType.set(type, (suggestionsByType.get(type) || 0) + 1);
+      });
+
+      addDivider();
+      addText("Suggestions by Category:", 14, true);
+      yPosition += 8;
+
+      Array.from(suggestionsByType.entries()).forEach(([type, count]) => {
+        if (yPosition > pageHeight - 15) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        const categoryName = type === 'QUESTION' ? 'Question-Based' :
+                            type === 'SECTION' ? 'Section-Based' :
+                            type === 'ASSESSMENT' ? 'Overall Assessment' : type;
+        const percentage = Math.round((count / totalSuggestions) * 100);
+        
+        addBulletPoint(`${categoryName}: ${count} suggestions (${percentage}%)`, 10, 15);
+      });
+
+      addDivider();
+    }
 
     // Monthly Activity
     addText("Monthly Activity", 16, true, margin, 'center');

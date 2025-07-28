@@ -14,15 +14,10 @@ const sectionSchema = z.object({
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
+    // For GET requests, we'll allow access without authentication
+    // since assessment forms need to access sections
+    // Authentication is still required for POST requests (admin operations)
+    
     const sections = await prisma.section.findMany({
       include: {
         questions: {

@@ -318,198 +318,200 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
   }
 
   return (
-    <div className="space-y-8">
-      {showSaveSuccess && (
-        <div className="bg-cropper-mint-100 border border-cropper-mint-400 text-cropper-mint-700 px-4 py-3 rounded-md flex items-center">
-          <CheckCircle className="h-5 w-5 mr-2" />
-          Progress saved successfully! You can safely leave and return later.
-        </div>
-      )}
-      
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      <div>
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
-            <span className="text-sm text-gray-500">
-              {currentSectionIndex + 1} of {sections.length} sections
-            </span>
+    <div className="max-w-4xl mx-auto bg-gray-50 min-h-screen py-8">
+      <div className="bg-white rounded-xl shadow-lg p-8 space-y-8">
+        {showSaveSuccess && (
+          <div className="bg-cropper-mint-100 border border-cropper-mint-400 text-cropper-mint-700 px-4 py-3 rounded-md flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2" />
+            Progress saved successfully! You can safely leave and return later.
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-cropper-mint-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentSectionIndex + 1) / sections.length) * 100}%` }}
-            ></div>
-          </div>
-        </div>
+        )}
         
-        {/* Section Navigation */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Sections</span>
-            <div className="flex items-center space-x-4 text-xs text-gray-500">
-              <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 rounded-full bg-cropper-mint-600"></div>
-                <span>Current</span>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <div>
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-gray-700">Progress</span>
+                <span className="text-sm text-gray-500">
+                  {currentSectionIndex + 1} of {sections.length} sections
+                </span>
               </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 rounded-full bg-cropper-mint-100 border border-cropper-mint-300"></div>
-                <span>Ready</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 rounded-full bg-red-100 border border-red-300"></div>
-                <span>Has Mandatory</span>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-cropper-mint-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentSectionIndex + 1) / sections.length) * 100}%` }}
+                ></div>
               </div>
             </div>
+            
+            {/* Section Navigation */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Sections</span>
+                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 rounded-full bg-cropper-mint-600"></div>
+                    <span>Current</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 rounded-full bg-cropper-mint-100 border border-cropper-mint-300"></div>
+                    <span>Ready</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 rounded-full bg-red-100 border border-red-300"></div>
+                    <span>Has Mandatory</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {sections.map((section, index) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    onClick={() => {
+                      setCurrentSectionIndex(index);
+                      // Load responses for this section
+                      const sectionAnswers: Record<string, any> = {};
+                      section.questions.forEach(question => {
+                        if (savedResponses[question.id] !== undefined) {
+                          sectionAnswers[question.id] = savedResponses[question.id];
+                        }
+                      });
+                      form.reset({ answers: sectionAnswers });
+                    }}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      index === currentSectionIndex
+                        ? 'bg-cropper-mint-600 text-white'
+                        : completedSections.has(section.id)
+                        ? 'bg-cropper-mint-100 text-cropper-mint-800'
+                        : section.questions.some(q => q.mandatory)
+                        ? 'bg-red-100 text-red-800 border border-red-300'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {index + 1}
+                    {completedSections.has(section.id) && (
+                      <CheckCircle className="inline h-3 w-3 ml-1" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <h2 className="text-2xl font-semibold text-gray-900">
+              {currentSection.title}
+            </h2>
+            {currentSection.description && (
+              <p className="mt-2 text-sm text-gray-600">{currentSection.description}</p>
+            )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {sections.map((section, index) => (
-              <button
-                key={section.id}
-                type="button"
-                onClick={() => {
-                  setCurrentSectionIndex(index);
-                  // Load responses for this section
-                  const sectionAnswers: Record<string, any> = {};
-                  section.questions.forEach(question => {
-                    if (savedResponses[question.id] !== undefined) {
-                      sectionAnswers[question.id] = savedResponses[question.id];
-                    }
-                  });
-                  form.reset({ answers: sectionAnswers });
-                }}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  index === currentSectionIndex
-                    ? 'bg-cropper-mint-600 text-white'
-                    : completedSections.has(section.id)
-                    ? 'bg-cropper-mint-100 text-cropper-mint-800'
-                    : section.questions.some(q => q.mandatory)
-                    ? 'bg-red-100 text-red-800 border border-red-300'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {index + 1}
-                {completedSections.has(section.id) && (
-                  <CheckCircle className="inline h-3 w-3 ml-1" />
+
+          <div className="space-y-6">
+            {currentSection.questions.map((question) => (
+              <div key={question.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <label className="block font-semibold text-gray-900 text-lg mb-3">
+                  {question.text}
+                  {question.mandatory && (
+                    <span className="text-red-600 ml-1">*</span>
+                  )}
+                </label>
+                {question.description && (
+                  <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border-l-4 border-gray-300">{question.description}</p>
                 )}
-              </button>
+                {question.mandatory && (
+                  <p className="mt-2 text-sm text-red-600 font-medium bg-red-50 p-2 rounded-md border border-red-200">This question is mandatory</p>
+                )}
+                <div className="mt-6">
+                  {renderQuestionInput(question, form)}
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-        
-        <h2 className="text-2xl font-semibold text-gray-900">
-          {currentSection.title}
-        </h2>
-        {currentSection.description && (
-          <p className="mt-2 text-sm text-gray-600">{currentSection.description}</p>
-        )}
-      </div>
 
-      <div className="space-y-6">
-        {currentSection.questions.map((question) => (
-          <div key={question.id} className="border rounded-lg p-4">
-            <label className="block font-medium text-gray-900">
-              {question.text}
-              {question.mandatory && (
-                <span className="text-red-600 ml-1">*</span>
+          <div className="flex justify-between items-center">
+            <button
+              type="button"
+              onClick={() => {
+                if (currentSectionIndex > 0) {
+                  setCurrentSectionIndex(currentSectionIndex - 1);
+                  // Load responses for previous section
+                  const prevSection = sections[currentSectionIndex - 1];
+                  const prevAnswers: Record<string, any> = {};
+                  prevSection.questions.forEach(question => {
+                    if (savedResponses[question.id] !== undefined) {
+                      prevAnswers[question.id] = savedResponses[question.id];
+                    }
+                  });
+                  form.reset({ answers: prevAnswers });
+                }
+              }}
+              disabled={currentSectionIndex === 0}
+              className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            
+            <div className="flex space-x-4">
+              <button
+                type="button"
+                onClick={saveProgress}
+                disabled={isSaving}
+                className="rounded-md bg-gray-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex items-center"
+              >
+                {isSaving ? (
+                  "Saving..."
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Progress
+                  </>
+                )}
+              </button>
+              
+              {assessmentStatus === "IN_PROGRESS" && (
+                <button
+                  type="submit"
+                  className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  {currentSectionIndex === sections.length - 1 ? "Finish" : "Next"}
+                </button>
               )}
-            </label>
-            {question.description && (
-              <p className="mt-1 text-sm text-gray-600">{question.description}</p>
-            )}
-            {question.mandatory && (
-              <p className="mt-1 text-sm text-red-600 font-medium">This question is mandatory</p>
-            )}
-            <div className="mt-4">
-              {renderQuestionInput(question, form)}
             </div>
           </div>
-        ))}
-      </div>
+        </form>
 
-      <div className="flex justify-between items-center">
-        <button
-          type="button"
-          onClick={() => {
-            if (currentSectionIndex > 0) {
-              setCurrentSectionIndex(currentSectionIndex - 1);
-              // Load responses for previous section
-              const prevSection = sections[currentSectionIndex - 1];
-              const prevAnswers: Record<string, any> = {};
-              prevSection.questions.forEach(question => {
-                if (savedResponses[question.id] !== undefined) {
-                  prevAnswers[question.id] = savedResponses[question.id];
-                }
-              });
-              form.reset({ answers: prevAnswers });
-            }
-          }}
-          disabled={currentSectionIndex === 0}
-          className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        
-        <div className="flex space-x-4">
-          <button
-            type="button"
-            onClick={saveProgress}
-            disabled={isSaving}
-            className="rounded-md bg-gray-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex items-center"
-          >
-            {isSaving ? (
-              "Saving..."
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Save Progress
-              </>
-            )}
-          </button>
-          
-          {assessmentStatus === "IN_PROGRESS" && (
-            <button
-              type="submit"
-              className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              {currentSectionIndex === sections.length - 1 ? "Finish" : "Next"}
-            </button>
-          )}
-        </div>
+        {/* Confirmation Dialog */}
+        {showFinishConfirmation && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Complete Assessment
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to complete this assessment? Once completed, you will not be able to edit your responses.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowFinishConfirmation(false)}
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowFinishConfirmation(false);
+                    const formData = form.getValues();
+                    await submitResponses(formData);
+                  }}
+                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300"
+                >
+                  Complete Assessment
+                </button>
               </div>
-      </form>
-
-    {/* Confirmation Dialog */}
-    {showFinishConfirmation && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Complete Assessment
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Are you sure you want to complete this assessment? Once completed, you will not be able to edit your responses.
-          </p>
-          <div className="flex space-x-3">
-            <button
-              onClick={() => setShowFinishConfirmation(false)}
-              className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={async () => {
-                setShowFinishConfirmation(false);
-                const formData = form.getValues();
-                await submitResponses(formData);
-              }}
-              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300"
-            >
-              Complete Assessment
-            </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
-    )}
     </div>
   );
 }
@@ -521,16 +523,16 @@ function renderQuestionInput(
   switch (question.type) {
     case "MULTIPLE_CHOICE":
       return (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {question.options.map((option: string) => (
-            <label key={option} className="flex items-center">
+            <label key={option} className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
               <input
                 type="checkbox"
                 {...form.register(`answers.${question.id}`)}
                 value={option}
-                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                className="h-5 w-5 rounded border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
               />
-              <span className="ml-2">{option}</span>
+              <span className="ml-3 text-gray-700 font-medium">{option}</span>
             </label>
           ))}
         </div>
@@ -538,16 +540,16 @@ function renderQuestionInput(
 
     case "SINGLE_CHOICE":
       return (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {question.options.map((option: string) => (
-            <label key={option} className="flex items-center">
+            <label key={option} className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
               <input
                 type="radio"
                 {...form.register(`answers.${question.id}`)}
                 value={option}
-                className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
               />
-              <span className="ml-2">{option}</span>
+              <span className="ml-3 text-gray-700 font-medium">{option}</span>
             </label>
           ))}
         </div>
@@ -555,16 +557,16 @@ function renderQuestionInput(
 
     case "LIKERT_SCALE":
       return (
-        <div className="flex justify-between max-w-md">
+        <div className="flex justify-between max-w-md bg-gray-50 p-4 rounded-lg border border-gray-200">
           {[1, 2, 3, 4, 5].map((value) => (
             <label key={value} className="flex flex-col items-center">
               <input
                 type="radio"
                 {...form.register(`answers.${question.id}`)}
                 value={value}
-                className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
               />
-              <span className="mt-1 text-sm">{value}</span>
+              <span className="mt-2 text-sm font-medium text-gray-700">{value}</span>
             </label>
           ))}
         </div>
@@ -574,31 +576,31 @@ function renderQuestionInput(
       return (
         <textarea
           {...form.register(`answers.${question.id}`)}
-          rows={3}
-          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          rows={4}
+          className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-cropper-mint-600 focus:border-cropper-mint-600 transition-colors duration-200 resize-none"
         />
       );
 
     case "BOOLEAN":
       return (
-        <div className="space-x-4">
-          <label className="inline-flex items-center">
+        <div className="flex space-x-6">
+          <label className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
             <input
               type="radio"
               {...form.register(`answers.${question.id}`)}
               value="true"
-              className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+              className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
             />
-            <span className="ml-2">Yes</span>
+            <span className="ml-3 text-gray-700 font-medium">Yes</span>
           </label>
-          <label className="inline-flex items-center">
+          <label className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
             <input
               type="radio"
               {...form.register(`answers.${question.id}`)}
               value="false"
-              className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+              className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
             />
-            <span className="ml-2">No</span>
+            <span className="ml-3 text-gray-700 font-medium">No</span>
           </label>
         </div>
       );

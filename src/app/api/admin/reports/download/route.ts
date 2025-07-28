@@ -443,6 +443,67 @@ export async function GET() {
       addText(`Coverage: ${Math.round((organizationsWithSuggestions / totalOrganizations) * 100)}%`, 12, false);
       yPosition += 10;
 
+      // Suggestions by category
+      const suggestionsByCategory = new Map<string, number>();
+      allSuggestions.forEach(suggestion => {
+        let category = 'Uncategorized';
+        if (suggestion.metadata && typeof suggestion.metadata === 'object' && suggestion.metadata !== null) {
+          const metadata = suggestion.metadata as any;
+          category = metadata.category || 'Uncategorized';
+        }
+        suggestionsByCategory.set(category, (suggestionsByCategory.get(category) || 0) + 1);
+      });
+
+      if (suggestionsByCategory.size > 0) {
+        addText("Suggestions by Category:", 14, true);
+        yPosition += 8;
+
+        Array.from(suggestionsByCategory.entries())
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([category, count]) => {
+            if (yPosition > pageHeight - 15) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            
+            const percentage = Math.round((count / totalSuggestions) * 100);
+            addBulletPoint(`${category}: ${count} suggestions (${percentage}%)`, 10, 15);
+          });
+        
+        yPosition += 10;
+      }
+
+      // Suggestions by priority
+      const suggestionsByPriority = new Map<string, number>();
+      allSuggestions.forEach(suggestion => {
+        const priorityLevel = suggestion.priority >= 9 ? 'Critical' :
+                             suggestion.priority >= 7 ? 'High' :
+                             suggestion.priority >= 5 ? 'Medium' : 'Low';
+        suggestionsByPriority.set(priorityLevel, (suggestionsByPriority.get(priorityLevel) || 0) + 1);
+      });
+
+      if (suggestionsByPriority.size > 0) {
+        addText("Suggestions by Priority:", 14, true);
+        yPosition += 8;
+
+        Array.from(suggestionsByPriority.entries())
+          .sort((a, b) => {
+            const priorityOrder = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
+            return priorityOrder[b[0] as keyof typeof priorityOrder] - priorityOrder[a[0] as keyof typeof priorityOrder];
+          })
+          .forEach(([priority, count]) => {
+            if (yPosition > pageHeight - 15) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            
+            const percentage = Math.round((count / totalSuggestions) * 100);
+            addBulletPoint(`${priority} Priority: ${count} suggestions (${percentage}%)`, 10, 15);
+          });
+        
+        yPosition += 10;
+      }
+
       // Most common suggestions
       const suggestionFrequency = new Map();
       allSuggestions.forEach(suggestion => {
@@ -500,7 +561,7 @@ export async function GET() {
       });
 
       addDivider();
-      addText("Suggestions by Category:", 14, true);
+      addText("Suggestions by Type:", 14, true);
       yPosition += 8;
 
       Array.from(suggestionsByType.entries()).forEach(([type, count]) => {

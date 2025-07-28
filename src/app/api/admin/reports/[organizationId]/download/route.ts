@@ -457,6 +457,36 @@ export async function GET(
         });
       }
 
+      // Add suggestions by actual category (from metadata)
+      const suggestionsByCategory = new Map<string, number>();
+      allSuggestions.forEach(suggestion => {
+        let category = 'Uncategorized';
+        if (suggestion.metadata && typeof suggestion.metadata === 'object' && suggestion.metadata !== null) {
+          const metadata = suggestion.metadata as any;
+          category = metadata.category || 'Uncategorized';
+        }
+        suggestionsByCategory.set(category, (suggestionsByCategory.get(category) || 0) + 1);
+      });
+
+      if (suggestionsByCategory.size > 1) {
+        addDivider();
+        addText("Recommendations by Topic Category:", 14, true);
+        yPosition += 8;
+
+        Array.from(suggestionsByCategory.entries())
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([category, count]) => {
+            if (yPosition > pageHeight - 15) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            
+            const percentage = Math.round((count / allSuggestions.length) * 100);
+            addText(`${category}: ${count} recommendations (${percentage}%)`, 12, true);
+            yPosition += 5;
+          });
+      }
+
       addDivider();
     }
 

@@ -35,7 +35,13 @@ export async function GET(
             },
           },
         },
-        report: true,
+        report: {
+          include: {
+            suggestions: {
+              orderBy: { priority: 'desc' }
+            }
+          }
+        },
       },
     });
 
@@ -128,12 +134,122 @@ export async function GET(
       doc.text("Assessment Report", 20, yPosition);
       yPosition += 10;
 
+      // Add suggestions if available
+      if (assessment.report.suggestions && assessment.report.suggestions.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Recommendations:", 20, yPosition);
+        yPosition += 10;
+
+        // Group suggestions by priority
+        const criticalSuggestions = assessment.report.suggestions.filter(s => s.priority >= 9);
+        const highSuggestions = assessment.report.suggestions.filter(s => s.priority >= 7 && s.priority < 9);
+        const mediumSuggestions = assessment.report.suggestions.filter(s => s.priority >= 5 && s.priority < 7);
+        const lowSuggestions = assessment.report.suggestions.filter(s => s.priority < 5);
+
+        // Helper function to add suggestion with priority label
+        const addSuggestionWithPriority = (suggestion: any, priorityLabel: string) => {
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text(`[${priorityLabel}]`, 20, yPosition);
+          yPosition += 8;
+
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
+          
+          // Add context if available
+          let context = "";
+          if (suggestion.metadata && typeof suggestion.metadata === 'object') {
+            const metadata = suggestion.metadata as any;
+            if (suggestion.type === 'QUESTION' && metadata.questionText) {
+              context = ` (Question: "${metadata.questionText.substring(0, 40)}...")`;
+            } else if (suggestion.type === 'SECTION' && metadata.sectionTitle) {
+              context = ` (Section: ${metadata.sectionTitle})`;
+            } else if (suggestion.type === 'ASSESSMENT' && metadata.overallScore !== undefined) {
+              context = ` (Overall Score: ${Math.round(metadata.overallScore * 100)}%)`;
+            }
+          }
+          
+          if (context) {
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "italic");
+            doc.text(context, 25, yPosition);
+            yPosition += 6;
+          }
+
+          // Add the suggestion text
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
+          const suggestionLines = doc.splitTextToSize(`• ${suggestion.suggestion}`, 170);
+          doc.text(suggestionLines, 25, yPosition);
+          yPosition += suggestionLines.length * 5 + 8;
+        };
+
+        // Add suggestions by priority
+        if (criticalSuggestions.length > 0) {
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text("Critical Priority:", 20, yPosition);
+          yPosition += 8;
+          
+          criticalSuggestions.forEach(suggestion => {
+            addSuggestionWithPriority(suggestion, "Critical");
+          });
+        }
+
+        if (highSuggestions.length > 0) {
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text("High Priority:", 20, yPosition);
+          yPosition += 8;
+          
+          highSuggestions.forEach(suggestion => {
+            addSuggestionWithPriority(suggestion, "High");
+          });
+        }
+
+        if (mediumSuggestions.length > 0) {
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text("Medium Priority:", 20, yPosition);
+          yPosition += 8;
+          
+          mediumSuggestions.forEach(suggestion => {
+            addSuggestionWithPriority(suggestion, "Medium");
+          });
+        }
+
+        if (lowSuggestions.length > 0) {
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text("Low Priority:", 20, yPosition);
+          yPosition += 8;
+          
+          lowSuggestions.forEach(suggestion => {
+            addSuggestionWithPriority(suggestion, "Low");
+          });
+        }
+
+        // Add summary
+        yPosition += 10;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Total Recommendations: ${assessment.report.suggestions.length}`, 20, yPosition);
+        yPosition += 6;
+        doc.text(`Critical: ${criticalSuggestions.length} | High: ${highSuggestions.length} | Medium: ${mediumSuggestions.length} | Low: ${lowSuggestions.length}`, 20, yPosition);
+      }
+
       const reportContent = assessment.report.content as any;
       
       if (reportContent.recommendations) {
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
-        doc.text("Recommendations:", 20, yPosition);
+        doc.text("Additional Recommendations:", 20, yPosition);
         yPosition += 10;
 
         reportContent.recommendations.forEach((rec: string) => {

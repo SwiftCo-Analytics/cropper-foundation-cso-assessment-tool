@@ -226,6 +226,7 @@ export async function GET() {
     const suggestionsByPriority = new Map<string, number>();
     let totalSuggestions = 0;
     const organizationsWithSuggestions = new Set<string>();
+    const suggestionsByCategory = new Map<string, number>();
 
     // Analyze all suggestions across all organizations
     organizations.forEach(org => {
@@ -259,6 +260,14 @@ export async function GET() {
             // Track by type
             suggestionsByType.set(suggestion.type, (suggestionsByType.get(suggestion.type) || 0) + 1);
             
+            // Track by category (from suggestion.category or suggestion.metadata?.category)
+            let category = 'Uncategorized';
+            if (suggestion.metadata && typeof suggestion.metadata === 'object' && suggestion.metadata !== null) {
+              const metadata = suggestion.metadata as any;
+              category = metadata.category || 'Uncategorized';
+            }
+            suggestionsByCategory.set(category, (suggestionsByCategory.get(category) || 0) + 1);
+
             // Track by priority level
             const priorityLevel = suggestion.priority >= 9 ? 'Critical' :
                                  suggestion.priority >= 7 ? 'High' :
@@ -289,7 +298,8 @@ export async function GET() {
       coveragePercentage: Math.round((organizationsWithSuggestions.size / totalOrganizations) * 100 * 10) / 10,
       averageSuggestionsPerOrganization: Math.round((totalSuggestions / organizationsWithSuggestions.size) * 10) / 10,
       suggestionsByType: Object.fromEntries(suggestionsByType),
-      suggestionsByPriority: Object.fromEntries(suggestionsByPriority)
+      suggestionsByPriority: Object.fromEntries(suggestionsByPriority),
+      suggestionsByCategory: Object.fromEntries(suggestionsByCategory),
     };
 
     return NextResponse.json({

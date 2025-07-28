@@ -38,6 +38,7 @@ const formatQuestionType = (type: string) => {
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { RecommendationsBarChart, SimpleBarChart } from "@/components/ui/charts";
 
 interface ReportsData {
   overview: {
@@ -86,6 +87,7 @@ interface ReportsData {
       averageSuggestionsPerOrganization: number;
       suggestionsByType: Record<string, number>;
       suggestionsByPriority: Record<string, number>;
+      suggestionsByCategory: Record<string, number>;
     };
     mostCommonSuggestions: Array<{
       suggestion: string;
@@ -335,9 +337,48 @@ export default function AdminReports() {
               ))}
             </div>
 
-            {/* Most Common Suggestions */}
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Most Common Suggestions Chart */}
+              <div>
+                <h3 className="text-subheading font-semibold mb-4">Most Common Recommendations</h3>
+                <div className="card p-6 bg-white">
+                  <RecommendationsBarChart 
+                    data={suggestionAnalytics.mostCommonSuggestions.slice(0, 8)}
+                    title="Top Recommendations by Organization Count"
+                    height={350}
+                  />
+                </div>
+              </div>
+
+              {/* Recommendations by Category Chart */}
+              <div>
+                <h3 className="text-subheading font-semibold mb-4">Recommendations by Category</h3>
+                <div className="card p-6 bg-white">
+                  <SimpleBarChart 
+                    data={suggestionAnalytics.coverage.suggestionsByCategory}
+                    title="Recommendations Distribution by Category"
+                    height={350}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendations by Type Chart */}
             <div className="mb-8">
-              <h3 className="text-subheading font-semibold mb-4">Most Common Recommendations</h3>
+              <h3 className="text-subheading font-semibold mb-4">Recommendations by Type</h3>
+              <div className="card p-6 bg-white">
+                <SimpleBarChart 
+                  data={suggestionAnalytics.coverage.suggestionsByType}
+                  title="Recommendations Distribution by Type"
+                  height={350}
+                />
+              </div>
+            </div>
+
+            {/* Detailed Recommendations List */}
+            <div className="mb-8">
+              <h3 className="text-subheading font-semibold mb-4">Detailed Recommendations</h3>
               <div className="space-y-4">
                 {suggestionAnalytics.mostCommonSuggestions.slice(0, 5).map((suggestion, index) => (
                   <SlideIn key={index} direction="up" delay={1.2 + index * 0.1}>

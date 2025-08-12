@@ -426,7 +426,7 @@ export default function AdminDashboard() {
               className="btn-primary"
             >
               <BarChart className="mr-2 h-5 w-5" />
-              View Reports
+              View All Reports
             </Link>
             <Link
               href="/admin/suggestions"

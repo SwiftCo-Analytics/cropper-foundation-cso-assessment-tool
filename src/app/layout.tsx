@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Header from "@/components/ui/header";
 import AuthProvider from "@/components/providers/session-provider";
+import Logos from "@/components/ui/logos";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -42,6 +43,13 @@ export default async function RootLayout({
             </main>
             <footer className="bg-white border-t border-cropper-green-200">
               <div className="container mx-auto px-4 py-8">
+                <div className="mb-6">
+                  <Logos 
+                    title="Our Partners"
+                    subtitle="Working together for sustainable development"
+                    variant="footer"
+                  />
+                </div>
                 <p className="text-center text-gray-500 text-sm">
                   © {new Date().getFullYear()} The Cropper Foundation. All rights reserved.
                 </p>

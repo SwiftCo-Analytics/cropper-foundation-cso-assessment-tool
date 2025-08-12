@@ -402,8 +402,8 @@ export async function GET(
             context = ` (Question: "${metadata.questionText.substring(0, 40)}...")`;
           } else if (suggestion.type === 'SECTION' && metadata.sectionTitle) {
             context = ` (Section: ${metadata.sectionTitle})`;
-          } else if (suggestion.type === 'ASSESSMENT' && metadata.overallScore !== undefined) {
-            context = ` (Overall Score: ${Math.round(metadata.overallScore * 100)}%)`;
+          } else if (suggestion.type === 'ASSESSMENT' && metadata.overallPercentage !== undefined) {
+            context = ` (Overall Score: ${Math.round(metadata.overallPercentage)}%)`;
           }
         }
         

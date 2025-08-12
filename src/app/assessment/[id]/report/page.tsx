@@ -47,12 +47,13 @@ interface CSOScores {
 }
 
 // Helper function to format suggestions contextually
-function formatSuggestionContext(suggestion: Suggestion): { prefix: string; category: string; priorityLabel: string } {
+function formatSuggestionContext(suggestion: Suggestion): { prefix: string; category: string; priorityLabel: string; context: string } {
   const { type, metadata } = suggestion;
   
   let prefix = "";
   let category = "";
   let priorityLabel = "";
+  let context = "";
 
   // Determine priority label
   if (suggestion.priority >= 9) {
@@ -70,49 +71,62 @@ function formatSuggestionContext(suggestion: Suggestion): { prefix: string; cate
       if (metadata?.questionText && metadata?.responseValue !== undefined) {
         prefix = `Based on your response of "${metadata.responseValue}" to "${metadata.questionText.substring(0, 50)}${metadata.questionText.length > 50 ? '...' : ''}"`;
         category = "Question Response";
+        context = "Specific question response";
       } else {
         prefix = "Based on a specific question response";
         category = "Question Response";
+        context = "Specific question response";
       }
       break;
       
     case "SECTION":
-      if (metadata?.sectionTitle && metadata?.sectionScore !== undefined) {
-        const scorePercentage = Math.round(metadata.sectionScore * 100);
+      if (metadata?.sectionTitle && metadata?.sectionScore !== undefined && !isNaN(metadata.sectionScore)) {
+        // For section scores, we need to calculate the percentage based on the section
+        let maxScore = 115; // Default to governance
+        if (metadata.sectionTitle === 'Financial Management') maxScore = 50;
+        else if (metadata.sectionTitle === 'Programme/Project Accountability') maxScore = 30;
+        else if (metadata.sectionTitle === 'Human Resource Accountability') maxScore = 20;
+        
+        const scorePercentage = Math.round((metadata.sectionScore / maxScore) * 100);
         prefix = `Based on your ${scorePercentage}% score in the "${metadata.sectionTitle}" section`;
         category = metadata.sectionTitle;
+        context = "Section-specific performance";
       } else {
         prefix = "Based on your section performance";
         category = "Section Analysis";
+        context = "Section-specific performance";
       }
       break;
       
     case "ASSESSMENT":
       if (metadata?.isStrategic) {
-        if (metadata?.overallScore !== undefined) {
-          const scorePercentage = Math.round(metadata.totalPercentage);
+        if (metadata?.overallPercentage !== undefined && !isNaN(metadata.overallPercentage)) {
+          const scorePercentage = Math.round(metadata.overallPercentage);
           prefix = `Based on your overall assessment score of ${scorePercentage}%`;
         } else {
           prefix = "Based on your overall assessment performance";
         }
         category = metadata?.category || "Strategic Recommendation";
+        context = "Overall strategic guidance";
       } else {
-        if (metadata?.overallScore !== undefined) {
-          const scorePercentage = Math.round(metadata.totalPercentage);
+        if (metadata?.overallPercentage !== undefined && !isNaN(metadata.overallPercentage)) {
+          const scorePercentage = Math.round(metadata.overallPercentage);
           prefix = `Based on your overall score of ${scorePercentage}%`;
         } else {
           prefix = "Based on your overall performance";
         }
-        category = "Overall Assessment";
+        category = metadata?.category || "Overall Assessment";
+        context = "Overall assessment performance";
       }
       break;
       
     default:
       prefix = "Based on your assessment";
       category = metadata?.category || type;
+      context = "General assessment";
   }
 
-  return { prefix, category, priorityLabel };
+  return { prefix, category, priorityLabel, context };
 }
 
 // Component for CSO Score Bar Chart
@@ -549,7 +563,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                 {suggestions
                   .sort((a, b) => b.priority - a.priority)
                   .map((suggestion) => {
-                    const { prefix, category, priorityLabel } = formatSuggestionContext(suggestion);
+                    const { prefix, category, priorityLabel, context } = formatSuggestionContext(suggestion);
                     
                     return (
                       <div key={suggestion.id} className="border border-gray-200 rounded-lg p-6 hover:border-cropper-blue-300 transition-all duration-200">
@@ -574,6 +588,9 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                                   : 'bg-green-100 text-green-800'
                               }`}>
                                 {priorityLabel}
+                              </span>
+                              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                {context}
                               </span>
                               {suggestion.metadata?.isStrategic && (
                                 <span className="px-3 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded-full text-sm font-medium">

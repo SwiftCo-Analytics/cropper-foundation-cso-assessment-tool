@@ -37,7 +37,7 @@ export default function Home() {
                 <div className="text-center">
                   <div className="flex justify-start mb-2">
                     <div className="text-cropper-green-700 text-lg md:text-xl font-medium text-left">
-                      The Cropper Foundation
+                      The Cropper Foundation x CSO Go
                     </div>
                   </div>
                   <div className="text-cropper-green-800 font-display font-bold text-4xl md:text-5xl lg:text-6xl mb-2">
@@ -164,9 +164,9 @@ export default function Home() {
         <div className="content-container relative">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="text-center">
-              <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="relative w-64 h-64 mx-auto mb-4">
                 <img
-                  src="/naf/Artboard 4@300x.png"
+                  src="/naf/ACC@300x.png"
                   alt="Assessment visualization"
                   className="w-full h-full object-contain"
                 />
@@ -176,9 +176,9 @@ export default function Home() {
             </div>
             
             <div className="text-center">
-              <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="relative w-64 h-64 mx-auto mb-4">
                 <img
-                  src="/naf/Artboard 5@300x.png"
+                  src="/naf/GOV@300x.png"
                   alt="Analysis visualization"
                   className="w-full h-full object-contain"
                 />
@@ -188,9 +188,9 @@ export default function Home() {
             </div>
             
             <div className="text-center">
-              <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="relative w-64 h-64 mx-auto mb-4">
                 <img
-                  src="/naf/Artboard 7@300x.png"
+                  src="/naf/OVAL@300x.png"
                   alt="Growth visualization"
                   className="w-full h-full object-contain"
                 />

@@ -59,26 +59,44 @@ export class SuggestionEngine {
       // Calculate CSO-specific scores
       const csoScores = this.calculateCSOScores(assessment.responses);
 
-      // Generate assessment-level suggestions based on CSO scoring
+      // Generate all types of suggestions
       const assessmentSuggestions = await this.generateCSOAssessmentSuggestions(csoScores);
-      suggestions.push(...assessmentSuggestions);
-
-      // Generate section-level suggestions
       const sectionSuggestions = await this.generateCSOSectionSuggestions(assessment, csoScores);
-      suggestions.push(...sectionSuggestions);
-
-      // Generate strategic recommendations
       const strategicSuggestions = await this.generateCSOStrategicSuggestions(assessment, csoScores);
-      suggestions.push(...strategicSuggestions);
+
+      // Combine all suggestions
+      const allSuggestions = [...assessmentSuggestions, ...sectionSuggestions, ...strategicSuggestions];
+
+      // Deduplicate and prioritize suggestions by category
+      const deduplicatedSuggestions = this.deduplicateSuggestionsByCategory(allSuggestions);
 
       // Save suggestions to database
-      await this.saveSuggestions(assessmentId, suggestions);
+      await this.saveSuggestions(assessmentId, deduplicatedSuggestions);
 
-      return suggestions;
+      return deduplicatedSuggestions;
     } catch (error) {
       console.error("Error generating suggestions:", error);
       throw error;
     }
+  }
+
+  /**
+   * Deduplicate suggestions by category, keeping the highest priority one for each category
+   */
+  private static deduplicateSuggestionsByCategory(suggestions: SuggestionResult[]): SuggestionResult[] {
+    const categoryMap = new Map<string, SuggestionResult>();
+
+    for (const suggestion of suggestions) {
+      const category = suggestion.metadata?.category || 'General';
+      
+      // If we don't have a suggestion for this category yet, or if this one has higher priority
+      if (!categoryMap.has(category) || suggestion.priority > categoryMap.get(category)!.priority) {
+        categoryMap.set(category, suggestion);
+      }
+    }
+
+    // Convert back to array and sort by priority
+    return Array.from(categoryMap.values()).sort((a, b) => b.priority - a.priority);
   }
 
   /**
@@ -217,117 +235,9 @@ export class SuggestionEngine {
    * Generate CSO-specific section-level suggestions
    */
   private static async generateCSOSectionSuggestions(assessment: any, csoScores: CSOScores): Promise<SuggestionResult[]> {
-    const suggestions: SuggestionResult[] = [];
-
-    // Section-specific suggestions based on CSO scoring
-    const sectionSuggestions = [
-      {
-        sectionId: 'governance-section',
-        condition: { score: { min: 23, max: 46 } },
-        suggestion: 'Your governance practices need strengthening. Focus on establishing clear board structures, stakeholder engagement processes, and ethical frameworks.',
-        priority: 9,
-        category: 'Governance'
-      },
-      {
-        sectionId: 'governance-section',
-        condition: { score: { min: 47, max: 91 } },
-        suggestion: 'Your governance foundation is solid. Continue refining board practices and enhance stakeholder communication.',
-        priority: 7,
-        category: 'Governance'
-      },
-      {
-        sectionId: 'governance-section',
-        condition: { score: { min: 92, max: 115 } },
-        suggestion: 'Excellent governance practices! Consider mentoring other organizations and sharing best practices.',
-        priority: 5,
-        category: 'Governance'
-      },
-      {
-        sectionId: 'financial-section',
-        condition: { score: { min: 10, max: 20 } },
-        suggestion: 'Strengthen your financial management systems. Implement basic accounting practices and donor due diligence.',
-        priority: 9,
-        category: 'Financial Management'
-      },
-      {
-        sectionId: 'financial-section',
-        condition: { score: { min: 21, max: 40 } },
-        suggestion: 'Good financial practices in place. Focus on sustainability and advanced reporting systems.',
-        priority: 7,
-        category: 'Financial Management'
-      },
-      {
-        sectionId: 'financial-section',
-        condition: { score: { min: 41, max: 50 } },
-        suggestion: 'Outstanding financial management! Lead sector-wide financial capacity building initiatives.',
-        priority: 5,
-        category: 'Financial Management'
-      },
-      {
-        sectionId: 'programme-section',
-        condition: { score: { min: 6, max: 12 } },
-        suggestion: 'Establish comprehensive M&E systems and stakeholder engagement processes for your programmes.',
-        priority: 9,
-        category: 'Programme/Project Accountability'
-      },
-      {
-        sectionId: 'programme-section',
-        condition: { score: { min: 13, max: 24 } },
-        suggestion: 'Good programme accountability. Enhance monitoring tools and collaborative partnerships.',
-        priority: 7,
-        category: 'Programme/Project Accountability'
-      },
-      {
-        sectionId: 'programme-section',
-        condition: { score: { min: 25, max: 30 } },
-        suggestion: 'Excellent programme practices! Share success stories and lead collaborative initiatives.',
-        priority: 5,
-        category: 'Programme/Project Accountability'
-      },
-      {
-        sectionId: 'hr-section',
-        condition: { score: { min: 4, max: 8 } },
-        suggestion: 'Develop comprehensive HR strategies and create motivating work environments.',
-        priority: 9,
-        category: 'Human Resource Management'
-      },
-      {
-        sectionId: 'hr-section',
-        condition: { score: { min: 9, max: 16 } },
-        suggestion: 'Good HR practices. Enhance remote work policies and cybersecurity measures.',
-        priority: 7,
-        category: 'Human Resource Management'
-      },
-      {
-        sectionId: 'hr-section',
-        condition: { score: { min: 17, max: 20 } },
-        suggestion: 'Outstanding HR practices! Share lessons learned and mentor other organizations.',
-        priority: 5,
-        category: 'Human Resource Management'
-      }
-    ];
-
-    // Evaluate section suggestions
-    for (const sectionSuggestion of sectionSuggestions) {
-      const sectionScore = this.getSectionScore(sectionSuggestion.sectionId, csoScores);
-      if (this.evaluateSectionScoreCondition(sectionScore, sectionSuggestion.condition)) {
-        suggestions.push({
-          type: SuggestionType.SECTION,
-          sourceId: sectionSuggestion.sectionId,
-          suggestion: sectionSuggestion.suggestion,
-          priority: sectionSuggestion.priority,
-          weight: 1.0,
-          metadata: {
-            sectionTitle: this.getSectionTitle(sectionSuggestion.sectionId),
-            sectionScore,
-            category: sectionSuggestion.category,
-            condition: sectionSuggestion.condition
-          }
-        });
-      }
-    }
-
-    return suggestions;
+    // We don't need hardcoded section suggestions since we have database suggestions
+    // that handle section-specific conditions properly
+    return [];
   }
 
   /**
@@ -341,19 +251,19 @@ export class SuggestionEngine {
       {
         condition: { overallLevel: 'Emerging' },
         suggestion: "Focus on building foundational systems. Start with governance structure, basic financial tracking, and legal compliance. Small improvements will create significant momentum.",
-        priority: 10,
+        priority: 5, // Lower priority than specific category suggestions
         category: "Strategic"
       },
       {
         condition: { overallLevel: 'Strong Foundation' },
         suggestion: "You have a solid foundation. Identify specific areas for improvement and implement targeted enhancements to move toward sector leadership.",
-        priority: 8,
+        priority: 4, // Lower priority than specific category suggestions
         category: "Strategic"
       },
       {
         condition: { overallLevel: 'Leading' },
         suggestion: "You are a sector leader! Consider sharing your expertise through mentoring, case studies, and collaborative initiatives to support other CSOs.",
-        priority: 6,
+        priority: 3, // Lower priority than specific category suggestions
         category: "Strategic"
       },
       {
@@ -398,19 +308,19 @@ export class SuggestionEngine {
           suggestion: recommendation.suggestion,
           priority: recommendation.priority,
           weight: 1.0,
-          metadata: {
-            category: recommendation.category,
-            overallLevel: csoScores.overallLevel,
-            totalScore: csoScores.totalScore,
-            totalPercentage: csoScores.totalPercentage,
-            sectionPercentages: {
-              governance: csoScores.governancePercentage,
-              financial: csoScores.financialPercentage,
-              programme: csoScores.programmePercentage,
-              hr: csoScores.hrPercentage
-            },
-            isStrategic: true
-          }
+                      metadata: {
+              category: recommendation.category,
+              overallLevel: csoScores.overallLevel,
+              overallScore: csoScores.totalScore,
+              overallPercentage: csoScores.totalPercentage,
+              sectionPercentages: {
+                governance: csoScores.governancePercentage,
+                financial: csoScores.financialPercentage,
+                programme: csoScores.programmePercentage,
+                hr: csoScores.hrPercentage
+              },
+              isStrategic: true
+            }
         });
       }
     }

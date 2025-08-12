@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
+import Logos from "@/components/ui/logos";
 
 export default function AboutPage() {
   return (
@@ -184,6 +185,17 @@ export default function AboutPage() {
               Contact Us
             </a>
           </Hover>
+        </div>
+      </FadeIn>
+
+      {/* Partners Section */}
+      <FadeIn delay={0.6}>
+        <div className="card card-lg">
+          <Logos 
+            title="Our Partners and Collaborators"
+            subtitle="Working together to advance sustainable development in the Caribbean"
+            variant="about"
+          />
         </div>
       </FadeIn>
     </div>

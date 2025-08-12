@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, CheckCircle, BarChart3, FileText } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
@@ -13,7 +14,17 @@ export default function Home() {
     <>
       {/* Hero Section */}
       <section className="relative overflow-hidden section-spacing">
-        <div className="absolute inset-0 bg-gradient-to-b from-cropper-mint-100/50 to-cropper-mint-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-cropper-yellow-100/50 to-cropper-yellow-50 pointer-events-none" />
+        
+        {/* Background Artwork */}
+        <div className="absolute top-0 right-0 w-full h-4/3 opacity-10">
+          <img
+            src="/naf/Artboard 1@300x.png"
+            alt="Decorative background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
         <div className="content-container relative">
           <FadeIn>
             <div className="content-narrow text-center">
@@ -25,15 +36,15 @@ export default function Home() {
               >
                 <div className="text-center">
                   <div className="flex justify-start mb-2">
-                    <div className="text-cropper-mint-700 text-lg md:text-xl font-medium text-left">
+                    <div className="text-cropper-green-700 text-lg md:text-xl font-medium text-left">
                       The Cropper Foundation
                     </div>
                   </div>
-                  <div className="text-cropper-mint-800 font-bold text-4xl md:text-5xl lg:text-6xl mb-2">
-                    Self Assessment
+                  <div className="text-cropper-green-800 font-display font-bold text-4xl md:text-5xl lg:text-6xl mb-2">
+                    CSO Self Assessment
                   </div>
                   <div className="flex justify-end">
-                    <div className="text-cropper-mint-600 text-lg md:text-xl font-medium text-right">
+                    <div className="text-cropper-green-600 text-lg md:text-xl font-medium text-right">
                       for Civil Society Organizations
                     </div>
                   </div>
@@ -45,11 +56,12 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
               >
-                A powerful, comprehensive tool designed to help Civil Society Organizations 
-                <span className="text-cropper-mint-700 font-medium"> evaluate their practices</span>,
-                <span className="text-cropper-mint-700 font-medium"> identify key strengths</span>, and
-                <span className="text-cropper-mint-700 font-medium"> discover opportunities</span> for 
-                sustainable growth and improvement.
+                A comprehensive accountability assessment tool designed to help Civil Society Organizations 
+                <span className="text-cropper-green-700 font-medium"> evaluate their governance</span>,
+                <span className="text-cropper-green-700 font-medium"> financial management</span>,
+                <span className="text-cropper-green-700 font-medium"> programme accountability</span>, and
+                <span className="text-cropper-green-700 font-medium"> human resource practices</span> for 
+                sustainable growth and sector leadership.
               </motion.p>
               <motion.div 
                 className="mt-10 flex items-center justify-center gap-x-6"
@@ -83,17 +95,27 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="section-spacing bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cropper-mint-100/30 via-transparent to-cropper-mint-50/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-cropper-yellow-100/30 via-transparent to-cropper-green-50/30 pointer-events-none" />
+        
+        {/* Decorative artwork */}
+        <div className="absolute top-10 left-10 w-32 h-32 opacity-5">
+          <img
+            src="/naf/OVAL@300x.png"
+            alt="Decorative element"
+            className="w-full h-full object-contain"
+          />
+        </div>
+        
         <div className="content-container relative">
           <ScaleIn>
             <div className="section-header">
-              <h2 className="section-title">
-                Everything you need to assess your organization
-              </h2>
-              <p className="section-subtitle">
-                Our tool provides a structured approach to evaluating your organization's
-                practices across multiple dimensions.
-              </p>
+                          <h2 className="section-title">
+              Everything you need to assess your CSO accountability
+            </h2>
+            <p className="section-subtitle">
+              Our tool provides a structured approach to evaluating your organization's
+              accountability practices across four key dimensions.
+            </p>
             </div>
           </ScaleIn>
 
@@ -117,7 +139,7 @@ export default function Home() {
                 icon: BarChart3,
                 title: "Progress Tracking",
                 description: "Monitor your organization's improvement over time with our comprehensive tracking system.",
-                color: "brown",
+                color: "orange",
                 delay: 0.4
               }
             ].map((feature, index) => (
@@ -137,18 +159,71 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Visual Elements Section */}
+      <section className="section-spacing-sm bg-gradient-to-r from-cropper-green-50 to-cropper-blue-50 relative overflow-hidden">
+        <div className="content-container relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+            <div className="text-center">
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <img
+                  src="/naf/Artboard 4@300x.png"
+                  alt="Assessment visualization"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h3 className="text-lg font-display font-semibold text-cropper-green-800 mb-2">Comprehensive Assessment</h3>
+              <p className="text-sm text-gray-600">Evaluate all aspects of your CSO accountability</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <img
+                  src="/naf/Artboard 5@300x.png"
+                  alt="Analysis visualization"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h3 className="text-lg font-display font-semibold text-cropper-blue-800 mb-2">Detailed Analysis</h3>
+              <p className="text-sm text-gray-600">Get insights into your accountability strengths and areas for improvement</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <img
+                  src="/naf/Artboard 7@300x.png"
+                  alt="Growth visualization"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h3 className="text-lg font-display font-semibold text-cropper-orange-800 mb-2">Sustainable Growth</h3>
+              <p className="text-sm text-gray-600">Build a stronger, more accountable CSO</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="section-spacing-sm relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cropper-mint-100 to-cropper-mint-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-cropper-orange-100 to-cropper-yellow-100 pointer-events-none" />
+        
+        {/* Background decoration */}
+        <div className="absolute bottom-0 right-0 w-full h-full opacity-5">
+          <img
+            src="/naf/Artboard 10@300x.png"
+            alt="Decorative background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
         <div className="content-container relative">
           <FadeIn delay={0.2}>
             <div className="content-narrow text-center">
-              <h2 className="text-heading text-cropper-mint-800 mb-4">
-                Ready to improve your organization?
+              <h2 className="text-heading text-cropper-green-800 mb-4">
+                Ready to improve your CSO accountability?
               </h2>
               <p className="text-body-lg mb-8">
                 Start your assessment today and get actionable insights to enhance your
-                organization's effectiveness.
+                organization's accountability practices.
               </p>
               <Hover>
                 <button

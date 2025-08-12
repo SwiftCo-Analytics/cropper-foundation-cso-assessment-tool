@@ -106,7 +106,7 @@ export default function SuggestionsManagement() {
   });
 
   const [assessmentSuggestionData, setAssessmentSuggestionData] = useState({
-    condition: { overallScore: { min: 0, max: 1 } },
+    condition: { overallScore: { min: 43, max: 86 } },
     suggestion: '',
     category: '',
     priority: 0,
@@ -368,7 +368,7 @@ export default function SuggestionsManagement() {
       setShowSectionForm(true);
     } else if (type === 'assessment') {
       setAssessmentSuggestionData({
-        condition: suggestion.condition,
+        condition: suggestion.condition?.overallScore ? suggestion.condition : { overallScore: { min: 43, max: 86 } },
         suggestion: suggestion.suggestion,
         category: suggestion.category || '',
         priority: suggestion.priority,
@@ -419,7 +419,7 @@ export default function SuggestionsManagement() {
       advancedCondition: ''
     });
     setAssessmentSuggestionData({
-      condition: { overallScore: { min: 0, max: 1 } },
+      condition: { overallScore: { min: 43, max: 86 } },
       suggestion: '',
       category: '',
       priority: 0,
@@ -440,16 +440,25 @@ export default function SuggestionsManagement() {
     
     // Handle score range conditions
     if (condition.minScore !== undefined || condition.maxScore !== undefined) {
-      const min = condition.minScore !== undefined ? Math.round(condition.minScore * 100) : 0;
-      const max = condition.maxScore !== undefined ? Math.round(condition.maxScore * 100) : 100;
-      return `Score range: ${min}% - ${max}%`;
+      const min = condition.minScore !== undefined ? condition.minScore : 0;
+      const max = condition.maxScore !== undefined ? condition.maxScore : 100;
+      return `Score range: ${min} - ${max}`;
     }
     
     // Handle overall score conditions
     if (condition.overallScore) {
-      const min = condition.overallScore.min !== undefined ? Math.round(condition.overallScore.min * 100) : 0;
-      const max = condition.overallScore.max !== undefined ? Math.round(condition.overallScore.max * 100) : 100;
-      return `Overall score: ${min}% - ${max}%`;
+      const min = condition.overallScore.min !== undefined ? condition.overallScore.min : 0;
+      const max = condition.overallScore.max !== undefined ? condition.overallScore.max : 215;
+      
+      // Determine level based on score ranges
+      let level = '';
+      if (min >= 43 && max <= 86) level = ' (Emerging)';
+      else if (min >= 87 && max <= 170) level = ' (Strong Foundation)';
+      else if (min >= 171 && max <= 215) level = ' (Leading)';
+      else if (min >= 43 && max <= 170) level = ' (Emerging-Strong)';
+      else if (min >= 87 && max <= 215) level = ' (Strong-Leading)';
+      
+      return `Overall score: ${min}-${max}${level}`;
     }
     
     // Handle question percentage conditions
@@ -466,11 +475,10 @@ export default function SuggestionsManagement() {
     // Handle section count conditions
     if (condition.sectionCount) {
       const { operator, value, belowThreshold } = condition.sectionCount;
-      const thresholdPercent = Math.round(belowThreshold * 100);
       const operatorText = operator === 'greater_than' ? 'more than' : 
                           operator === 'less_than' ? 'less than' : 
                           operator === 'equals' ? 'exactly' : operator;
-      return `${operatorText} ${value} sections below ${thresholdPercent}%`;
+      return `${operatorText} ${value} sections below ${belowThreshold}`;
     }
     
     // Handle response value conditions
@@ -1701,7 +1709,13 @@ export default function SuggestionsManagement() {
                       checked={!assessmentSuggestionData.useAdvancedCondition}
                       onChange={() => setAssessmentSuggestionData({
                         ...assessmentSuggestionData,
-                        useAdvancedCondition: false
+                        useAdvancedCondition: false,
+                        condition: { 
+                          overallScore: { 
+                            min: assessmentSuggestionData.condition?.overallScore?.min || 43, 
+                            max: assessmentSuggestionData.condition?.overallScore?.max || 86 
+                          } 
+                        }
                       })}
                       className="mr-2"
                     />
@@ -1727,7 +1741,7 @@ export default function SuggestionsManagement() {
               {!assessmentSuggestionData.useAdvancedCondition && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Overall Score Range
+                    Overall Score Range (CSO Scoring System)
                     <span className="text-xs text-gray-500 ml-2">(When the overall assessment score falls within this range, the suggestion will be shown)</span>
                   </label>
                   <div className="grid grid-cols-2 gap-4">
@@ -1736,48 +1750,48 @@ export default function SuggestionsManagement() {
                         type="number"
                         step="1"
                         min="0"
-                        max="100"
-                        placeholder="Min Score (0-100%)"
-                        value={Math.round((assessmentSuggestionData.condition.overallScore.min || 0) * 100)}
+                        max="215"
+                        placeholder="Min Score (0-215)"
+                        value={assessmentSuggestionData.condition?.overallScore?.min || 43}
                         onChange={(e) => setAssessmentSuggestionData({
                           ...assessmentSuggestionData,
                           condition: { 
                             ...assessmentSuggestionData.condition, 
                             overallScore: { 
-                              ...assessmentSuggestionData.condition.overallScore, 
-                              min: parseFloat(e.target.value) / 100 
+                              ...assessmentSuggestionData.condition?.overallScore, 
+                              min: parseInt(e.target.value) 
                             } 
                           }
                         })}
                         className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
-                        title="Minimum overall score that triggers this suggestion. 0% = poor, 100% = excellent."
+                        title="Minimum overall score that triggers this suggestion. 43-86 = Emerging, 87-170 = Strong Foundation, 171-215 = Leading."
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Minimum overall score (0% = poor performance)</p>
+                      <p className="text-xs text-gray-500 mt-1">Minimum overall score (43-86 = Emerging, 87-170 = Strong Foundation, 171-215 = Leading)</p>
                     </div>
                     <div>
                       <input
                         type="number"
                         step="1"
                         min="0"
-                        max="100"
-                        placeholder="Max Score (0-100%)"
-                        value={Math.round((assessmentSuggestionData.condition.overallScore.max || 1) * 100)}
+                        max="215"
+                        placeholder="Max Score (0-215)"
+                        value={assessmentSuggestionData.condition?.overallScore?.max || 86}
                         onChange={(e) => setAssessmentSuggestionData({
                           ...assessmentSuggestionData,
                           condition: { 
                             ...assessmentSuggestionData.condition, 
                             overallScore: { 
-                              ...assessmentSuggestionData.condition.overallScore, 
-                              max: parseFloat(e.target.value) / 100 
+                              ...assessmentSuggestionData.condition?.overallScore, 
+                              max: parseInt(e.target.value) 
                             } 
                           }
                         })}
                         className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent w-full"
-                        title="Maximum overall score that triggers this suggestion. 0% = poor, 100% = excellent."
+                        title="Maximum overall score that triggers this suggestion. 43-86 = Emerging, 87-170 = Strong Foundation, 171-215 = Leading."
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Maximum overall score (100% = excellent performance)</p>
+                      <p className="text-xs text-gray-500 mt-1">Maximum overall score (43-86 = Emerging, 87-170 = Strong Foundation, 171-215 = Leading)</p>
                     </div>
                   </div>
                 </div>
@@ -1800,24 +1814,19 @@ export default function SuggestionsManagement() {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cropper-green-500 focus:border-transparent font-mono text-sm"
                     placeholder={`{
   "overallScore": {
-    "min": 0.3,
-    "max": 0.7
+    "min": 43,
+    "max": 86
   },
-  "sectionCount": {
-    "operator": "greater_than",
-    "value": 2,
-    "belowThreshold": 0.6
+  "sectionScore": {
+    "section": "governance-section",
+    "min": 23,
+    "max": 46
   },
-  "questionPercentage": {
-    "operator": "less_than",
-    "value": 30,
-    "questionType": "BOOLEAN",
-    "expectedValue": true
-  }
+  "overallLevel": "Emerging"
 }`}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Use JSON to define complex conditions. Available context: assessment, sections, questions, responses, scores.
+                    Use JSON to define complex conditions. Available context: overallScore (0-215), sectionScore (section-specific ranges), overallLevel (Emerging/Strong Foundation/Leading).
                   </p>
                 </div>
               )}

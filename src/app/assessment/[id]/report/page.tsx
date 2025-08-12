@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 interface AssessmentReportProps {
@@ -30,6 +30,20 @@ interface Suggestion {
   priority: number;
   weight: number;
   metadata?: any;
+}
+
+interface CSOScores {
+  totalScore: number;
+  governanceScore: number;
+  financialScore: number;
+  programmeScore: number;
+  hrScore: number;
+  governancePercentage: number;
+  financialPercentage: number;
+  programmePercentage: number;
+  hrPercentage: number;
+  totalPercentage: number;
+  overallLevel: 'Emerging' | 'Strong Foundation' | 'Leading';
 }
 
 // Helper function to format suggestions contextually
@@ -76,7 +90,7 @@ function formatSuggestionContext(suggestion: Suggestion): { prefix: string; cate
     case "ASSESSMENT":
       if (metadata?.isStrategic) {
         if (metadata?.overallScore !== undefined) {
-          const scorePercentage = Math.round(metadata.overallScore * 100);
+          const scorePercentage = Math.round(metadata.totalPercentage);
           prefix = `Based on your overall assessment score of ${scorePercentage}%`;
         } else {
           prefix = "Based on your overall assessment performance";
@@ -84,7 +98,7 @@ function formatSuggestionContext(suggestion: Suggestion): { prefix: string; cate
         category = metadata?.category || "Strategic Recommendation";
       } else {
         if (metadata?.overallScore !== undefined) {
-          const scorePercentage = Math.round(metadata.overallScore * 100);
+          const scorePercentage = Math.round(metadata.totalPercentage);
           prefix = `Based on your overall score of ${scorePercentage}%`;
         } else {
           prefix = "Based on your overall performance";
@@ -101,10 +115,139 @@ function formatSuggestionContext(suggestion: Suggestion): { prefix: string; cate
   return { prefix, category, priorityLabel };
 }
 
+// Component for CSO Score Bar Chart
+function CSOScoreBarChart({ scores }: { scores: CSOScores }) {
+  const maxScores = {
+    total: 215,
+    governance: 115, // 23 questions * 5
+    financial: 50,   // 10 questions * 5
+    programme: 30,   // 6 questions * 5
+    hr: 20          // 4 questions * 5
+  };
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'Emerging':
+        return 'bg-red-500';
+      case 'Strong Foundation':
+        return 'bg-yellow-500';
+      case 'Leading':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getSectionColor = (percentage: number) => {
+    if (percentage >= 80) return 'bg-green-500';
+    if (percentage >= 41) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Overall Score */}
+      <div className="bg-white rounded-lg p-6 border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Total Score</h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl font-bold text-gray-900">{scores.totalScore}</span>
+            <span className="text-gray-500">/ {maxScores.total}</span>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getLevelColor(scores.overallLevel)}`}>
+              {scores.overallLevel}
+            </span>
+          </div>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-4">
+          <div 
+            className={`h-4 rounded-full transition-all duration-500 ${getLevelColor(scores.overallLevel)}`}
+            style={{ width: `${Math.min((scores.totalScore / maxScores.total) * 100, 100)}%` }}
+          ></div>
+        </div>
+        <p className="text-sm text-gray-600 mt-2">
+          {Math.round(scores.totalPercentage)}% - {scores.overallLevel} Organization
+        </p>
+      </div>
+
+      {/* Section Scores */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Governance */}
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-900">Governing Body Accountability</h4>
+            <span className="text-sm font-medium text-gray-900">
+              {scores.governanceScore}/{maxScores.governance}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${getSectionColor(scores.governancePercentage)}`}
+              style={{ width: `${Math.min(scores.governancePercentage, 100)}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">{Math.round(scores.governancePercentage)}%</p>
+        </div>
+
+        {/* Financial */}
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-900">Financial Accountability</h4>
+            <span className="text-sm font-medium text-gray-900">
+              {scores.financialScore}/{maxScores.financial}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${getSectionColor(scores.financialPercentage)}`}
+              style={{ width: `${Math.min(scores.financialPercentage, 100)}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">{Math.round(scores.financialPercentage)}%</p>
+        </div>
+
+        {/* Programme */}
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-900">Programme and Project Accountability</h4>
+            <span className="text-sm font-medium text-gray-900">
+              {scores.programmeScore}/{maxScores.programme}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${getSectionColor(scores.programmePercentage)}`}
+              style={{ width: `${Math.min(scores.programmePercentage, 100)}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">{Math.round(scores.programmePercentage)}%</p>
+        </div>
+
+        {/* HR */}
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-900">Human Resource Accountability</h4>
+            <span className="text-sm font-medium text-gray-900">
+              {scores.hrScore}/{maxScores.hr}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${getSectionColor(scores.hrPercentage)}`}
+              style={{ width: `${Math.min(scores.hrPercentage, 100)}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">{Math.round(scores.hrPercentage)}%</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AssessmentReport({ params }: AssessmentReportProps) {
   const router = useRouter();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [csoScores, setCsoScores] = useState<CSOScores | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [checkingCompletion, setCheckingCompletion] = useState(false);
@@ -121,9 +264,10 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         const data = await response.json();
         setAssessment(data);
         
-        // Load suggestions if assessment is completed
+        // Load suggestions and scores if assessment is completed
         if (data.status === "COMPLETED") {
           loadSuggestions();
+          loadCSOScores();
         }
       } catch (error) {
         console.error("Error loading assessment:", error);
@@ -148,6 +292,18 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
     }
   }
 
+  async function loadCSOScores() {
+    try {
+      const response = await fetch(`/api/assessments/${params.id}/scores`);
+      if (response.ok) {
+        const data = await response.json();
+        setCsoScores(data.scores);
+      }
+    } catch (error) {
+      console.error("Error loading CSO scores:", error);
+    }
+  }
+
   async function handleDownloadReport() {
     setDownloading(true);
     try {
@@ -164,7 +320,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `assessment-report-${params.id}.pdf`;
+      a.download = `cso-assessment-report-${params.id}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -194,9 +350,10 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         const data = await assessmentResponse.json();
         setAssessment(data);
         
-        // Load suggestions if assessment is now completed
+        // Load suggestions and scores if assessment is now completed
         if (data.status === "COMPLETED") {
           loadSuggestions();
+          loadCSOScores();
         }
       }
       
@@ -248,7 +405,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Assessment Not Found</h1>
           <Link
             href="/organization/dashboard"
-                          className="text-cropper-mint-600 hover:text-cropper-mint-700"
+            className="text-cropper-mint-600 hover:text-cropper-mint-700"
           >
             Return to Dashboard
           </Link>
@@ -259,7 +416,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <Link
             href="/organization/dashboard"
@@ -272,7 +429,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                {assessment.status === "COMPLETED" ? "Assessment Complete" : "Assessment Report"}
+                CSO Self-Assessment Report
               </h1>
               <p className="mt-2 text-sm text-gray-600">
                 {assessment.organization.name}
@@ -300,6 +457,30 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           </div>
         </div>
 
+        {/* CSO Scores Section */}
+        {assessment.status === "COMPLETED" && csoScores && (
+          <div className="bg-white rounded-xl shadow-soft p-8 mb-8">
+            <div className="flex items-center mb-6">
+              <BarChart3 className="h-6 w-6 mr-3 text-cropper-blue-600" />
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Your Self-Assessment Results
+              </h2>
+            </div>
+            
+            <CSOScoreBarChart scores={csoScores} />
+            
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-2">Score Interpretation:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li><strong>5-40% (43-86 points):</strong> Emerging Organization</li>
+                <li><strong>41-79% (87-170 points):</strong> Strong Foundation</li>
+                <li><strong>80-100% (171-215 points):</strong> Leading Organization</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Assessment Summary */}
         <div className="bg-white rounded-xl shadow-soft p-8 mb-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">
             Assessment Summary
@@ -431,9 +612,9 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
             {assessment.status === "COMPLETED" ? (
               <>
                 <p className="text-gray-600">
-                  Your assessment has been completed successfully. You can now download a detailed report 
+                  Your CSO self-assessment has been completed successfully. You can now download a detailed report 
                   that includes your responses, scores, and recommendations for improving your organization's 
-                  CSO practices.
+                  accountability practices.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">

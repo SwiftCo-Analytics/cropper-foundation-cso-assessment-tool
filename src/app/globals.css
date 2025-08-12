@@ -3,52 +3,67 @@
 @tailwind utilities;
 
 :root {
-  --background: #f0fdfa;
-  --foreground: #134e4a;
+  --background: #fefdf7;
+  --foreground: #1f3b32;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-poppins);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f766e;
-    --foreground: #f0fdfa;
+    --background: #1f3b32;
+    --foreground: #fefdf7;
   }
 }
 
 @layer base {
+  html {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-variation-settings: normal;
+  }
+
   body {
-    @apply bg-cropper-mint-50 text-gray-900;
+    @apply bg-cropper-yellow-50 text-gray-900 font-sans antialiased;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Typography Hierarchy */
   h1 {
-    @apply text-4xl font-bold tracking-tight text-cropper-mint-800 sm:text-5xl;
+    @apply text-4xl font-display font-bold tracking-tight text-cropper-green-800 sm:text-5xl;
+    letter-spacing: -0.025em;
   }
 
   h2 {
-    @apply text-2xl font-semibold text-cropper-mint-700 sm:text-3xl;
+    @apply text-2xl font-display font-semibold text-cropper-green-700 sm:text-3xl;
+    letter-spacing: -0.025em;
   }
 
   h3 {
-    @apply text-xl font-semibold text-cropper-mint-600 sm:text-2xl;
+    @apply text-xl font-display font-semibold text-cropper-green-600 sm:text-2xl;
+    letter-spacing: -0.025em;
   }
 
   h4 {
-    @apply text-lg font-semibold text-gray-900;
+    @apply text-lg font-display font-semibold text-gray-900;
+    letter-spacing: -0.025em;
   }
 
   h5 {
-    @apply text-base font-semibold text-gray-900;
+    @apply text-base font-display font-semibold text-gray-900;
+    letter-spacing: -0.025em;
   }
 
   h6 {
-    @apply text-sm font-semibold text-gray-900;
+    @apply text-sm font-display font-semibold text-gray-900;
+    letter-spacing: -0.025em;
   }
 
   /* Consistent spacing for sections */
@@ -65,11 +80,11 @@
 @layer components {
   /* Button System */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-cropper-mint-600 hover:bg-cropper-mint-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-mint-500 transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-cropper-orange-600 hover:bg-cropper-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-orange-500 transition-colors duration-200;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-cropper-brown-300 rounded-lg shadow-sm text-base font-medium text-cropper-brown-700 bg-white hover:bg-cropper-brown-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-brown-500 transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-cropper-green-300 rounded-lg shadow-sm text-base font-medium text-cropper-green-700 bg-white hover:bg-cropper-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cropper-green-500 transition-colors duration-200;
   }
 
   .btn-sm {
@@ -82,12 +97,12 @@
 
   /* Input System */
   .input-primary {
-    @apply block w-full rounded-lg border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-cropper-mint-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cropper-mint-600 text-base leading-6;
+    @apply block w-full rounded-lg border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-cropper-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cropper-green-600 text-base leading-6;
   }
 
   /* Card System */
   .card {
-    @apply bg-white rounded-xl shadow-soft border border-cropper-mint-200 p-6 hover:shadow-soft-lg transition-shadow duration-200;
+    @apply bg-white rounded-xl shadow-soft border border-cropper-green-200 p-6 hover:shadow-soft-lg transition-shadow duration-200;
   }
 
   .card-lg {
@@ -100,7 +115,7 @@
 
   /* Navigation System */
   .nav-link {
-    @apply text-cropper-mint-600 hover:text-cropper-mint-700 font-medium transition-colors duration-200;
+    @apply text-cropper-green-600 hover:text-cropper-green-700 font-medium transition-colors duration-200;
   }
 
   /* Page Header System */
@@ -109,7 +124,8 @@
   }
 
   .page-title {
-    @apply text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4;
+    @apply text-4xl font-display font-bold tracking-tight text-gray-900 sm:text-5xl mb-4;
+    letter-spacing: -0.025em;
   }
 
   .page-subtitle {
@@ -126,7 +142,8 @@
   }
 
   .section-title {
-    @apply text-3xl font-bold text-gray-900 mb-4;
+    @apply text-3xl font-display font-bold text-gray-900 mb-4;
+    letter-spacing: -0.025em;
   }
 
   .section-subtitle {
@@ -157,19 +174,23 @@
 
   /* Text Utilities */
   .text-hero {
-    @apply text-5xl font-bold tracking-tight text-cropper-mint-800 sm:text-6xl;
+    @apply text-5xl font-display font-bold tracking-tight text-cropper-green-800 sm:text-6xl;
+    letter-spacing: -0.025em;
   }
 
   .text-display {
-    @apply text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl;
+    @apply text-4xl font-display font-bold tracking-tight text-gray-900 sm:text-5xl;
+    letter-spacing: -0.025em;
   }
 
   .text-heading {
-    @apply text-2xl font-semibold text-gray-900 sm:text-3xl;
+    @apply text-2xl font-display font-semibold text-gray-900 sm:text-3xl;
+    letter-spacing: -0.025em;
   }
 
   .text-subheading {
-    @apply text-xl font-semibold text-gray-900;
+    @apply text-xl font-display font-semibold text-gray-900;
+    letter-spacing: -0.025em;
   }
 
   .text-body {
@@ -212,8 +233,8 @@
   .bg-gradient-soft {
     background: linear-gradient(
       135deg,
-      theme('colors.cropper.mint.50') 0%,
-      theme('colors.cropper.mint.100') 100%
+      theme('colors.cropper.yellow.50') 0%,
+      theme('colors.cropper.yellow.100') 100%
     );
   }
 }
@@ -267,10 +288,10 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: theme('colors.cropper.mint.200');
+  background: theme('colors.cropper.green.200');
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.cropper.mint.300');
+  background: theme('colors.cropper.green.300');
 }

@@ -45,19 +45,19 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-cropper-mint-200">
+    <header className="bg-white shadow-sm border-b border-cropper-green-200">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="w-full py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Link href="/" className="flex flex-col items-center text-center">
-                <div className="text-cropper-mint-700 text-xs font-medium leading-tight">
+                <div className="text-cropper-green-700 text-xs font-medium leading-tight">
                   The Cropper Foundation
                 </div>
-                <div className="text-cropper-mint-800 font-bold text-lg md:text-xl leading-tight">
+                <div className="text-cropper-green-800 font-display font-bold text-lg md:text-xl leading-tight">
                   Self Assessment Tool
                 </div>
-                <div className="text-cropper-mint-600 text-xs font-medium leading-tight">
+                <div className="text-cropper-green-600 text-xs font-medium leading-tight">
                   for Civil Society Organizations
                 </div>
               </Link>
@@ -69,8 +69,8 @@ export default function Header() {
                 href="/"
                 className={`text-base font-medium ${
                   pathname === "/"
-                    ? "text-cropper-mint-600"
-                    : "text-gray-600 hover:text-cropper-mint-700"
+                    ? "text-cropper-green-600"
+                    : "text-gray-600 hover:text-cropper-green-700"
                 }`}
               >
                 Home
@@ -79,8 +79,8 @@ export default function Header() {
                 href="/about"
                 className={`text-base font-medium ${
                   pathname === "/about"
-                    ? "text-cropper-mint-600"
-                    : "text-gray-600 hover:text-cropper-mint-700"
+                    ? "text-cropper-green-600"
+                    : "text-gray-600 hover:text-cropper-green-700"
                 }`}
               >
                 About
@@ -90,8 +90,8 @@ export default function Header() {
                 href="/privacy"
                 className={`text-base font-medium ${
                   pathname === "/privacy"
-                    ? "text-cropper-mint-600"
-                    : "text-gray-600 hover:text-cropper-mint-700"
+                    ? "text-cropper-green-600"
+                    : "text-gray-600 hover:text-cropper-green-700"
                 }`}
               >
                 Privacy Policy
@@ -101,8 +101,8 @@ export default function Header() {
                 href="/terms"
                 className={`text-base font-medium ${
                   pathname === "/terms"
-                    ? "text-cropper-mint-600"
-                    : "text-gray-600 hover:text-cropper-mint-700"
+                    ? "text-cropper-green-600"
+                    : "text-gray-600 hover:text-cropper-green-700"
                 }`}
               >
                 Terms of Service
@@ -144,7 +144,7 @@ export default function Header() {
               {/* Admin Auth */}
               {status === "authenticated" && session?.user ? (
                 <div className="relative group">
-                  <button className="flex items-center space-x-1 text-base font-medium text-cropper-mint-600">
+                  <button className="flex items-center space-x-1 text-base font-medium text-cropper-orange-600">
                     <span>Admin: {session.user.name || 'Admin'}</span>
                     <ChevronDown className="h-4 w-4" />
                   </button>
@@ -167,7 +167,7 @@ export default function Header() {
                 !isAdminPath && (
                   <Link
                     href="/admin/login"
-                    className="text-base font-medium text-cropper-mint-600 hover:text-cropper-mint-500"
+                    className="text-base font-medium text-cropper-orange-600 hover:text-cropper-orange-500"
                   >
                     Admin Login
                   </Link>
@@ -201,8 +201,8 @@ export default function Header() {
                 href="/"
                 className={`text-base font-medium ${
                   pathname === "/"
-                    ? "text-cropper-mint-600"
-                    : "text-gray-600 hover:text-cropper-mint-700"
+                    ? "text-cropper-green-600"
+                    : "text-gray-600 hover:text-cropper-green-700"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -212,8 +212,8 @@ export default function Header() {
                 href="/about"
                 className={`text-base font-medium ${
                   pathname === "/about"
-                    ? "text-cropper-mint-600"
-                    : "text-gray-600 hover:text-cropper-mint-700"
+                    ? "text-cropper-green-600"
+                    : "text-gray-600 hover:text-cropper-green-700"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -258,12 +258,12 @@ export default function Header() {
               {/* Admin Mobile Auth */}
               {status === "authenticated" && session?.user ? (
                 <>
-                  <div className="text-base font-medium text-cropper-green-600">
+                  <div className="text-base font-medium text-cropper-orange-600">
                     Admin: {session.user.name || 'Admin'}
                   </div>
                   <Link
                     href="/admin/dashboard"
-                    className="text-base font-medium text-cropper-green-600"
+                    className="text-base font-medium text-cropper-orange-600"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Admin Dashboard
@@ -282,7 +282,7 @@ export default function Header() {
                 !isAdminPath && (
                   <Link
                     href="/admin/login"
-                    className="text-base font-medium text-cropper-green-600 hover:text-cropper-green-500"
+                    className="text-base font-medium text-cropper-orange-600 hover:text-cropper-orange-500"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Admin Login

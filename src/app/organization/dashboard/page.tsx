@@ -296,7 +296,7 @@ export default function OrganizationDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-mint-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cropper-orange-600"></div>
       </div>
     );
   }
@@ -319,7 +319,7 @@ export default function OrganizationDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            Welcome back, <span className="font-semibold text-cropper-mint-700">{organization?.name}</span>
+            Welcome back, <span className="font-semibold text-cropper-green-700">{organization?.name}</span>
           </motion.p>
         </div>
       </FadeIn>
@@ -346,7 +346,7 @@ export default function OrganizationDashboard() {
             title: "In Progress",
             value: assessments.filter(a => a.status === "IN_PROGRESS").length,
             icon: Clock,
-            color: "brown",
+            color: "orange",
             delay: 0.2,
             description: "Currently being worked on"
           },
@@ -506,8 +506,8 @@ export default function OrganizationDashboard() {
           
           {assessments.length === 0 ? (
             <div className="text-center py-16 card card-lg">
-              <div className="w-24 h-24 bg-cropper-mint-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FileText className="h-12 w-12 text-cropper-mint-600" />
+              <div className="w-24 h-24 bg-cropper-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText className="h-12 w-12 text-cropper-green-600" />
               </div>
               <h3 className="text-heading mb-4">No assessments yet</h3>
               <p className="text-body mb-8 max-w-md mx-auto">
@@ -546,7 +546,7 @@ export default function OrganizationDashboard() {
                                     cancelEditing();
                                   }
                                 }}
-                                className="text-xl font-semibold focus:outline-none border-b-2 border-gray-300 focus:border-cropper-mint-600 bg-transparent"
+                                className="text-xl font-semibold focus:outline-none border-b-2 border-gray-300 focus:border-cropper-orange-600 bg-transparent"
                                 placeholder="Enter assessment name"
                                 autoFocus
                               />
@@ -558,8 +558,8 @@ export default function OrganizationDashboard() {
                             <span
                               className={`px-4 py-2 rounded-full text-sm font-medium ${
                                 assessment.status === "COMPLETED"
-                                  ? "bg-cropper-mint-100 text-cropper-mint-800"
-                                  : "bg-cropper-brown-100 text-cropper-brown-800"
+                                  ? "bg-cropper-green-100 text-cropper-green-800"
+                                  : "bg-cropper-orange-100 text-cropper-orange-800"
                               }`}
                             >
                               {assessment.status === "COMPLETED" ? "Completed" : "In Progress"}
@@ -573,14 +573,14 @@ export default function OrganizationDashboard() {
                             </div>
                             {assessment.completedAt && (
                               <div className="flex items-center space-x-2">
-                                <CheckCircle className="h-4 w-4 text-cropper-mint-600" />
+                                <CheckCircle className="h-4 w-4 text-cropper-green-600" />
                                 <span>Completed: {new Date(assessment.completedAt).toLocaleDateString()} at {new Date(assessment.completedAt).toLocaleTimeString()}</span>
                               </div>
                             )}
                             {assessment.status === "IN_PROGRESS" && (
                               <div className="flex items-center space-x-2">
-                                <Clock className="h-4 w-4 text-cropper-brown-600" />
-                                <span className="text-cropper-brown-600 font-medium">
+                                <Clock className="h-4 w-4 text-cropper-orange-600" />
+                                <span className="text-cropper-orange-600 font-medium">
                                   Progress saved - you can continue where you left off
                                 </span>
                               </div>

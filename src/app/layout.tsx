@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Header from "@/components/ui/header";
 import AuthProvider from "@/components/providers/session-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const poppins = Poppins({ 
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "CSO Self-Assessment Tool",
@@ -22,14 +33,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
         <AuthProvider session={session}>
-          <div className="min-h-screen flex flex-col bg-cropper-mint-50">
+          <div className="min-h-screen flex flex-col bg-cropper-yellow-50">
             <Header />
             <main className="flex-grow">
               {children}
             </main>
-            <footer className="bg-white border-t border-cropper-mint-200">
+            <footer className="bg-white border-t border-cropper-green-200">
               <div className="container mx-auto px-4 py-8">
                 <p className="text-center text-gray-500 text-sm">
                   © {new Date().getFullYear()} The Cropper Foundation. All rights reserved.

@@ -302,7 +302,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
         <div className="flex space-x-4">
           <button
             onClick={() => router.push(`/assessment/${assessmentId}/report`)}
-            className="bg-cropper-mint-600 text-white px-6 py-2 rounded-lg hover:bg-cropper-mint-700 transition-colors duration-300"
+            className="bg-cropper-orange-600 text-white px-6 py-2 rounded-lg hover:bg-cropper-orange-700 transition-colors duration-300"
           >
             View Report
           </button>
@@ -321,7 +321,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
     <div className="max-w-4xl mx-auto bg-gray-50 min-h-screen py-8">
       <div className="bg-white rounded-xl shadow-lg p-8 space-y-8">
         {showSaveSuccess && (
-          <div className="bg-cropper-mint-100 border border-cropper-mint-400 text-cropper-mint-700 px-4 py-3 rounded-md flex items-center">
+          <div className="bg-cropper-green-100 border border-cropper-green-400 text-cropper-green-700 px-4 py-3 rounded-md flex items-center">
             <CheckCircle className="h-5 w-5 mr-2" />
             Progress saved successfully! You can safely leave and return later.
           </div>
@@ -338,7 +338,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
-                  className="bg-cropper-mint-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-cropper-orange-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${((currentSectionIndex + 1) / sections.length) * 100}%` }}
                 ></div>
               </div>
@@ -350,11 +350,11 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
                 <span className="text-sm font-medium text-gray-700">Sections</span>
                 <div className="flex items-center space-x-4 text-xs text-gray-500">
                   <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 rounded-full bg-cropper-mint-600"></div>
+                    <div className="w-3 h-3 rounded-full bg-cropper-orange-600"></div>
                     <span>Current</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 rounded-full bg-cropper-mint-100 border border-cropper-mint-300"></div>
+                    <div className="w-3 h-3 rounded-full bg-cropper-green-100 border border-cropper-green-300"></div>
                     <span>Ready</span>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -381,9 +381,9 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
                     }}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       index === currentSectionIndex
-                        ? 'bg-cropper-mint-600 text-white'
+                        ? 'bg-cropper-orange-600 text-white'
                         : completedSections.has(section.id)
-                        ? 'bg-cropper-mint-100 text-cropper-mint-800'
+                        ? 'bg-cropper-green-100 text-cropper-green-800'
                         : section.questions.some(q => q.mandatory)
                         ? 'bg-red-100 text-red-800 border border-red-300'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -471,7 +471,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
               {assessmentStatus === "IN_PROGRESS" && (
                 <button
                   type="submit"
-                  className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  className="rounded-md bg-cropper-orange-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cropper-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cropper-orange-600"
                 >
                   {currentSectionIndex === sections.length - 1 ? "Finish" : "Next"}
                 </button>
@@ -530,7 +530,7 @@ function renderQuestionInput(
                 type="checkbox"
                 {...form.register(`answers.${question.id}`)}
                 value={option}
-                className="h-5 w-5 rounded border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
+                className="h-5 w-5 rounded border-gray-300 text-cropper-orange-600 focus:ring-cropper-orange-600 focus:ring-2"
               />
               <span className="ml-3 text-gray-700 font-medium">{option}</span>
             </label>
@@ -547,7 +547,7 @@ function renderQuestionInput(
                 type="radio"
                 {...form.register(`answers.${question.id}`)}
                 value={option}
-                className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
+                className="h-5 w-5 border-gray-300 text-cropper-orange-600 focus:ring-cropper-orange-600 focus:ring-2"
               />
               <span className="ml-3 text-gray-700 font-medium">{option}</span>
             </label>
@@ -557,18 +557,24 @@ function renderQuestionInput(
 
     case "LIKERT_SCALE":
       return (
-        <div className="flex justify-between max-w-md bg-gray-50 p-4 rounded-lg border border-gray-200">
-          {[1, 2, 3, 4, 5].map((value) => (
-            <label key={value} className="flex flex-col items-center">
-              <input
-                type="radio"
-                {...form.register(`answers.${question.id}`)}
-                value={value}
-                className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
-              />
-              <span className="mt-2 text-sm font-medium text-gray-700">{value}</span>
-            </label>
-          ))}
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-sm font-medium text-gray-700">1 - Not True at All</span>
+            <span className="text-sm font-medium text-gray-700">5 - Always True</span>
+          </div>
+          <div className="flex justify-between">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <label key={value} className="flex flex-col items-center">
+                <input
+                  type="radio"
+                  {...form.register(`answers.${question.id}`)}
+                  value={value}
+                  className="h-5 w-5 border-gray-300 text-cropper-orange-600 focus:ring-cropper-orange-600 focus:ring-2"
+                />
+                <span className="mt-2 text-sm font-medium text-gray-700">{value}</span>
+              </label>
+            ))}
+          </div>
         </div>
       );
 
@@ -577,7 +583,7 @@ function renderQuestionInput(
         <textarea
           {...form.register(`answers.${question.id}`)}
           rows={4}
-          className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-cropper-mint-600 focus:border-cropper-mint-600 transition-colors duration-200 resize-none"
+          className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-cropper-orange-600 focus:border-cropper-orange-600 transition-colors duration-200 resize-none"
         />
       );
 
@@ -589,7 +595,7 @@ function renderQuestionInput(
               type="radio"
               {...form.register(`answers.${question.id}`)}
               value="true"
-              className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
+              className="h-5 w-5 border-gray-300 text-cropper-orange-600 focus:ring-cropper-orange-600 focus:ring-2"
             />
             <span className="ml-3 text-gray-700 font-medium">Yes</span>
           </label>
@@ -598,7 +604,7 @@ function renderQuestionInput(
               type="radio"
               {...form.register(`answers.${question.id}`)}
               value="false"
-              className="h-5 w-5 border-gray-300 text-cropper-mint-600 focus:ring-cropper-mint-600 focus:ring-2"
+              className="h-5 w-5 border-gray-300 text-cropper-orange-600 focus:ring-cropper-orange-600 focus:ring-2"
             />
             <span className="ml-3 text-gray-700 font-medium">No</span>
           </label>

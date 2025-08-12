@@ -10,7 +10,7 @@ export default function AboutPage() {
       {/* Hero Section */}
       <FadeIn>
         <div className="text-center mb-16 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-cropper-mint-100 to-cropper-mint-50 rounded-3xl transform -skew-y-2" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cropper-yellow-100 to-cropper-green-50 rounded-3xl transform -skew-y-2" />
           <div className="relative py-12">
             <motion.h1 
               className="text-display mb-4"
@@ -36,7 +36,7 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
         <SlideIn direction="left">
           <div className="card card-lg">
-            <h2 className="text-heading text-cropper-mint-700 mb-6">
+            <h2 className="text-heading text-cropper-green-700 mb-6">
               The Cropper Foundation
             </h2>
             <div className="prose prose-lg">
@@ -88,12 +88,12 @@ export default function AboutPage() {
                 ].map((item, index) => (
                   <motion.li 
                     key={index}
-                    className="flex items-center bg-cropper-mint-100 p-3 rounded-lg"
+                    className="flex items-center bg-cropper-green-100 p-3 rounded-lg"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="h-2 w-2 rounded-full bg-cropper-mint-500 mr-3" />
+                    <div className="h-2 w-2 rounded-full bg-cropper-green-500 mr-3" />
                     <span className="text-body">{item}</span>
                   </motion.li>
                 ))}
@@ -133,7 +133,7 @@ export default function AboutPage() {
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 ),
-                color: "brown"
+                color: "orange"
               }
             ].map((item, index) => (
               <Hover key={index}>
@@ -154,7 +154,7 @@ export default function AboutPage() {
 
       {/* Vision Section */}
       <SlideIn direction="up">
-        <div className="bg-gradient-to-r from-cropper-mint-100 to-cropper-mint-50 rounded-xl p-8 mb-16 shadow-soft transform hover:scale-[1.02] transition-transform duration-300">
+        <div className="bg-gradient-to-r from-cropper-green-100 to-cropper-yellow-50 rounded-xl p-8 mb-16 shadow-soft transform hover:scale-[1.02] transition-transform duration-300">
           <h2 className="text-heading text-center mb-4">
             One Planet, One World, One Trinidad and Tobago
           </h2>

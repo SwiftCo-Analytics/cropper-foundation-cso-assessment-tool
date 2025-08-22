@@ -52,7 +52,7 @@ export default function Header() {
             <div className="flex items-center">
               <Link href="/" className="flex flex-col items-center text-center">
                 <div className="text-cropper-green-700 text-xs font-medium leading-tight">
-                  The Cropper Foundation
+                   IGNITE CSOs
                 </div>
                 <div className="text-cropper-green-800 font-display font-bold text-lg md:text-xl leading-tight">
                   Self Assessment Tool

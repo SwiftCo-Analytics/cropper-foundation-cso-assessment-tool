@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ReportGenerator } from "@/lib/report-generator";
+import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
 import jsPDF from "jspdf";
 
 export const dynamic = 'force-dynamic';
@@ -16,33 +18,6 @@ export async function GET() {
         { status: 401 }
       );
     }
-
-    // Helper function to normalize response values to 0-1 scale
-    const normalizeResponseValue = (value: any, questionType: string): number => {
-      switch (questionType) {
-        case 'BOOLEAN':
-          return value === true ? 1 : 0;
-        case 'LIKERT_SCALE':
-          // Assuming 5-point scale (1-5)
-          return (Number(value) - 1) / 4;
-        case 'SINGLE_CHOICE':
-          // For single choice, we need to know the options to normalize
-          // This is a simplified version - you might want to store option weights
-          return 0.5; // Default middle value
-        case 'MULTIPLE_CHOICE':
-          // For multiple choice, count selected options vs total options
-          if (Array.isArray(value)) {
-            return value.length > 0 ? 0.7 : 0; // Simplified
-          }
-          return 0;
-        case 'TEXT':
-          // For text, we could implement sentiment analysis or keyword matching
-          // For now, return a neutral score
-          return 0.5;
-        default:
-          return 0;
-      }
-    };
 
     // Get all organizations with their assessments and responses
     const organizations = await prisma.organization.findMany({
@@ -108,99 +83,59 @@ export async function GET() {
       .sort((a, b) => b.assessmentCount - a.assessmentCount)
       .slice(0, 10);
 
-    // Analyze most common responses
-    const responseAnalysis = new Map();
-    
-    organizations.forEach(org => {
-      org.assessments.forEach(assessment => {
-        assessment.responses.forEach(response => {
-          const questionId = response.question.id;
-          const questionText = response.question.text;
-          const questionType = response.question.type;
-          const sectionTitle = response.question.section.title;
-          
-          if (!responseAnalysis.has(questionId)) {
-            responseAnalysis.set(questionId, {
-              questionId,
-              questionText,
-              questionType,
-              sectionTitle,
-              totalResponses: 0,
-              responseCounts: new Map(),
-              averageScore: 0,
-              scores: [],
-            });
-          }
-          
-          const analysis = responseAnalysis.get(questionId);
-          analysis.totalResponses++;
-          
-          const value = response.value;
-          if (value !== null && value !== undefined && value !== "") {
-            const valueStr = String(value);
-            analysis.responseCounts.set(valueStr, (analysis.responseCounts.get(valueStr) || 0) + 1);
-            
-            // Normalize the score for all response types
-            const normalizedScore = normalizeResponseValue(value, response.question.type);
-            analysis.scores.push(normalizedScore);
-          }
-        });
-      });
-    });
+    // Calculate average scores across all organizations
+    const allCompletedAssessments = organizations
+      .flatMap(org => org.assessments)
+      .filter(a => a.status === "COMPLETED" && a.report);
 
-    // Calculate averages and sort by frequency
-    const topQuestions = Array.from(responseAnalysis.values())
-      .map(analysis => {
-        const entries = Array.from(analysis.responseCounts.entries()) as [string, number][];
-        const mostCommonResponse = entries.sort((a, b) => b[1] - a[1])[0];
-        
+    const averageScores = {
+      governanceScore: 0,
+      financialScore: 0,
+      programmeScore: 0,
+      hrScore: 0,
+      totalScore: 0,
+      governancePercentage: 0,
+      financialPercentage: 0,
+      programmePercentage: 0,
+      hrPercentage: 0,
+      totalPercentage: 0,
+    };
+
+    if (allCompletedAssessments.length > 0) {
+      const totalScores = allCompletedAssessments.reduce((acc, assessment) => {
+        const scores = CSOScoreCalculator.calculateCSOScores(assessment.responses);
         return {
-          ...analysis,
-          mostCommonResponse: mostCommonResponse ? mostCommonResponse[0] : null,
-          mostCommonCount: mostCommonResponse ? mostCommonResponse[1] : 0,
-          averageScore: analysis.scores.length > 0 
-            ? (analysis.scores.reduce((sum: number, score: number) => sum + score, 0) / analysis.scores.length) * 4 + 1
-            : 0,
+          governanceScore: acc.governanceScore + scores.governanceScore,
+          financialScore: acc.financialScore + scores.financialScore,
+          programmeScore: acc.programmeScore + scores.programmeScore,
+          hrScore: acc.hrScore + scores.hrScore,
+          totalScore: acc.totalScore + scores.totalScore,
+          governancePercentage: acc.governancePercentage + scores.governancePercentage,
+          financialPercentage: acc.financialPercentage + scores.financialPercentage,
+          programmePercentage: acc.programmePercentage + scores.programmePercentage,
+          hrPercentage: acc.hrPercentage + scores.hrPercentage,
+          totalPercentage: acc.totalPercentage + scores.totalPercentage,
         };
-      })
-      .sort((a, b) => b.totalResponses - a.totalResponses)
-      .slice(0, 20);
+      }, averageScores);
 
-    // Section completion analysis
-    const sectionAnalysis = sections.map(section => {
-      const totalQuestions = section.questions.length;
-      const totalResponses = section.questions.reduce((sum, q) => sum + q.responses.length, 0);
-      const completionRate = totalQuestions > 0 ? (totalResponses / (totalQuestions * totalAssessments)) * 100 : 0;
-      
-      return {
-        sectionId: section.id,
-        sectionTitle: section.title,
-        totalQuestions,
-        totalResponses,
-        completionRate,
-      };
-    });
+      const count = allCompletedAssessments.length;
+      averageScores.governanceScore = Math.round(totalScores.governanceScore / count);
+      averageScores.financialScore = Math.round(totalScores.financialScore / count);
+      averageScores.programmeScore = Math.round(totalScores.programmeScore / count);
+      averageScores.hrScore = Math.round(totalScores.hrScore / count);
+      averageScores.totalScore = Math.round(totalScores.totalScore / count);
+      averageScores.governancePercentage = totalScores.governancePercentage / count;
+      averageScores.financialPercentage = totalScores.financialPercentage / count;
+      averageScores.programmePercentage = totalScores.programmePercentage / count;
+      averageScores.hrPercentage = totalScores.hrPercentage / count;
+      averageScores.totalPercentage = totalScores.totalPercentage / count;
+    }
 
-    // Monthly Activity
-    const monthlyActivity = new Map();
-    const currentYear = new Date().getFullYear();
-    
-    organizations.forEach(org => {
-      org.assessments.forEach(assessment => {
-        const month = new Date(assessment.createdAt).getMonth();
-        const monthKey = `${currentYear}-${String(month + 1).padStart(2, '0')}`;
-        monthlyActivity.set(monthKey, (monthlyActivity.get(monthKey) || 0) + 1);
-      });
-    });
-
-    // Create PDF document using jsPDF
+    // Create PDF document
     const doc = new jsPDF();
-    
     let yPosition = 20;
     const pageHeight = 280;
     const margin = 20;
-    const pageWidth = 210;
-    const centerX = pageWidth / 2;
 
     // Helper function to add text and handle page breaks
     const addText = (text: string, fontSize: number = 12, isBold: boolean = false, x: number = margin, align: 'left' | 'center' | 'right' = 'left') => {
@@ -216,17 +151,11 @@ export async function GET() {
         doc.setFont('helvetica', 'normal');
       }
       
-      // Handle alignment
-      let textX = x;
       if (align === 'center') {
-        const textWidth = doc.getTextWidth(text);
-        textX = centerX - (textWidth / 2);
-      } else if (align === 'right') {
-        const textWidth = doc.getTextWidth(text);
-        textX = pageWidth - margin - textWidth;
+        doc.text(text, 105, yPosition, { align: 'center' });
+      } else {
+        doc.text(text, x, yPosition);
       }
-      
-      doc.text(text, textX, yPosition);
       yPosition += fontSize + 3;
     };
 
@@ -237,59 +166,59 @@ export async function GET() {
         yPosition = 20;
       }
       doc.setDrawColor(200, 200, 200);
-      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      doc.line(margin, yPosition, 190, yPosition);
       yPosition += 10;
     };
 
-    // Helper function to add bullet points
-    const addBulletPoint = (text: string, fontSize: number = 10, indent: number = 10) => {
-      if (yPosition > pageHeight) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      doc.setFontSize(fontSize);
-      doc.setFont('helvetica', 'normal');
-      doc.text('•', margin, yPosition);
-      doc.text(text, margin + indent, yPosition);
-      yPosition += fontSize + 2;
-    };
-
-    // Helper function to format question type
-    const formatQuestionType = (type: string) => {
-      switch (type) {
-        case 'TEXT':
-          return 'Text';
-        case 'NUMBER':
-          return 'Number';
-        case 'BOOLEAN':
-          return 'Yes/No';
-        case 'MULTIPLE_CHOICE':
-          return 'Multiple Choice';
-        case 'SINGLE_CHOICE':
-          return 'Single Choice';
-        case 'LIKERT_SCALE':
-          return 'Likert Scale';
-        default:
-          return type;
-      }
-    };
-
-    // Title and header
-    addText("CSO Self-Assessment Tool", 24, true, margin, 'center');
-    addText("Administrative Report", 18, true, margin, 'center');
-    yPosition += 5;
+    // Title Page
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("IGNITE CSOs", 105, 40, { align: "center" });
     
-    // Date and time
-    const dateTime = `Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`;
-    addText(dateTime, 10, false, margin, 'center');
+    doc.setFontSize(18);
+    doc.text("CSO Self-Assessment", 105, 60, { align: "center" });
+    doc.text("System-Wide Report", 105, 75, { align: "center" });
+    
+    doc.setFontSize(16);
+    doc.text("Admin Dashboard Report", 105, 95, { align: "center" });
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 115, { align: "center" });
+    
+    doc.addPage();
+    yPosition = 20;
+
+    // Project Partners
+    addText("🏛 Project Partners", 16, true);
     yPosition += 15;
 
-    // Overview Section
-    addText("Overview Statistics", 16, true, margin, 'center');
-    yPosition += 10;
-    
-    // Create a table-like layout for statistics
+    const partners = [
+      "• The Cropper Foundation",
+      "• Veni Apwann", 
+      "• European Union (Funding Agency)"
+    ];
+
+    partners.forEach(partner => {
+      addText(partner, 12, false, margin + 10);
+    });
+
+    addText("(Logos for each partner would be placed here in a clean horizontal layout or triangular formation for visual balance.)", 10, false, margin);
+    yPosition += 20;
+
+    // System Overview
+    addText("🔥 IGNITE CSOs System Overview", 16, true);
+    yPosition += 15;
+
+    addText(`Reporting Period: January – December 2024`, 12, false);
+    addText(`Date of Report: ${new Date().toLocaleDateString()}`, 12, false);
+    addText(`Assessment Tool Used: CPDC Accountability Assessment Tool for CSOs`, 12, false);
+    yPosition += 20;
+
+    // System Statistics
+    addText("📊 System Statistics", 14, true);
+    yPosition += 12;
+
     const stats = [
       { label: "Total Organizations", value: totalOrganizations.toString() },
       { label: "Total Assessments", value: totalAssessments.toString() },
@@ -299,313 +228,110 @@ export async function GET() {
       { label: "Completion Rate", value: `${completionRate.toFixed(1)}%` }
     ];
 
-    stats.forEach((stat, index) => {
-      if (yPosition > pageHeight - 20) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text(stat.label + ":", margin, yPosition);
-      
-      doc.setFont('helvetica', 'normal');
-      doc.text(stat.value, margin + 80, yPosition);
-      yPosition += 8;
+    stats.forEach((stat) => {
+      addText(`${stat.label}: ${stat.value}`, 12, false);
     });
 
-    addDivider();
+    yPosition += 15;
+
+    // Average Scores
+    addText("📈 Average Performance Across All Organizations", 14, true);
+    yPosition += 12;
+
+    const averageData = [
+      ['Assessment Area', 'Average Score', 'Max Score', '% Achieved'],
+      ['Governing Body Accountability', averageScores.governanceScore.toString(), '115', `${Math.round(averageScores.governancePercentage)}%`],
+      ['Financial Management', averageScores.financialScore.toString(), '50', `${Math.round(averageScores.financialPercentage)}%`],
+      ['Programme/Project Accountability', averageScores.programmeScore.toString(), '30', `${Math.round(averageScores.programmePercentage)}%`],
+      ['Human Resource Accountability', averageScores.hrScore.toString(), '20', `${Math.round(averageScores.hrPercentage)}%`],
+      ['Total', averageScores.totalScore.toString(), '215', `${Math.round(averageScores.totalPercentage)}%`]
+    ];
+
+    // Create table
+    const colWidths = [60, 30, 30, 30];
+    const rowHeight = 8;
+    let currentY = yPosition;
+
+    averageData.forEach((row, rowIndex) => {
+      let currentX = margin;
+      
+      row.forEach((cell, colIndex) => {
+        const width = colWidths[colIndex] || 30;
+        
+        // Draw cell border
+        doc.rect(currentX, currentY, width, rowHeight);
+        
+        // Add text
+        doc.setFontSize(8);
+        doc.setFont("helvetica", rowIndex === 0 ? "bold" : "normal");
+        
+        const lines = doc.splitTextToSize(cell, width - 2);
+        lines.forEach((line: string, lineIndex: number) => {
+          doc.text(line, currentX + 1, currentY + 4 + (lineIndex * 3));
+        });
+        
+        currentX += width;
+      });
+      
+      currentY += rowHeight;
+    });
+
+    yPosition = currentY + 20;
 
     // Most Active Organizations
-    addText("Most Active Organizations", 16, true, margin, 'center');
-    yPosition += 10;
+    addText("🏆 Most Active Organizations", 14, true);
+    yPosition += 12;
 
     mostActiveOrganizations.forEach((org, index) => {
-      if (yPosition > pageHeight - 30) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      // Organization name with ranking
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${index + 1}. ${org.name}`, margin, yPosition);
-      yPosition += 8;
-      
-      // Organization details
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      addBulletPoint(`Email: ${org.email}`, 10, 15);
-      addBulletPoint(`Assessments: ${org.assessmentCount} (${org.completedCount} completed)`, 10, 15);
-      addBulletPoint(`Total Responses: ${org.responseCount}`, 10, 15);
+      addText(`${index + 1}. ${org.name}`, 12, true);
+      addText(`   Assessments: ${org.assessmentCount} (${org.completedCount} completed)`, 10, false, margin + 10);
+      addText(`   Total Responses: ${org.responseCount}`, 10, false, margin + 10);
       yPosition += 5;
     });
 
-    addDivider();
+    yPosition += 15;
 
-    // Top Questions
-    addText("Most Answered Questions", 16, true, margin, 'center');
-    yPosition += 10;
-
-    topQuestions.slice(0, 10).forEach((question, index) => {
-      if (yPosition > pageHeight - 40) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      // Question text with ranking
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      const questionText = `${index + 1}. ${question.questionText}`;
-      // Handle long question text
-      if (questionText.length > 80) {
-        const words = questionText.split(' ');
-        let line = '';
-        let firstLine = true;
-        for (const word of words) {
-          if ((line + word).length > 80) {
-            doc.text(line, margin, yPosition);
-            yPosition += 6;
-            line = word + ' ';
-            firstLine = false;
-          } else {
-            line += word + ' ';
-          }
-        }
-        if (line.trim()) {
-          doc.text(line, margin, yPosition);
-          yPosition += 6;
-        }
-      } else {
-        doc.text(questionText, margin, yPosition);
-        yPosition += 8;
-      }
-      
-      // Question details
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      addBulletPoint(`Section: ${question.sectionTitle}`, 10, 15);
-      addBulletPoint(`Type: ${formatQuestionType(question.questionType)}`, 10, 15);
-      addBulletPoint(`Total Responses: ${question.totalResponses}`, 10, 15);
-      addBulletPoint(`Most Common Response: ${question.mostCommonResponse || "N/A"} (${question.mostCommonCount} times)`, 10, 15);
-      yPosition += 5;
-    });
-
-    addDivider();
-
-    // Section Analysis
-    addText("Section Completion Analysis", 16, true, margin, 'center');
-    yPosition += 10;
-
-    sectionAnalysis.forEach((section) => {
-      if (yPosition > pageHeight - 25) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      // Section title
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text(section.sectionTitle, margin, yPosition);
-      yPosition += 8;
-      
-      // Section details
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      addBulletPoint(`Questions: ${section.totalQuestions}`, 10, 15);
-      addBulletPoint(`Total Responses: ${section.totalResponses}`, 10, 15);
-      addBulletPoint(`Completion Rate: ${section.completionRate.toFixed(1)}%`, 10, 15);
-      yPosition += 5;
-    });
-
-    addDivider();
-
-    // Suggestion Analytics
+    // Recommendations Summary
     const allSuggestions = organizations
       .flatMap(org => org.assessments)
-      .filter(assessment => assessment.report && assessment.report.suggestions)
-      .flatMap(assessment => assessment.report!.suggestions!);
+      .filter(a => a.report && a.report.suggestions)
+      .flatMap(a => a.report!.suggestions!);
 
     if (allSuggestions.length > 0) {
-      addText("Suggestion Analytics", 16, true, margin, 'center');
-      yPosition += 10;
+      addText("📋 System-Wide Recommendations Summary", 14, true);
+      yPosition += 12;
 
-      // Overall statistics
-      const totalSuggestions = allSuggestions.length;
-      const organizationsWithSuggestions = new Set(
-        organizations
-          .filter(org => org.assessments.some(a => a.report && a.report.suggestions && a.report.suggestions.length > 0))
-          .map(org => org.id)
-      ).size;
+      // Group by priority
+      const criticalSuggestions = allSuggestions.filter(s => s.priority >= 9);
+      const highSuggestions = allSuggestions.filter(s => s.priority >= 7 && s.priority < 9);
+      const mediumSuggestions = allSuggestions.filter(s => s.priority >= 5 && s.priority < 7);
+      const lowSuggestions = allSuggestions.filter(s => s.priority < 5);
 
-      addText(`Total Suggestions Generated: ${totalSuggestions}`, 12, true);
-      addText(`Organizations with Suggestions: ${organizationsWithSuggestions} of ${totalOrganizations}`, 12, false);
-      addText(`Coverage: ${Math.round((organizationsWithSuggestions / totalOrganizations) * 100)}%`, 12, false);
-      yPosition += 10;
+      addText(`Total Recommendations Generated: ${allSuggestions.length}`, 12, false);
+      addText(`Critical Priority: ${criticalSuggestions.length}`, 12, false);
+      addText(`High Priority: ${highSuggestions.length}`, 12, false);
+      addText(`Medium Priority: ${mediumSuggestions.length}`, 12, false);
+      addText(`Low Priority: ${lowSuggestions.length}`, 12, false);
 
-      // Suggestions by category
-      const suggestionsByCategory = new Map<string, number>();
-      allSuggestions.forEach(suggestion => {
-        let category = 'Uncategorized';
-        if (suggestion.metadata && typeof suggestion.metadata === 'object' && suggestion.metadata !== null) {
-          const metadata = suggestion.metadata as any;
-          category = metadata.category || 'Uncategorized';
-        }
-        suggestionsByCategory.set(category, (suggestionsByCategory.get(category) || 0) + 1);
-      });
+      yPosition += 15;
 
-      if (suggestionsByCategory.size > 0) {
-        addText("Suggestions by Category:", 14, true);
-        yPosition += 8;
-
-        Array.from(suggestionsByCategory.entries())
-          .sort((a, b) => b[1] - a[1])
-          .forEach(([category, count]) => {
-            if (yPosition > pageHeight - 15) {
-              doc.addPage();
-              yPosition = 20;
-            }
-            
-            const percentage = Math.round((count / totalSuggestions) * 100);
-            addBulletPoint(`${category}: ${count} suggestions (${percentage}%)`, 10, 15);
-          });
-        
-        yPosition += 10;
-      }
-
-      // Suggestions by priority
-      const suggestionsByPriority = new Map<string, number>();
-      allSuggestions.forEach(suggestion => {
-        const priorityLevel = suggestion.priority >= 9 ? 'Critical' :
-                             suggestion.priority >= 7 ? 'High' :
-                             suggestion.priority >= 5 ? 'Medium' : 'Low';
-        suggestionsByPriority.set(priorityLevel, (suggestionsByPriority.get(priorityLevel) || 0) + 1);
-      });
-
-      if (suggestionsByPriority.size > 0) {
-        addText("Suggestions by Priority:", 14, true);
-        yPosition += 8;
-
-        Array.from(suggestionsByPriority.entries())
-          .sort((a, b) => {
-            const priorityOrder = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
-            return priorityOrder[b[0] as keyof typeof priorityOrder] - priorityOrder[a[0] as keyof typeof priorityOrder];
-          })
-          .forEach(([priority, count]) => {
-            if (yPosition > pageHeight - 15) {
-              doc.addPage();
-              yPosition = 20;
-            }
-            
-            const percentage = Math.round((count / totalSuggestions) * 100);
-            addBulletPoint(`${priority} Priority: ${count} suggestions (${percentage}%)`, 10, 15);
-          });
-        
-        yPosition += 10;
-      }
-
-      // Most common suggestions
-      const suggestionFrequency = new Map();
-      allSuggestions.forEach(suggestion => {
-        const key = suggestion.suggestion.trim().toLowerCase();
-        suggestionFrequency.set(key, (suggestionFrequency.get(key) || 0) + 1);
-      });
-
-      const mostCommonSuggestions = Array.from(suggestionFrequency.entries())
-        .sort((a, b) => b[1] - a[1])
+      // Top recommendations across all organizations
+      const topRecommendations = allSuggestions
+        .sort((a, b) => b.priority - a.priority)
         .slice(0, 10);
 
-      addText("Most Common Suggestions:", 14, true);
-      yPosition += 8;
+      addText("🔝 Top 10 System-Wide Recommendations", 14, true);
+      yPosition += 12;
 
-      mostCommonSuggestions.forEach(([suggestionText, count], index) => {
-        if (yPosition > pageHeight - 30) {
-          doc.addPage();
-          yPosition = 20;
-        }
+      topRecommendations.forEach((suggestion, index) => {
+        const priorityLabel = suggestion.priority >= 9 ? 'Critical' :
+                             suggestion.priority >= 7 ? 'High' :
+                             suggestion.priority >= 5 ? 'Medium' : 'Low';
         
-        // Find the original suggestion to get metadata
-        const originalSuggestion = allSuggestions.find(s => s.suggestion.trim().toLowerCase() === suggestionText);
-        const percentage = Math.round((count / totalSuggestions) * 100);
-        
-        addText(`${index + 1}. (${count} times, ${percentage}% of all suggestions)`, 11, true);
-        
-        // Handle long suggestion text
-        const displayText = originalSuggestion?.suggestion || suggestionText;
-        if (displayText.length > 90) {
-          const words = displayText.split(' ');
-          let line = '';
-          for (const word of words) {
-            if ((line + word).length > 90) {
-              addBulletPoint(line, 10, 15);
-              line = word + ' ';
-            } else {
-              line += word + ' ';
-            }
-          }
-          if (line.trim()) {
-            addBulletPoint(line, 10, 15);
-          }
-        } else {
-          addBulletPoint(displayText, 10, 15);
-        }
-        
+        addText(`${index + 1}. [${priorityLabel}] ${suggestion.suggestion}`, 10, false);
         yPosition += 5;
       });
-
-      // Suggestions by type breakdown
-      const suggestionsByType = new Map();
-      allSuggestions.forEach(suggestion => {
-        const type = suggestion.type;
-        suggestionsByType.set(type, (suggestionsByType.get(type) || 0) + 1);
-      });
-
-      addDivider();
-      addText("Suggestions by Type:", 14, true);
-      yPosition += 8;
-
-      Array.from(suggestionsByType.entries()).forEach(([type, count]) => {
-        if (yPosition > pageHeight - 15) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        
-        const categoryName = type === 'QUESTION' ? 'Question-Based' :
-                            type === 'SECTION' ? 'Section-Based' :
-                            type === 'ASSESSMENT' ? 'Overall Assessment' : type;
-        const percentage = Math.round((count / totalSuggestions) * 100);
-        
-        addBulletPoint(`${categoryName}: ${count} suggestions (${percentage}%)`, 10, 15);
-      });
-
-      addDivider();
     }
-
-    // Monthly Activity
-    addText("Monthly Activity", 16, true, margin, 'center');
-    yPosition += 10;
-
-    // Create a table for monthly activity
-    const monthlyEntries = Array.from(monthlyActivity.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]));
-
-    monthlyEntries.forEach(([month, count]) => {
-      if (yPosition > pageHeight - 15) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      const monthName = new Date(month + '-01').toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long' 
-      });
-      
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(monthName, margin, yPosition);
-      doc.text(count.toString(), margin + 120, yPosition);
-      yPosition += 6;
-    });
 
     // Generate PDF buffer
     const pdfBuffer = doc.output('arraybuffer');
@@ -613,11 +339,11 @@ export async function GET() {
     return new Response(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="admin-reports-${new Date().toISOString().split('T')[0]}.pdf"`,
+        "Content-Disposition": `attachment; filename="IGNITE-CSOs-System-Report-${new Date().toISOString().split('T')[0]}.pdf"`,
       },
     });
   } catch (error) {
-    console.error("Error generating admin report:", error);
+    console.error("Error generating system report:", error);
     return NextResponse.json(
       { error: "Failed to generate report" },
       { status: 500 }

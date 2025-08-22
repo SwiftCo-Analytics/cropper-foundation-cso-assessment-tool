@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target, BarChart3 } from "lucide-react";
 import Link from "next/link";
+import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
+import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
 
 interface AssessmentReportProps {
   params: {
@@ -43,7 +45,7 @@ interface CSOScores {
   programmePercentage: number;
   hrPercentage: number;
   totalPercentage: number;
-  overallLevel: 'Emerging' | 'Strong Foundation' | 'Leading';
+  overallLevel: 'Emerging Organization' | 'Strong Foundation' | 'Leading Organization';
 }
 
 // Helper function to format suggestions contextually
@@ -102,7 +104,7 @@ function formatSuggestionContext(suggestion: Suggestion): { prefix: string; cate
       if (metadata?.isStrategic) {
         if (metadata?.overallPercentage !== undefined && !isNaN(metadata.overallPercentage)) {
           const scorePercentage = Math.round(metadata.overallPercentage);
-          prefix = `Based on your overall assessment score of ${scorePercentage}%`;
+          prefix = `Based on your overall assessment score of ${scorePercentage}`;
         } else {
           prefix = "Based on your overall assessment performance";
         }
@@ -141,11 +143,11 @@ function CSOScoreBarChart({ scores }: { scores: CSOScores }) {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'Emerging':
+      case 'Emerging Organization':
         return 'bg-red-500';
       case 'Strong Foundation':
         return 'bg-yellow-500';
-      case 'Leading':
+      case 'Leading Organization':
         return 'bg-green-500';
       default:
         return 'bg-gray-500';
@@ -179,7 +181,7 @@ function CSOScoreBarChart({ scores }: { scores: CSOScores }) {
           ></div>
         </div>
         <p className="text-sm text-gray-600 mt-2">
-          {Math.round(scores.totalPercentage)}% - {scores.overallLevel} Organization
+          {Math.round(scores.totalPercentage)}% - {scores.overallLevel}
         </p>
       </div>
 
@@ -471,26 +473,16 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           </div>
         </div>
 
-        {/* CSO Scores Section */}
+        {/* IGNITE CSOs Report */}
         {assessment.status === "COMPLETED" && csoScores && (
-          <div className="bg-white rounded-xl shadow-soft p-8 mb-8">
-            <div className="flex items-center mb-6">
-              <BarChart3 className="h-6 w-6 mr-3 text-cropper-blue-600" />
-              <h2 className="text-2xl font-semibold text-gray-900">
-                Your Self-Assessment Results
-              </h2>
-            </div>
-            
-            <CSOScoreBarChart scores={csoScores} />
-            
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Score Interpretation:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li><strong>5-40% (43-86 points):</strong> Emerging Organization</li>
-                <li><strong>41-79% (87-170 points):</strong> Strong Foundation</li>
-                <li><strong>80-100% (171-215 points):</strong> Leading Organization</li>
-              </ul>
-            </div>
+          <div className="mb-8">
+            <IgniteReportViewer
+              organizationName={assessment.organization.name}
+              assessmentDate={assessment.completedAt || assessment.startedAt}
+              scores={csoScores}
+              suggestions={suggestions}
+              onDownload={handleDownloadReport}
+            />
           </div>
         )}
 

@@ -418,9 +418,9 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
                 {question.description && (
                   <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border-l-4 border-gray-300">{question.description}</p>
                 )}
-                {question.mandatory && (
+                {/* {question.mandatory && (
                   <p className="mt-2 text-sm text-red-600 font-medium bg-red-50 p-2 rounded-md border border-red-200">This question is mandatory</p>
-                )}
+                )} */}
                 <div className="mt-6">
                   {renderQuestionInput(question, form)}
                 </div>

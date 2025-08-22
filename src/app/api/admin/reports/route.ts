@@ -291,6 +291,90 @@ export async function GET() {
         prevalence: Math.round((analysis.count / totalSuggestions) * 100 * 10) / 10
       }));
 
+    // Calculate average scores across all organizations
+    const allCompletedAssessments = organizations
+      .flatMap(org => org.assessments)
+      .filter(a => a.status === "COMPLETED");
+
+    const averageScores = {
+      governanceScore: 0,
+      financialScore: 0,
+      programmeScore: 0,
+      hrScore: 0,
+      totalScore: 0,
+      governancePercentage: 0,
+      financialPercentage: 0,
+      programmePercentage: 0,
+      hrPercentage: 0,
+      totalPercentage: 0,
+    };
+
+    if (allCompletedAssessments.length > 0) {
+      const totalScores = allCompletedAssessments.reduce((acc, assessment) => {
+        // Calculate scores for this assessment
+        const sectionResponses = new Map<string, any[]>();
+        for (const response of assessment.responses) {
+          const sectionId = response.question.section.id;
+          if (!sectionResponses.has(sectionId)) {
+            sectionResponses.set(sectionId, []);
+          }
+          sectionResponses.get(sectionId)!.push(response);
+        }
+
+        const governanceResponses = sectionResponses.get('governance-section') || [];
+        const financialResponses = sectionResponses.get('financial-section') || [];
+        const programmeResponses = sectionResponses.get('programme-section') || [];
+        const hrResponses = sectionResponses.get('hr-section') || [];
+
+        const governanceScore = calculateSectionRawScore(governanceResponses, 23);
+        const financialScore = calculateSectionRawScore(financialResponses, 10);
+        const programmeScore = calculateSectionRawScore(programmeResponses, 6);
+        const hrScore = calculateSectionRawScore(hrResponses, 4);
+
+        const totalScore = governanceScore + financialScore + programmeScore + hrScore;
+
+        return {
+          governanceScore: acc.governanceScore + governanceScore,
+          financialScore: acc.financialScore + financialScore,
+          programmeScore: acc.programmeScore + programmeScore,
+          hrScore: acc.hrScore + hrScore,
+          totalScore: acc.totalScore + totalScore,
+        };
+      }, { governanceScore: 0, financialScore: 0, programmeScore: 0, hrScore: 0, totalScore: 0 });
+
+      const count = allCompletedAssessments.length;
+      averageScores.governanceScore = Math.round(totalScores.governanceScore / count);
+      averageScores.financialScore = Math.round(totalScores.financialScore / count);
+      averageScores.programmeScore = Math.round(totalScores.programmeScore / count);
+      averageScores.hrScore = Math.round(totalScores.hrScore / count);
+      averageScores.totalScore = Math.round(totalScores.totalScore / count);
+
+      // Calculate percentages
+      averageScores.governancePercentage = (averageScores.governanceScore / 115) * 100;
+      averageScores.financialPercentage = (averageScores.financialScore / 50) * 100;
+      averageScores.programmePercentage = (averageScores.programmeScore / 30) * 100;
+      averageScores.hrPercentage = (averageScores.hrScore / 20) * 100;
+      averageScores.totalPercentage = (averageScores.totalScore / 215) * 100;
+    }
+
+    // Helper function to calculate section raw score
+    function calculateSectionRawScore(responses: any[], maxQuestions: number): number {
+      let totalScore = 0;
+      let answeredQuestions = 0;
+
+      for (const response of responses) {
+        const score = normalizeResponseValue(response.value, response.question.type);
+        totalScore += score * 5; // Convert to 5-point scale
+        answeredQuestions++;
+      }
+
+      // If we have fewer responses than max questions, add zeros for missing responses
+      const missingQuestions = maxQuestions - answeredQuestions;
+      totalScore += missingQuestions * 0; // Missing questions get 0 points
+
+      return Math.round(totalScore);
+    }
+
     // Calculate suggestion coverage metrics
     const suggestionCoverage = {
       totalSuggestions,
@@ -321,25 +405,9 @@ export async function GET() {
         coverage: suggestionCoverage,
         mostCommonSuggestions,
         insights: [
-          {
-            title: "Most Addressed Area",
-            value: mostCommonSuggestions[0]?.type || "No data",
-            description: "The most common suggestion type across organizations"
-          },
-          {
-            title: "Avg Priority Level",
-            value: mostCommonSuggestions.length > 0 
-              ? Math.round(mostCommonSuggestions.reduce((sum, s) => sum + s.averagePriority, 0) / mostCommonSuggestions.length * 10) / 10
-              : 0,
-            description: "Average priority of all suggestions"
-          },
-          {
-            title: "Organizations Needing Help",
-            value: `${Math.round((suggestionCoverage.organizationsWithSuggestions / totalOrganizations) * 100)}%`,
-            description: "Percentage of organizations with actionable suggestions"
-          }
         ]
-      }
+      },
+      averageScores
     });
   } catch (error) {
     console.error("Error fetching admin reports data:", error);

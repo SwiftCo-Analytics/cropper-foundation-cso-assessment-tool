@@ -2,11 +2,6 @@ import Image from "next/image";
 
 const logos = [
   {
-    src: "/logos/EU_logo.png",
-    alt: "European Union Logo",
-    name: "European Union"
-  },
-  {
     src: "/logos/TCF_logo.webp",
     alt: "The Cropper Foundation Logo",
     name: "The Cropper Foundation"
@@ -15,6 +10,12 @@ const logos = [
     src: "/logos/VA_logo.jpg",
     alt: "VA Logo",
     name: "Veni Apwann"
+  },
+
+  {
+    src: "/logos/EU_logo.png",
+    alt: "European Union Logo",
+    name: "European Union"
   },
   {
     src: "/logos/SCA_logo.png",

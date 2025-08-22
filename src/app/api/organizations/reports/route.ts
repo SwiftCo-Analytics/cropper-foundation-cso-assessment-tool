@@ -32,7 +32,13 @@ export async function GET(request: Request) {
                 },
               },
             },
-            report: true,
+            report: {
+              include: {
+                suggestions: {
+                  orderBy: { priority: 'desc' }
+                }
+              }
+            },
           },
         },
       },
@@ -275,6 +281,11 @@ export async function GET(request: Request) {
       }
     }
 
+    // Get the latest completed assessment
+    const latestAssessment = organization.assessments
+      .filter(a => a.status === "COMPLETED")
+      .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())[0];
+
     return NextResponse.json({
       overview: {
         totalAssessments,
@@ -291,6 +302,12 @@ export async function GET(request: Request) {
       improvementTrends,
       topResponsePatterns,
       suggestions,
+      organization: {
+        name: organization.name,
+        email: organization.email,
+        createdAt: organization.createdAt,
+      },
+      latestAssessment: latestAssessment || null,
     });
   } catch (error) {
     console.error("Error fetching organization reports:", error);

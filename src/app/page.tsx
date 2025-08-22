@@ -17,7 +17,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-cropper-yellow-100/50 to-cropper-yellow-50 pointer-events-none" />
         
         {/* Background Artwork */}
-        <div className="absolute top-0 right-0 w-full h-4/3 opacity-10">
+        <div className="absolute top-0 right-0 w-full h-4/3 opacity-40">
           <img
             src="/naf/Artboard 1@300x.png"
             alt="Decorative background"
@@ -37,7 +37,7 @@ export default function Home() {
                 <div className="text-center">
                   <div className="flex justify-start mb-2">
                     <div className="text-cropper-green-700 text-lg md:text-xl font-medium text-left">
-                      The Cropper Foundation x CSO Go
+                      IGNITE CSOs
                     </div>
                   </div>
                   <div className="text-cropper-green-800 font-display font-bold text-4xl md:text-5xl lg:text-6xl mb-2">
@@ -207,7 +207,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-cropper-orange-100 to-cropper-yellow-100 pointer-events-none" />
         
         {/* Background decoration */}
-        <div className="absolute bottom-0 right-0 w-full h-full opacity-5">
+        <div className="absolute bottom-0 right-0 w-full h-full opacity-10">
           <img
             src="/naf/Artboard 10@300x.png"
             alt="Decorative background"

@@ -481,6 +481,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
               assessmentDate={assessment.completedAt || assessment.startedAt}
               scores={csoScores}
               suggestions={suggestions}
+              assessmentId={assessment.id}
               onDownload={handleDownloadReport}
             />
           </div>

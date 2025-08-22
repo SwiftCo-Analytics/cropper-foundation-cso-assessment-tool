@@ -178,6 +178,7 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
           organizationName={organization.name}
           assessmentDate={latestAssessment.completedAt || latestAssessment.startedAt}
           scores={scores}
+          assessmentId={latestAssessment.id}
           suggestions={suggestions}
           onDownload={handleDownloadReport}
         />

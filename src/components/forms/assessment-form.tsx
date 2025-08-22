@@ -31,6 +31,16 @@ const responseSchema = z.object({
   answers: z.record(z.any()),
 });
 
+interface Suggestion {
+  id: string;
+  type: string;
+  sourceId?: string;
+  suggestion: string;
+  priority: number;
+  weight: number;
+  metadata?: any;
+}
+
 type ResponseFormValues = z.infer<typeof responseSchema>;
 
 export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
@@ -44,7 +54,7 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [assessmentStatus, setAssessmentStatus] = useState<"IN_PROGRESS" | "COMPLETED" | null>(null);
   const [showFinishConfirmation, setShowFinishConfirmation] = useState(false);
-
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const form = useForm<ResponseFormValues>({
     resolver: zodResolver(responseSchema),
     defaultValues: {
@@ -74,8 +84,15 @@ export function AssessmentForm({ assessmentId }: AssessmentFormProps) {
     if (sections.length > 0) {
       loadExistingResponses();
       loadAssessmentStatus();
+      loadSuggestions();
     }
   }, [sections, assessmentId]);
+
+  async function loadSuggestions() {
+    const response = await fetch(`/api/assessments/${assessmentId}/suggestions`);
+    const data = await response.json();
+    setSuggestions(data);
+  }
 
   async function loadAssessmentStatus() {
     try {

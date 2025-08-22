@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { CSOScores } from '@/lib/cso-score-calculator';
 
-interface AssessmentSuggestion {
-  section: string; // e.g. "governance", "financial", etc.
-  highlights: string[];
-  improvements: string[];
+interface Suggestion {
+  id: string;
+  type: string;
+  sourceId?: string;
+  suggestion: string;
+  priority: number;
+  weight: number;
+  metadata?: any;
 }
 
 interface IgniteReportViewerProps {
@@ -12,6 +16,7 @@ interface IgniteReportViewerProps {
   assessmentDate: string;
   scores: CSOScores;
   assessmentId: string;
+  suggestions: Suggestion[];
   onDownload?: () => void;
 }
 
@@ -20,26 +25,24 @@ export function IgniteReportViewer({
   assessmentDate, 
   scores, 
   assessmentId,
+  suggestions,
   onDownload
 }: IgniteReportViewerProps) {
-  const [suggestions, setSuggestions] = useState<AssessmentSuggestion[]>([]);
 
   // UseEffect to fetch suggestions using generateSuggestions
-  useEffect(() => {
-    async function fetchSuggestions() {
-      if (!assessmentId) return;
-      // Assume generateSuggestions is imported from a utility or API file
-      // and returns AssessmentSuggestion[] for the frontend
-      try {
-        // @ts-ignore
-        const result = await generateSuggestions(assessmentId);
-        setSuggestions(result);
-      } catch (e) {
-        setSuggestions([]);
-      }
+  async function fetchSuggestions() {
+    if (!assessmentId) return;
+    // Assume generateSuggestions is imported from a utility or API file
+    // and returns AssessmentSuggestion[] for the frontend
+    try {
+      // @ts-ignore
+      const result = await generateSuggestions(assessmentId);
+      return result;
+    } catch (e) {
+      return [];
     }
-    fetchSuggestions();
-  }, [assessmentId]);
+  }
+  fetchSuggestions();
 
   const getRating = (percentage: number): string => {
     if (percentage >= 80) return 'Leading Organisation';
@@ -51,14 +54,14 @@ export function IgniteReportViewer({
   const getSectionSuggestions = (section: string) => {
     if (!Array.isArray(suggestions)) return undefined;
     return suggestions.find(
-      (s) => typeof s.section === 'string' && s.section.toLowerCase() === section.toLowerCase()
+      (s) => typeof s.metadata?.section === 'string' && s.metadata?.section.toLowerCase() === section.toLowerCase()
     );
   };
 
   // Get all unique sections from suggestions (except "assessment" which is handled separately)
   const sectionNames = Array.isArray(suggestions)
     ? suggestions
-        .map((s) => s.section)
+        .map((s) => s.metadata?.section)
         .filter(
           (section, idx, arr) =>
             section &&
@@ -70,8 +73,8 @@ export function IgniteReportViewer({
   // Assessment-wide highlights (section: "assessment")
   const assessmentHighlights =
     suggestions.find(
-      (s) => typeof s.section === 'string' && s.section.toLowerCase() === 'assessment'
-    )?.highlights || [];
+      (s) => typeof s.metadata?.section === 'string' && s.metadata?.section.toLowerCase() === 'assessment'
+    )?.suggestion || [];
 
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -259,7 +262,7 @@ export function IgniteReportViewer({
         <div>
           {assessmentHighlights.length > 0 ? (
             <ul className="space-y-2">
-              {assessmentHighlights.map((highlight, idx) => (
+              {Array.isArray(assessmentHighlights) && assessmentHighlights.map((highlight, idx) => (
                 <li key={idx} className="flex items-start">
                   <span className="text-green-500 mr-2">•</span>
                   <span>{highlight}</span>
@@ -274,7 +277,7 @@ export function IgniteReportViewer({
 
       {/* Section Highlights (for each section in suggestions except "assessment") */}
       {sectionNames.map((sectionName) => {
-        const sectionSuggestion = getSectionSuggestions(sectionName) || { highlights: [], improvements: [] };
+        const sectionSuggestion = getSectionSuggestions(sectionName) || { suggestion: [] };
         // Capitalize first letter for display
         const displaySection =
           sectionName.charAt(0).toUpperCase() + sectionName.slice(1).replace(/_/g, ' ');
@@ -286,9 +289,9 @@ export function IgniteReportViewer({
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Highlights:</h3>
-                {Array.isArray(sectionSuggestion.highlights) && sectionSuggestion.highlights.length > 0 ? (
+                {Array.isArray(sectionSuggestion.suggestion) && sectionSuggestion.suggestion.length > 0 ? (
                   <ul className="space-y-2">
-                    {sectionSuggestion.highlights.map((highlight, idx) => (
+                    {sectionSuggestion.suggestion.map((highlight, idx) => (
                       <li key={idx} className="flex items-start">
                         <span className="text-green-500 mr-2">•</span>
                         <span>{highlight}</span>
@@ -301,9 +304,9 @@ export function IgniteReportViewer({
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-3">Areas for Improvement:</h3>
-                {Array.isArray(sectionSuggestion.improvements) && sectionSuggestion.improvements.length > 0 ? (
+                {Array.isArray(sectionSuggestion.suggestion) && sectionSuggestion.suggestion.length > 0 ? (
                   <ul className="space-y-2">
-                    {sectionSuggestion.improvements.map((improvement, idx) => (
+                    {sectionSuggestion.suggestion.map((improvement, idx) => (
                       <li key={idx} className="flex items-start">
                         <span className="text-orange-500 mr-2">•</span>
                         <span>{improvement}</span>

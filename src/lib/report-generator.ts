@@ -115,7 +115,7 @@ export class ReportGenerator {
     const congratulationsText = `${data.organization.name} has successfully completed the IGNITE CSOs Self-Assessment—a significant achievement in strengthening transparency, governance, and impact. This process reflects your commitment to ethical leadership, stakeholder engagement, and continuous improvement. You are setting a powerful example for CSOs across the region. Bravo!`;
     
     const lines = this.doc.splitTextToSize(congratulationsText, 170);
-    lines.forEach(line => {
+    lines.forEach((line: string) => {
       this.doc.text(line, this.margin, this.yPosition);
       this.yPosition += 6;
     });
@@ -355,7 +355,7 @@ export class ReportGenerator {
         this.doc.setFont("helvetica", rowIndex === 0 ? "bold" : "normal");
         
         const lines = this.doc.splitTextToSize(cell, width - 2);
-        lines.forEach((line, lineIndex) => {
+        lines.forEach((line: string, lineIndex: number) => {
           this.doc.text(line, currentX + 1, currentY + 4 + (lineIndex * 3));
         });
         
@@ -385,7 +385,7 @@ export class ReportGenerator {
         this.doc.setFont("helvetica", rowIndex === 0 ? "bold" : "normal");
         
         const lines = this.doc.splitTextToSize(cell, width - 2);
-        lines.forEach((line, lineIndex) => {
+        lines.forEach((line: string, lineIndex: number) => {
           this.doc.text(line, currentX + 1, currentY + 3 + (lineIndex * 2.5));
         });
         

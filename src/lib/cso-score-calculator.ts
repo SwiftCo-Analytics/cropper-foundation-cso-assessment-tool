@@ -1,4 +1,7 @@
-import { Response } from "../generated/prisma";
+// NOTE: This version removes the dependency on the Response type from prisma, and instead
+// expects a minimal response object with the required fields. It also accepts an array of
+// objects with at least: id, value, question: { id, type, section: { id } }.
+// This allows compatibility with frontend data that may not have all DB fields.
 
 export interface CSOScores {
   governanceScore: number;
@@ -14,13 +17,26 @@ export interface CSOScores {
   overallLevel: 'Emerging Organization' | 'Strong Foundation' | 'Leading Organization';
 }
 
+// Minimal type for what we need from a response
+export type MinimalResponse = {
+  id: string;
+  value: any;
+  question: {
+    id: string;
+    type: string;
+    section: {
+      id: string;
+    };
+  };
+};
+
 export class CSOScoreCalculator {
   /**
    * Calculate CSO-specific scores according to the specified scoring system
    */
-  static calculateCSOScores(responses: Response[]): CSOScores {
+  static calculateCSOScores(responses: MinimalResponse[]): CSOScores {
     // Group responses by section
-    const sectionResponses = new Map<string, Response[]>();
+    const sectionResponses = new Map<string, MinimalResponse[]>();
     for (const response of responses) {
       const sectionId = response.question.section.id;
       if (!sectionResponses.has(sectionId)) {
@@ -77,7 +93,7 @@ export class CSOScoreCalculator {
   /**
    * Calculate raw score for a section based on responses
    */
-  private static calculateSectionRawScore(responses: Response[], maxQuestions: number): number {
+  private static calculateSectionRawScore(responses: MinimalResponse[], maxQuestions: number): number {
     let totalScore = 0;
     let answeredQuestions = 0;
 

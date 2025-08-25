@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verify } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { SuggestionEngine } from "@/lib/suggestion-engine";
 
 export const dynamic = 'force-dynamic';
 
@@ -267,7 +268,7 @@ export async function GET(request: Request) {
       .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())[0];
 
     if (latestCompletedAssessment) {
-      const report = await prisma.report.findUnique({
+      let report = await prisma.report.findUnique({
         where: { assessmentId: latestCompletedAssessment.id },
         include: {
           suggestions: {
@@ -275,7 +276,24 @@ export async function GET(request: Request) {
           }
         }
       });
-      
+
+      // Auto-generate suggestions if missing
+      if (!report || (report.suggestions?.length || 0) === 0) {
+        try {
+          await SuggestionEngine.generateSuggestions(latestCompletedAssessment.id);
+          report = await prisma.report.findUnique({
+            where: { assessmentId: latestCompletedAssessment.id },
+            include: {
+              suggestions: {
+                orderBy: { priority: 'desc' }
+              }
+            }
+          });
+        } catch (e) {
+          // swallow and proceed with empty suggestions
+        }
+      }
+
       if (report) {
         suggestions = report.suggestions;
       }

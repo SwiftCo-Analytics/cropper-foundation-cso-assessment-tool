@@ -41,6 +41,7 @@ export class ReportGenerator {
     this.addRatingsExplanation();
     this.addSummaryScores(data);
     this.addVisualization(data);
+    this.addAssessmentHighlights(data);
     this.addSectionHighlights(data);
     this.addActionPlan(data);
     this.addStakeholderEngagement();
@@ -68,7 +69,7 @@ export class ReportGenerator {
   private addProjectPartners() {
     this.doc.setFontSize(16);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("🏛 Project Partners", this.margin, this.yPosition);
+    this.doc.text("Project Partners", this.margin, this.yPosition);
     this.yPosition += 15;
 
     this.doc.setFontSize(12);
@@ -84,20 +85,18 @@ export class ReportGenerator {
       this.yPosition += 8;
     });
 
-    this.doc.text("(Logos for each partner would be placed here in a clean horizontal layout or triangular formation for visual balance.)", this.margin, this.yPosition);
+    // Intentionally omitting logo placeholders in PDF for a clean layout
     this.yPosition += 20;
   }
 
   private addReportHeader(data: ReportData) {
     this.doc.setFontSize(16);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("🔥 IGNITE CSOs Self-Assessment Report", this.margin, this.yPosition);
+    this.doc.text("IGNITE CSOs Self-Assessment Report", this.margin, this.yPosition);
     this.yPosition += 15;
 
     this.doc.setFontSize(12);
     this.doc.setFont("helvetica", "normal");
-    this.doc.text(`Reporting Period: January – December 2024`, this.margin, this.yPosition);
-    this.yPosition += 8;
     this.doc.text(`Date of Submission: ${data.assessment.completedAt?.toLocaleDateString() || new Date().toLocaleDateString()}`, this.margin, this.yPosition);
     this.yPosition += 8;
     this.doc.text(`Assessment Tool Used: CPDC Accountability Assessment Tool for CSOs`, this.margin, this.yPosition);
@@ -107,7 +106,7 @@ export class ReportGenerator {
   private addCongratulations(data: ReportData) {
     this.doc.setFontSize(14);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("🎉 Congratulations!", this.margin, this.yPosition);
+    this.doc.text("Congratulations", this.margin, this.yPosition);
     this.yPosition += 12;
 
     this.doc.setFontSize(11);
@@ -125,7 +124,7 @@ export class ReportGenerator {
   private addRatingsExplanation() {
     this.doc.setFontSize(14);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("📘 Understanding the Ratings", this.margin, this.yPosition);
+    this.doc.text("Understanding the Ratings", this.margin, this.yPosition);
     this.yPosition += 12;
 
     this.doc.setFontSize(11);
@@ -148,7 +147,7 @@ export class ReportGenerator {
   private addSummaryScores(data: ReportData) {
     this.doc.setFontSize(14);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("📊 Summary of Scores", this.margin, this.yPosition);
+    this.doc.text("Summary of Scores", this.margin, this.yPosition);
     this.yPosition += 12;
 
     const summaryData = [
@@ -166,14 +165,14 @@ export class ReportGenerator {
     // Add category note
     this.doc.setFontSize(10);
     this.doc.setFont("helvetica", "italic");
-    this.doc.text(`${data.organization.name} scored ${data.scores.totalScore}, placing it in the ${data.scores.overallLevel} category. 🌟`, this.margin, this.yPosition);
+    this.doc.text(`${data.organization.name} scored ${data.scores.totalScore}, placing it in the ${data.scores.overallLevel} category.`, this.margin, this.yPosition);
     this.yPosition += 20;
   }
 
   private addVisualization(data: ReportData) {
     this.doc.setFontSize(14);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("📊 Visualizing the Results", this.margin, this.yPosition);
+    this.doc.text("Visualizing the Results", this.margin, this.yPosition);
     this.yPosition += 12;
 
     this.doc.setFontSize(11);
@@ -193,62 +192,61 @@ export class ReportGenerator {
     this.yPosition += 20;
   }
 
-  private addSectionHighlights(data: ReportData) {
-    const sections = [
-      {
-        title: "🏛 Governance Highlights",
-        highlights: [
-          "Strong ethical leadership and strategic oversight from the board",
-          "Clear roles and responsibilities; annual board training conducted",
-          "Signed CPDC Code of Conduct and Ethics for Caribbean NGOs",
-          "Inclusive stakeholder engagement, especially marginalized voices",
-          "Transparent communication and accessible governance information"
-        ],
-        improvements: [
-          "Develop and test a crisis communication protocol",
-          "Increase frequency of board self-assessments"
-        ]
-      },
-      {
-        title: "💰 Financial Management Overview",
-        highlights: [
-          "Budgeting aligns with strategic goals",
-          "Annual audits conducted with follow-up actions",
-          "Financial reports shared with donors and stakeholders",
-          "Due diligence protocols in place for donor vetting"
-        ],
-        improvements: [
-          "Expand long-term funding strategies",
-          "Improve asset tracking and fund accounting systems"
-        ]
-      },
-      {
-        title: "📈 Programme/Project Accountability",
-        highlights: [
-          "Defined performance indicators for all projects",
-          "Beneficiary involvement in design and evaluation",
-          "Responsive programming based on community feedback"
-        ],
-        improvements: [
-          "Enhance documentation of impact assessments",
-          "Formalize feedback loops for partner organizations"
-        ]
-      },
-      {
-        title: "👥 Human Resource Management",
-        highlights: [
-          "HR strategy aligned with mission and values",
-          "Inclusive and respectful workspaces",
-          "Staff collaboration and engagement encouraged"
-        ],
-        improvements: [
-          "Increase staff participation in HR policy reviews",
-          "Expand professional development opportunities"
-        ]
-      }
-    ];
+  private addAssessmentHighlights(data: ReportData) {
+    const assessmentItems = (data.suggestions || [])
+      .filter((s: any) => typeof (s as any).metadata?.section === 'string' && (s as any).metadata.section.toLowerCase() === 'assessment')
+      .map((s: any) => s.suggestion)
+      .filter((t: any) => typeof t === 'string' && t.trim().length > 0);
 
-    sections.forEach(section => {
+    this.doc.setFontSize(14);
+    this.doc.setFont("helvetica", "bold");
+    this.doc.text("Assessment Highlights", this.margin, this.yPosition);
+    this.yPosition += 12;
+
+    this.doc.setFontSize(10);
+    this.doc.setFont("helvetica", "normal");
+
+    if (assessmentItems.length === 0) {
+      this.doc.text("No assessment-wide highlights available.", this.margin, this.yPosition);
+      this.yPosition += 15;
+      return;
+    }
+
+    for (const item of assessmentItems) {
+      if (this.yPosition > this.pageHeight - 30) {
+        this.doc.addPage();
+        this.yPosition = 20;
+      }
+      this.doc.text(`• ${item}`, this.margin + 5, this.yPosition);
+      this.yPosition += 6;
+    }
+
+    this.yPosition += 10;
+  }
+
+  private addSectionHighlights(data: ReportData) {
+    // Group suggestions by metadata.section, excluding 'assessment'
+    const sectionMap: Record<string, string[]> = {};
+    for (const s of (data.suggestions || []) as any[]) {
+      const section = typeof s.metadata?.section === 'string' ? s.metadata.section.toLowerCase() : undefined;
+      if (!section || section === 'assessment') continue;
+      if (!sectionMap[section]) sectionMap[section] = [];
+      if (typeof s.suggestion === 'string' && s.suggestion.trim().length > 0) {
+        sectionMap[section].push(s.suggestion);
+      }
+    }
+
+    const displayName = (key: string) => {
+      switch (key) {
+        case 'governance': return 'Governance';
+        case 'financial': return 'Financial Management';
+        case 'programme': return 'Programme/Project Accountability';
+        case 'hr': return 'Human Resource Management';
+        default: return key.charAt(0).toUpperCase() + key.slice(1);
+      }
+    };
+
+    Object.entries(sectionMap).forEach(([key, items]) => {
       if (this.yPosition > this.pageHeight - 100) {
         this.doc.addPage();
         this.yPosition = 20;
@@ -256,26 +254,13 @@ export class ReportGenerator {
 
       this.doc.setFontSize(12);
       this.doc.setFont("helvetica", "bold");
-      this.doc.text(section.title, this.margin, this.yPosition);
+      this.doc.text(`${displayName(key)} Highlights`, this.margin, this.yPosition);
       this.yPosition += 10;
 
       this.doc.setFontSize(10);
       this.doc.setFont("helvetica", "normal");
-      section.highlights.forEach(highlight => {
+      items.forEach(highlight => {
         this.doc.text(`• ${highlight}`, this.margin + 5, this.yPosition);
-        this.yPosition += 6;
-      });
-
-      this.yPosition += 5;
-      this.doc.setFontSize(10);
-      this.doc.setFont("helvetica", "bold");
-      this.doc.text("Areas for Improvement:", this.margin, this.yPosition);
-      this.yPosition += 8;
-
-      this.doc.setFontSize(10);
-      this.doc.setFont("helvetica", "normal");
-      section.improvements.forEach(improvement => {
-        this.doc.text(`• ${improvement}`, this.margin + 5, this.yPosition);
         this.yPosition += 6;
       });
 
@@ -291,12 +276,12 @@ export class ReportGenerator {
 
     this.doc.setFontSize(14);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("📌 Next Steps and Action Plan", this.margin, this.yPosition);
+    this.doc.text("Next Steps and Action Plan", this.margin, this.yPosition);
     this.yPosition += 12;
 
     this.doc.setFontSize(11);
     this.doc.setFont("helvetica", "normal");
-    this.doc.text("🛠 Improvement Plan Template (Based on RendirApp Framework)", this.margin, this.yPosition);
+    this.doc.text("Improvement Plan Template (Based on RendirApp Framework)", this.margin, this.yPosition);
     this.yPosition += 8;
     this.doc.text("This improvement plan is designed to address the areas identified as weakest in the self-assessment.", this.margin, this.yPosition);
     this.yPosition += 15;
@@ -322,12 +307,12 @@ export class ReportGenerator {
 
     this.doc.setFontSize(14);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("📣 Stakeholder Engagement", this.margin, this.yPosition);
+    this.doc.text("Stakeholder Engagement", this.margin, this.yPosition);
     this.yPosition += 12;
 
     this.doc.setFontSize(11);
     this.doc.setFont("helvetica", "normal");
-    this.doc.text("CASD will host a stakeholder roundtable in November 2025 to share assessment findings, gather feedback, and co-create solutions for identified gaps. This will reinforce transparency and build trust across our network.", this.margin, this.yPosition);
+    this.doc.text("This organisation will host a stakeholder roundtable on __________ to share assessment findings, gather feedback, and co-create solutions for identified gaps. This will reinforce transparency and build trust across the network.", this.margin, this.yPosition);
   }
 
   private getRating(percentage: number): string {

@@ -45,8 +45,8 @@ export default async function RootLayout({
               <div className="container mx-auto px-4 py-8">
                 <div className="mb-6">
                   <Logos 
-                    title="Our Partners"
-                    subtitle="Working together for sustainable development"
+                    title="Project Partners & Collaborators"
+                    subtitle="Working together to Improve Governance, Networking and Inclusivity Towards Empowered CSOs (IGNITE CSOs)"
                     variant="footer"
                   />
                 </div>

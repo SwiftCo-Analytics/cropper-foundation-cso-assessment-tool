@@ -301,7 +301,16 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
       const response = await fetch(`/api/assessments/${params.id}/suggestions`);
       if (response.ok) {
         const data = await response.json();
-        setSuggestions(data.suggestions || []);
+        let loaded = data.suggestions || [];
+        // Auto-generate if none exist yet
+        if ((!Array.isArray(loaded) || loaded.length === 0) && assessment?.status === "COMPLETED") {
+          const genRes = await fetch(`/api/assessments/${params.id}/suggestions`, { method: "POST" });
+          if (genRes.ok) {
+            const genData = await genRes.json();
+            loaded = genData.suggestions || [];
+          }
+        }
+        setSuggestions(loaded);
       }
     } catch (error) {
       console.error("Error loading suggestions:", error);
@@ -487,133 +496,45 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
           </div>
         )}
 
-        {/* Assessment Summary */}
-        <div className="bg-white rounded-xl shadow-soft p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-            Assessment Summary
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Timeline</h3>
-              <div className="space-y-2 text-sm text-gray-600">
-                <p>
-                  <span className="font-medium">Started:</span>{" "}
-                  {new Date(assessment.startedAt).toLocaleDateString()} at{" "}
-                  {new Date(assessment.startedAt).toLocaleTimeString()}
-                </p>
-                {assessment.completedAt && (
+        {/* Assessment Summary (hide when completed, shown while in-progress) */}
+        {assessment.status !== "COMPLETED" && (
+          <div className="bg-white rounded-2xl border border-cropper-green-200 shadow-soft p-8 mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              Assessment Summary
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Timeline</h3>
+                <div className="space-y-2 text-sm text-gray-600">
                   <p>
-                    <span className="font-medium">Completed:</span>{" "}
-                    {new Date(assessment.completedAt).toLocaleDateString()} at{" "}
-                    {new Date(assessment.completedAt).toLocaleTimeString()}
+                    <span className="font-medium">Started:</span>{" "}
+                    {new Date(assessment.startedAt).toLocaleDateString()} at{" "}
+                    {new Date(assessment.startedAt).toLocaleTimeString()}
                   </p>
-                )}
+                  {assessment.completedAt && (
+                    <p>
+                      <span className="font-medium">Completed:</span>{" "}
+                      {new Date(assessment.completedAt).toLocaleDateString()} at{" "}
+                      {new Date(assessment.completedAt).toLocaleTimeString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Status</h3>
+                <div className="flex items-center">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium bg-cropper-brown-100 text-cropper-brown-800`}>In Progress</span>
+                </div>
               </div>
             </div>
-            
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Status</h3>
-              <div className="flex items-center">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  assessment.status === "COMPLETED"
-                    ? "bg-cropper-mint-100 text-cropper-mint-800"
-                    : "bg-cropper-brown-100 text-cropper-brown-800"
-                }`}>
-                  {assessment.status === "COMPLETED" ? "Completed" : "In Progress"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Suggestions Section */}
-        {assessment.status === "COMPLETED" && (
-          <div className="bg-white rounded-xl shadow-soft p-8 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 flex items-center">
-                <Lightbulb className="h-6 w-6 mr-3 text-cropper-blue-600" />
-                Personalized Recommendations
-              </h2>
-              <button
-                onClick={handleGenerateSuggestions}
-                disabled={generatingSuggestions}
-                className="bg-cropper-blue-600 text-white px-4 py-2 rounded-lg hover:bg-cropper-blue-700 transition-colors duration-300 flex items-center"
-              >
-                {generatingSuggestions ? (
-                  "Generating..."
-                ) : (
-                  <>
-                    <Target className="h-4 w-4 mr-2" />
-                    Generate Recommendations
-                  </>
-                )}
-              </button>
-            </div>
-            
-            {suggestions.length > 0 ? (
-              <div className="space-y-4">
-                {suggestions
-                  .sort((a, b) => b.priority - a.priority)
-                  .map((suggestion) => {
-                    const { prefix, category, priorityLabel, context } = formatSuggestionContext(suggestion);
-                    
-                    return (
-                      <div key={suggestion.id} className="border border-gray-200 rounded-lg p-6 hover:border-cropper-blue-300 transition-all duration-200">
-                        <div className="flex items-start space-x-4">
-                          <div className="flex-shrink-0">
-                            <div className="w-10 h-10 bg-cropper-blue-100 rounded-full flex items-center justify-center">
-                              <Target className="h-5 w-5 text-cropper-blue-600" />
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-3">
-                              <span className="px-3 py-1 bg-cropper-blue-100 text-cropper-blue-800 rounded-full text-sm font-medium">
-                                {category}
-                              </span>
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                suggestion.priority >= 9 
-                                  ? 'bg-red-100 text-red-800'
-                                  : suggestion.priority >= 7
-                                  ? 'bg-orange-100 text-orange-800'
-                                  : suggestion.priority >= 5
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-green-100 text-green-800'
-                              }`}>
-                                {priorityLabel}
-                              </span>
-                              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                                {context}
-                              </span>
-                              {suggestion.metadata?.isStrategic && (
-                                <span className="px-3 py-1 bg-cropper-purple-100 text-cropper-purple-800 rounded-full text-sm font-medium">
-                                  Strategic
-                                </span>
-                              )}
-                            </div>
-                            <div className="mb-2">
-                              <p className="text-sm text-gray-600 font-medium">{prefix}:</p>
-                            </div>
-                            <p className="text-gray-900 leading-relaxed">{suggestion.suggestion}</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Lightbulb className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No recommendations available yet.</p>
-                <p className="text-sm text-gray-400 mt-2">
-                  Click "Generate Recommendations" to get personalized suggestions based on your assessment results.
-                </p>
-              </div>
-            )}
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-soft p-8">
+        {/* Suggestions Section removed: recommendations now appear within the report viewer as highlights */}
+
+        <div className="bg-white rounded-2xl border border-cropper-green-200 shadow-soft p-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">
             Next Steps
           </h2>
@@ -631,7 +552,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                   <button
                     onClick={handleDownloadReport}
                     disabled={downloading}
-                    className="bg-cropper-mint-600 text-white px-6 py-3 rounded-full hover:bg-cropper-mint-700 transition-colors duration-300 flex items-center justify-center"
+                    className="btn-primary"
                   >
                     {downloading ? (
                       "Downloading..."
@@ -646,7 +567,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                   <button
                     onClick={handleCheckCompletion}
                     disabled={checkingCompletion}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center"
+                    className="btn-secondary"
                   >
                     {checkingCompletion ? (
                       "Checking..."
@@ -660,7 +581,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                   
                   <Link
                     href="/organization/dashboard"
-                    className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
+                    className="btn-secondary"
                   >
                     Return to Dashboard
                   </Link>

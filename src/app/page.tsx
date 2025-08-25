@@ -45,7 +45,7 @@ export default function Home() {
                   </div>
                   <div className="flex justify-end">
                     <div className="text-cropper-green-600 text-lg md:text-xl font-medium text-right">
-                      for Civil Society Organizations
+                      for Civil Society Organisations
                     </div>
                   </div>
                 </div>
@@ -56,10 +56,10 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
               >
-                A comprehensive accountability assessment tool designed to help Civil Society Organizations 
+                A comprehensive accountability assessment tool designed to help Civil Society Organisations 
                 <span className="text-cropper-green-700 font-medium"> evaluate their governance</span>,
                 <span className="text-cropper-green-700 font-medium"> financial management</span>,
-                <span className="text-cropper-green-700 font-medium"> programme accountability</span>, and
+                <span className="text-cropper-green-700 font-medium"> project management</span>, and
                 <span className="text-cropper-green-700 font-medium"> human resource practices</span> for 
                 sustainable growth and sector leadership.
               </motion.p>
@@ -113,7 +113,7 @@ export default function Home() {
               Everything you need to assess your CSO accountability
             </h2>
             <p className="section-subtitle">
-              Our tool provides a structured approach to evaluating your organization's
+              Our tool provides a structured approach to evaluating your organisation's
               accountability practices across four key dimensions.
             </p>
             </div>
@@ -131,14 +131,14 @@ export default function Home() {
               {
                 icon: FileText,
                 title: "Custom Reports",
-                description: "Receive detailed PDF reports with actionable insights and recommendations tailored to your organization.",
+                description: "Receive detailed PDF reports with actionable insights and recommendations tailored to your organisation.",
                 color: "blue",
                 delay: 0.2
               },
               {
                 icon: BarChart3,
                 title: "Progress Tracking",
-                description: "Monitor your organization's improvement over time with our comprehensive tracking system.",
+                description: "Monitor your organisation's improvement over time with our comprehensive tracking system.",
                 color: "orange",
                 delay: 0.4
               }
@@ -223,7 +223,7 @@ export default function Home() {
               </h2>
               <p className="text-body-lg mb-8">
                 Start your assessment today and get actionable insights to enhance your
-                organization's accountability practices.
+                organisation's accountability practices.
               </p>
               <Hover>
                 <button

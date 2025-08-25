@@ -200,12 +200,51 @@ export class SuggestionEngine {
 
     for (const suggestion of assessmentSuggestions) {
       if (this.evaluateCSOCondition(csoScores, suggestion.condition)) {
+        // Determine section context (if any) from condition
+        let sectionKey: string | undefined = undefined;
+        let sectionTitle: string | undefined = undefined;
+        let sectionScore: number | undefined = undefined;
+        let sectionPercentage: number | undefined = undefined;
+
+        const sectionScoreCondition = (suggestion.condition as any)?.sectionScore;
+        if (sectionScoreCondition?.section) {
+          const sectionId = sectionScoreCondition.section as string;
+          sectionTitle = this.getSectionTitle(sectionId);
+          // Map to key used by UI: governance | financial | programme | hr
+          switch (sectionId) {
+            case 'governance-section':
+              sectionKey = 'governance';
+              sectionScore = csoScores.governanceScore;
+              sectionPercentage = csoScores.governancePercentage;
+              break;
+            case 'financial-section':
+              sectionKey = 'financial';
+              sectionScore = csoScores.financialScore;
+              sectionPercentage = csoScores.financialPercentage;
+              break;
+            case 'programme-section':
+              sectionKey = 'programme';
+              sectionScore = csoScores.programmeScore;
+              sectionPercentage = csoScores.programmePercentage;
+              break;
+            case 'hr-section':
+              sectionKey = 'hr';
+              sectionScore = csoScores.hrScore;
+              sectionPercentage = csoScores.hrPercentage;
+              break;
+          }
+        }
+
         suggestions.push({
           type: SuggestionType.ASSESSMENT,
           suggestion: suggestion.suggestion,
           priority: suggestion.priority,
           weight: suggestion.weight,
           metadata: {
+            section: sectionKey ?? 'assessment',
+            sectionTitle,
+            sectionScore,
+            sectionPercentage,
             overallScore: csoScores.totalScore,
             overallPercentage: csoScores.totalPercentage,
             overallLevel: csoScores.overallLevel,
@@ -309,6 +348,7 @@ export class SuggestionEngine {
           priority: recommendation.priority,
           weight: 1.0,
                       metadata: {
+              section: 'assessment',
               category: recommendation.category,
               overallLevel: csoScores.overallLevel,
               overallScore: csoScores.totalScore,

@@ -16,11 +16,6 @@ const logos = [
     src: "/logos/EU_logo.png",
     alt: "European Union Logo",
     name: "European Union"
-  },
-  {
-    src: "/logos/SCA_logo.png",
-    alt: "SCA Logo",
-    name: "SwiftCo Analytics"
   }
 ];
 
@@ -51,7 +46,7 @@ export default function Logos({ title, subtitle, className = "", variant = "abou
         </div>
       )}
       
-      <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${isFooter ? 'max-w-2xl mx-auto' : ''}`}>
+      <div className={`grid grid-cols-3 md:grid-cols-3 gap-4 ${isFooter ? 'max-w-2xl mx-auto' : ''}`}>
         {logos.map((logo, index) => (
           <div
             key={index}

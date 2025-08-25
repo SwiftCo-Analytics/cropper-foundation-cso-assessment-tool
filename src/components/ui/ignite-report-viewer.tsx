@@ -216,9 +216,9 @@ export function IgniteReportViewer({
         <div className="space-y-4">
           {[
             { name: 'Governing Body', score: scores.governanceScore, max: 115, color: 'bg-green-500' },
-            { name: 'Financial', score: scores.financialScore, max: 50, color: 'bg-blue-500' },
-            { name: 'Programme', score: scores.programmeScore, max: 30, color: 'bg-yellow-500' },
-            { name: 'HR', score: scores.hrScore, max: 20, color: 'bg-purple-500' }
+            { name: 'Financial Management', score: scores.financialScore, max: 50, color: 'bg-blue-500' },
+            { name: 'Programme/Project Accountability', score: scores.programmeScore, max: 30, color: 'bg-yellow-500' },
+            { name: 'Human Resource', score: scores.hrScore, max: 20, color: 'bg-purple-500' }
           ].map((section, index) => (
             <div key={index} className="flex items-center gap-4">
               <div className="w-40 text-sm font-medium text-gray-700">{section.name}</div>
@@ -279,7 +279,6 @@ export function IgniteReportViewer({
             </h2>
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-gray-900">Highlights:</h3>
                 {Array.isArray(items) && items.length > 0 ? (
                   <ul className="space-y-2">
                     {items.map((highlight, idx) => (
@@ -293,91 +292,12 @@ export function IgniteReportViewer({
                   <p className="text-gray-500 italic">No highlights available for this section.</p>
                 )}
               </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-3 text-gray-900">Areas for Improvement:</h3>
-                {Array.isArray(items) && items.length > 0 ? (
-                  <ul className="space-y-2">
-                    {items.map((improvement, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <span className="text-orange-500 mr-2">•</span>
-                        <span>{improvement}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-500 italic">No improvement suggestions available for this section.</p>
-                )}
-              </div>
             </div>
           </div>
         );
       })}
 
-      {/* Action Plan */}
-      <div className="p-8 border-b">
-        <h2 className="text-2xl font-display font-bold mb-2 text-gray-900">Next Steps and Action Plan</h2>
-        <h3 className="text-xl font-semibold mb-4 text-gray-900">Improvement Plan Template (Based on RendirApp Framework)</h3>
-        <p className="text-body-lg mb-6">
-          This improvement plan is designed to address the areas identified as weakest in the self-assessment. It reflects a co-constructed approach involving various stakeholders across {organizationName}.
-        </p>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse rounded-lg overflow-hidden shadow-soft text-sm">
-            <thead>
-              <tr className="bg-gray-100 text-gray-900">
-                <th className="p-2 text-left">COMMITMENT</th>
-                <th className="p-2 text-left">QUESTION</th>
-                <th className="p-2 text-left">ANSWER</th>
-                <th className="p-2 text-left">OBJECTIVE TO BE ACHIEVED</th>
-                <th className="p-2 text-left">CHANGES OR ACTIONS TO BE TAKEN</th>
-                <th className="p-2 text-left">TIME FRAME</th>
-                <th className="p-2 text-left">RESPONSIBLE PARTY(IES)</th>
-                <th className="p-2 text-left">COMPLIANCE INDICATORS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              <tr>
-                <td className="p-2">Example: Commitment 1: Governance</td>
-                <td className="p-2">Does the organization have a crisis communication protocol?</td>
-                <td className="p-2">No formal protocol exists</td>
-                <td className="p-2">Establish a clear and tested crisis communication protocol</td>
-                <td className="p-2">1. Draft protocol with board input<br/>2. Conduct simulation exercise</td>
-                <td className="p-2">Q4 2025</td>
-                <td className="p-2">Executive Director, Board Secretary</td>
-                <td className="p-2">Protocol document approved and simulation completed</td>
-              </tr>
-              {/* Blank rows for user to fill in */}
-              {[...Array(6)].map((_, idx) => (
-                <tr key={idx}>
-                  {Array.from({ length: 8 }).map((__, colIdx) => (
-                    <td key={colIdx} className="p-2"></td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Stakeholder Engagement */}
-      <div className="p-8">
-        <h2 className="text-2xl font-display font-bold mb-4 text-gray-900">Stakeholder Engagement</h2>
-        <p className="text-body-lg">
-          {organizationName} will host a stakeholder roundtable on _______________ to share assessment findings, gather feedback, and co-create solutions for identified gaps. This will reinforce transparency and build trust across our network.
-        </p>
-      </div>
-
-      {/* Download Button */}
-      {onDownload && (
-        <div className="p-8 bg-gray-50 border-t">
-          <button
-            onClick={onDownload}
-            className="btn-primary"
-          >
-            <span>Download PDF Report</span>
-          </button>
-        </div>
-      )}
+      
     </div>
   );
 }

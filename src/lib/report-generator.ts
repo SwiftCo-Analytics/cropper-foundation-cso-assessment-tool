@@ -1,4 +1,6 @@
 import jsPDF from "jspdf";
+import fs from "fs";
+import path from "path";
 import { Organization, Assessment, Report, ReportSuggestion } from "../generated/prisma";
 
 export interface CSOScores {
@@ -28,39 +30,98 @@ export class ReportGenerator {
   private yPosition: number = 20;
   private readonly pageHeight = 280;
   private readonly margin = 20;
+  private readonly footerReserve = 14; // space kept for footer per page
+  private readonly pageWidth = 210; // A4 width in mm
 
   constructor() {
     this.doc = new jsPDF();
   }
 
   public generateReport(data: ReportData): ArrayBuffer {
+    const addFooter = () => {
+      this.doc.setFontSize(8);
+      this.doc.setFont("helvetica", "normal");
+      const footerText = "This platform was developed by SwiftCo Analytics for IGNITE CSOs";
+      const y = this.pageHeight - 8;
+      // Try to draw SwiftCo logo if available
+      const scaLogo = this.loadImageDataUrl(path.join(process.cwd(), "public", "logos", "SCA_logo.png"));
+      const xStart = this.margin;
+      let x = xStart;
+      if (scaLogo) {
+        try {
+          this.doc.addImage(scaLogo, "PNG", x, y - 5, 10, 5);
+          x += 12;
+        } catch {}
+      }
+      this.doc.text(footerText, x, y);
+    };
+
     this.addTitlePage(data);
+    addFooter();
     this.addProjectPartners();
+    addFooter();
     this.addReportHeader(data);
+    addFooter();
     this.addCongratulations(data);
+    addFooter();
     this.addRatingsExplanation();
+    addFooter();
     this.addSummaryScores(data);
+    addFooter();
     this.addVisualization(data);
+    addFooter();
     this.addAssessmentHighlights(data);
+    addFooter();
     this.addSectionHighlights(data);
+    addFooter();
     this.addActionPlan(data);
+    addFooter();
     this.addStakeholderEngagement();
+    addFooter();
 
     return this.doc.output('arraybuffer');
   }
 
+  private getAvailableBottom(): number {
+    return this.pageHeight - this.margin - this.footerReserve;
+  }
+
+  private ensureYSpace(heightNeeded: number) {
+    if (this.yPosition + heightNeeded > this.getAvailableBottom()) {
+      this.doc.addPage();
+      this.yPosition = this.margin;
+    }
+  }
+
+  private getContentWidth(): number {
+    return this.pageWidth - this.margin * 2;
+  }
+
   private addTitlePage(data: ReportData) {
     // Title Page
-    this.doc.setFontSize(24);
+    // Background header
+    this.doc.setFontSize(26);
     this.doc.setFont("helvetica", "bold");
-    this.doc.text("IGNITE CSOs", 105, 40, { align: "center" });
-    
-    this.doc.setFontSize(18);
-    this.doc.text("CSO Self-Assessment", 105, 60, { align: "center" });
-    this.doc.text("Your Organisation's Report", 105, 75, { align: "center" });
-    
-    this.doc.setFontSize(16);
-    this.doc.text(data.organization.name, 105, 95, { align: "center" });
+    this.doc.text("IGNITE CSOs", 105, 36, { align: "center" });
+
+    this.doc.setFontSize(20);
+    this.doc.setFont("helvetica", "bold");
+    this.doc.text("CSO Self-Assessment", 105, 56, { align: "center" });
+
+    // Official Report badge
+    this.doc.setFontSize(10);
+    this.doc.setFont("helvetica", "normal");
+    const badgeText = "Official Report";
+    const badgeWidth = this.doc.getTextWidth(badgeText) + 8;
+    this.doc.setDrawColor(0, 0, 0);
+    this.doc.setFillColor(240, 248, 245); // light mint
+    this.doc.roundedRect(105 - badgeWidth / 2, 66, badgeWidth, 8, 2, 2, 'F');
+    this.doc.text(badgeText, 105, 72, { align: 'center' });
+
+    // Organization name
+    this.doc.setFontSize(14);
+    this.doc.setFont("helvetica", "bold");
+    this.doc.text(`${data.organization.name}'s Report`, 105, 86, { align: "center" });
     
     this.doc.addPage();
     this.yPosition = 20;
@@ -70,23 +131,42 @@ export class ReportGenerator {
     this.doc.setFontSize(16);
     this.doc.setFont("helvetica", "bold");
     this.doc.text("Project Partners", this.margin, this.yPosition);
-    this.yPosition += 15;
+    this.yPosition += 10;
 
-    this.doc.setFontSize(12);
+    // Logos row: TCF, VA, EU
+    const tcf = this.loadImageDataUrl(path.join(process.cwd(), "public", "logos", "TCF_logo.webp"));
+    const va = this.loadImageDataUrl(path.join(process.cwd(), "public", "logos", "VA_logo.jpg"));
+    const eu = this.loadImageDataUrl(path.join(process.cwd(), "public", "logos", "EU_logo.png"));
+
+    const logoHeight = 14;
+    let x = this.margin;
+    const gap = 12;
+    const drawLogo = (dataUrl: string | null, type: "PNG" | "JPG" | "WEBP", width: number) => {
+      if (!dataUrl) return;
+      try {
+        this.doc.addImage(dataUrl, type as any, x, this.yPosition, width, logoHeight);
+        x += width + gap;
+      } catch {}
+    };
+
+    // Approximate widths; jsPDF doesn't auto-scale webp; convert type hint accordingly
+    drawLogo(tcf, "PNG", 28);
+    drawLogo(va, "JPG", 26);
+    drawLogo(eu, "PNG", 26);
+    this.yPosition += logoHeight + 10;
+
+    // SwiftCo attribution with logo
+    const sca = this.loadImageDataUrl(path.join(process.cwd(), "public", "logos", "SCA_logo.png"));
+    if (sca) {
+      try {
+        this.doc.addImage(sca, "PNG", this.margin, this.yPosition - 2, 20, 10);
+      } catch {}
+    }
+    this.doc.setFontSize(10);
     this.doc.setFont("helvetica", "normal");
-    const partners = [
-      "• The Cropper Foundation",
-      "• Veni Apwann", 
-      "• European Union (Funding Agency)"
-    ];
-
-    partners.forEach(partner => {
-      this.doc.text(partner, this.margin + 10, this.yPosition);
-      this.yPosition += 8;
-    });
-
-    // Intentionally omitting logo placeholders in PDF for a clean layout
-    this.yPosition += 20;
+    const attribution = "This platform was developed by SwiftCo Analytics for IGNITE CSOs";
+    this.doc.text(attribution, this.margin + 24, this.yPosition + 5);
+    this.yPosition += 18;
   }
 
   private addReportHeader(data: ReportData) {
@@ -213,10 +293,7 @@ export class ReportGenerator {
     }
 
     for (const item of assessmentItems) {
-      if (this.yPosition > this.pageHeight - 30) {
-        this.doc.addPage();
-        this.yPosition = 20;
-      }
+      this.ensureYSpace(10);
       this.doc.text(`• ${item}`, this.margin + 5, this.yPosition);
       this.yPosition += 6;
     }
@@ -247,10 +324,9 @@ export class ReportGenerator {
     };
 
     Object.entries(sectionMap).forEach(([key, items]) => {
-      if (this.yPosition > this.pageHeight - 100) {
-        this.doc.addPage();
-        this.yPosition = 20;
-      }
+      // Start each section on a new page
+      this.doc.addPage();
+      this.yPosition = this.margin;
 
       this.doc.setFontSize(12);
       this.doc.setFont("helvetica", "bold");
@@ -260,8 +336,14 @@ export class ReportGenerator {
       this.doc.setFontSize(10);
       this.doc.setFont("helvetica", "normal");
       items.forEach(highlight => {
-        this.doc.text(`• ${highlight}`, this.margin + 5, this.yPosition);
-        this.yPosition += 6;
+        const bullet = `• ${highlight}`;
+        const width = this.getContentWidth() - 5;
+        const lines = this.doc.splitTextToSize(bullet, width) as string[];
+        lines.forEach((line) => {
+          this.ensureYSpace(7);
+          this.doc.text(line, this.margin + 5, this.yPosition);
+          this.yPosition += 6;
+        });
       });
 
       this.yPosition += 15;
@@ -288,11 +370,12 @@ export class ReportGenerator {
 
     const actionPlanData = [
       ['COMMITMENT', 'QUESTION', 'ANSWER', 'OBJECTIVE TO BE ACHIEVED', 'CHANGES OR ACTIONS TO BE TAKEN', 'TIME FRAME', 'RESPONSIBLE PARTY(IES)', 'COMPLIANCE INDICATORS'],
-      ['Commitment 1: Governance', 'Does the organization have a crisis communication protocol?', 'No formal protocol exists', 'Establish a clear and tested crisis communication protocol', '1. Draft protocol with board input\n2. Conduct simulation exercise', 'Q4 2025', 'Executive Director, Board Secretary', 'Protocol document approved and simulation completed'],
-      ['Commitment 2: Financial Strategy', 'Is there a long-term fundraising strategy in place?', 'Strategy is informal and not documented', 'Develop a 3-year fundraising strategy aligned with strategic goals', '1. Host strategy workshop\n2. Document and approve fundraising roadmap', 'Q1 2026', 'Finance Manager, Fundraising Committee', 'Approved strategy document and donor engagement plan'],
-      ['Commitment 3: Programme Impact', 'Are impact evaluations standardized across projects?', 'Evaluations vary by project', 'Create a unified impact evaluation framework', '1. Develop standard templates\n2. Train project leads', 'Q2 2026', 'M&E Officer, Programme Leads', 'Framework adopted and used in all new project evaluations'],
-      ['Commitment 4: HR Development', 'Are staff training opportunities regularly scheduled?', 'Trainings are ad hoc', 'Institutionalize a staff development calendar', '1. Identify training needs\n2. Schedule quarterly sessions', 'Q1 2026', 'HR Coordinator', 'Calendar published and 75% staff participation in sessions'],
-      ['Commitment 5: Inclusion & Equity', 'Are justice, inclusion, and human rights reflected in institutional policies?', 'These values are not explicitly stated', 'Embed principles of justice, inclusion, and human rights in all institutional documents', '1. Review and revise bylaws\n2. Update policies and website content', 'Action 1: 6 months\nAction 2: 1 year', 'Executive Management, Board of Directors', 'Updated bylaws and revised institutional documents reflecting inclusion and human rights principles']
+      ['Example: Commitment 1: Governance', 'Does the organization have a crisis communication protocol?', 'No formal protocol exists', 'Establish a clear and tested crisis communication protocol', '1. Draft protocol with board input\n2. Conduct simulation exercise', 'Q4 2025', 'Executive Director, Board Secretary', 'Protocol document approved and simulation completed'],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '']
     ];
 
     this.addActionPlanTable(actionPlanData, this.margin, this.yPosition);
@@ -323,60 +406,90 @@ export class ReportGenerator {
 
   private addTable(data: string[][], x: number, y: number) {
     const colWidths = [40, 25, 25, 25, 40];
-    const rowHeight = 8;
     let currentY = y;
 
     data.forEach((row, rowIndex) => {
-      let currentX = x;
-      
+      // Calculate dynamic row height based on content lines
+      const lineHeights: number[] = [];
+      const cellLines: string[][] = [];
+      const baseLine = 3; // line spacing
+      const topPad = 3;
+      const bottomPad = 3;
+
       row.forEach((cell, colIndex) => {
         const width = colWidths[colIndex] || 30;
-        
-        // Draw cell border
+        const lines = this.doc.splitTextToSize(cell, width - 2) as string[];
+        cellLines[colIndex] = lines;
+        lineHeights[colIndex] = lines.length;
+      });
+
+      const maxLines = Math.max(...lineHeights, 1);
+      const rowHeight = topPad + maxLines * baseLine + bottomPad;
+
+      // Page break if needed
+      if (currentY + rowHeight > this.getAvailableBottom()) {
+        this.doc.addPage();
+        currentY = this.margin;
+      }
+
+      // Draw row
+      let currentX = x;
+      row.forEach((cell, colIndex) => {
+        const width = colWidths[colIndex] || 30;
         this.doc.rect(currentX, currentY, width, rowHeight);
-        
-        // Add text
         this.doc.setFontSize(8);
         this.doc.setFont("helvetica", rowIndex === 0 ? "bold" : "normal");
-        
-        const lines = this.doc.splitTextToSize(cell, width - 2);
+        const lines = cellLines[colIndex] || [""];
         lines.forEach((line: string, lineIndex: number) => {
-          this.doc.text(line, currentX + 1, currentY + 4 + (lineIndex * 3));
+          this.doc.text(line, currentX + 1, currentY + topPad + lineIndex * baseLine + 1);
         });
-        
         currentX += width;
       });
-      
+
       currentY += rowHeight;
     });
   }
 
   private addActionPlanTable(data: string[][], x: number, y: number) {
     const colWidths = [25, 30, 25, 35, 35, 20, 25, 35];
-    const rowHeight = 12;
     let currentY = y;
 
     data.forEach((row, rowIndex) => {
-      let currentX = x;
-      
+      // Dynamic height based on content
+      const cellLines: string[][] = [];
+      const lineCounts: number[] = [];
+      const baseLine = 2.6;
+      const topPad = 2.5;
+      const bottomPad = 2.5;
+
       row.forEach((cell, colIndex) => {
         const width = colWidths[colIndex] || 30;
-        
-        // Draw cell border
+        const lines = this.doc.splitTextToSize(cell, width - 2) as string[];
+        cellLines[colIndex] = lines;
+        lineCounts[colIndex] = lines.length;
+      });
+
+      const maxLines = Math.max(...lineCounts, 1);
+      const rowHeight = topPad + maxLines * baseLine + bottomPad;
+
+      if (currentY + rowHeight > this.getAvailableBottom()) {
+        this.doc.addPage();
+        currentY = this.margin;
+      }
+
+      let currentX = x;
+      row.forEach((cell, colIndex) => {
+        const width = colWidths[colIndex] || 30;
         this.doc.rect(currentX, currentY, width, rowHeight);
-        
-        // Add text
         this.doc.setFontSize(6);
         this.doc.setFont("helvetica", rowIndex === 0 ? "bold" : "normal");
-        
-        const lines = this.doc.splitTextToSize(cell, width - 2);
+        const lines = cellLines[colIndex] || [""];
         lines.forEach((line: string, lineIndex: number) => {
-          this.doc.text(line, currentX + 1, currentY + 3 + (lineIndex * 2.5));
+          this.doc.text(line, currentX + 1, currentY + topPad + lineIndex * baseLine);
         });
-        
         currentX += width;
       });
-      
+
       currentY += rowHeight;
     });
   }
@@ -421,5 +534,18 @@ export class ReportGenerator {
     this.doc.setFontSize(8);
     this.doc.text('Max Score', chartX + chartWidth + 5, chartY + 10);
     this.doc.text('Actual Score', chartX + chartWidth + 5, chartY + 20);
+  }
+
+  private loadImageDataUrl(filePath: string): string | null {
+    try {
+      if (!fs.existsSync(filePath)) return null;
+      const ext = path.extname(filePath).toLowerCase();
+      const mime = ext === ".png" ? "image/png" : ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png";
+      const buffer = fs.readFileSync(filePath);
+      const base64 = buffer.toString("base64");
+      return `data:${mime};base64,${base64}`;
+    } catch {
+      return null;
+    }
   }
 }

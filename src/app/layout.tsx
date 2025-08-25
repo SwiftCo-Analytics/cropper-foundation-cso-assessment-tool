@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import Header from "@/components/ui/header";
 import AuthProvider from "@/components/providers/session-provider";
 import Logos from "@/components/ui/logos";
+import Link from "next/link";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -49,6 +50,10 @@ export default async function RootLayout({
                     subtitle="Working together to Improve Governance, Networking and Inclusivity Towards Empowered CSOs (IGNITE CSOs)"
                     variant="footer"
                   />
+                </div>
+                <div className="mb-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-gray-600">
+                  <img src="/logos/SCA_logo.png" alt="SwiftCo Analytics" className="h-20 w-auto" />
+                  <span className="text-center sm:text-left">This platform was developed by <Link href="https://swiftcoanalytics.com" target="_blank" className="font-medium text-cropper-blue-600">SwiftCo Analytics</Link> for <span className="font-medium">IGNITE CSOs</span></span>
                 </div>
                 <p className="text-center text-gray-500 text-sm">
                   © {new Date().getFullYear()} The Cropper Foundation. All rights reserved.

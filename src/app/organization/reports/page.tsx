@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
@@ -157,6 +157,33 @@ export default function OrganizationReports() {
     }
   }
 
+  async function handleDownloadExcel() {
+    if (!reportsData?.latestAssessment) return;
+    setDownloading(true);
+    try {
+      const token = localStorage.getItem("org_token");
+      const response = await fetch(`/api/organizations/assessments/${reportsData.latestAssessment.id}/report/download?format=xlsx`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to download excel");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `IGNITE-CSOs-Report-${reportsData.organization.name}-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading excel:", error);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -214,6 +241,36 @@ export default function OrganizationReports() {
             <h2 className="text-2xl font-semibold mb-2">CSO Self-Assessment</h2>
             <h3 className="text-xl mb-4">Your Organisation's Report</h3>
             <h4 className="text-lg font-medium">{reportsData.organization.name}</h4>
+            <div className="flex flex-col sm:flex-row gap-4 mt-4">
+              <button
+                onClick={handleDownloadReport}
+                disabled={downloading}
+                className="btn-primary"
+              >
+                {downloading ? (
+                  "Downloading..."
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download PDF Report
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleDownloadExcel}
+                disabled={downloading}
+                className="btn-secondary"
+              >
+                {downloading ? (
+                  "Preparing..."
+                ) : (
+                  <>
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Download Excel
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="p-8 text-center">

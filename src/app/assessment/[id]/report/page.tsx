@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target, BarChart3 } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target, BarChart3, FileSpreadsheet, FileArchiveIcon } from "lucide-react";
 import Link from "next/link";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
@@ -357,6 +357,32 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
     }
   }
 
+  async function handleDownloadExcel() {
+    setDownloading(true);
+    try {
+      const token = localStorage.getItem("org_token");
+      const response = await fetch(`/api/organizations/assessments/${params.id}/report/download?format=xlsx`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to download excel");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cso-assessment-report-${params.id}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading excel:", error);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   async function handleCheckCompletion() {
     setCheckingCompletion(true);
     try {
@@ -531,57 +557,103 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
             </div>
           </div>
         )}
-
-        {/* Suggestions Section removed: recommendations now appear within the report viewer as highlights */}
-
         <div className="bg-white rounded-2xl border border-cropper-green-200 shadow-soft p-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-            Next Steps
-          </h2>
-          
-          <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-gray-900">Next Steps and Action Plan</h2>
             {assessment.status === "COMPLETED" ? (
               <>
-                <p className="text-gray-600">
-                  Your CSO self-assessment has been completed successfully. You can now download a detailed report 
-                  that includes your responses, scores, and recommendations for improving your organization's 
-                  accountability practices.
-                </p>
-                
+
+                {/* Action Plan */}
+                <section className="p-8 border-b mb-8 bg-gray-50 rounded-xl">
+                  <h4 className="text-xl font-semibold mb-4 text-gray-900">
+                    Improvement Plan Template <span className="font-normal text-gray-500">(Based on RendirApp Framework)</span>
+                  </h4>
+                  <p className="text-body-lg mb-6">
+                    This improvement plan is designed to address the areas identified as weakest in the self-assessment. It reflects a co-constructed approach involving various stakeholders across <span className="font-semibold">{assessment.organization.name}</span>.
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse rounded-lg overflow-hidden shadow-soft text-sm">
+                      <thead>
+                        <tr className="bg-gray-100 text-gray-900">
+                          <th className="p-2 text-left">COMMITMENT</th>
+                          <th className="p-2 text-left">QUESTION</th>
+                          <th className="p-2 text-left">ANSWER</th>
+                          <th className="p-2 text-left">OBJECTIVE TO BE ACHIEVED</th>
+                          <th className="p-2 text-left">CHANGES OR ACTIONS TO BE TAKEN</th>
+                          <th className="p-2 text-left">TIME FRAME</th>
+                          <th className="p-2 text-left">RESPONSIBLE PARTY(IES)</th>
+                          <th className="p-2 text-left">COMPLIANCE INDICATORS</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 bg-white">
+                        <tr>
+                          <td className="p-2 font-medium">Example: Commitment 1: Governance</td>
+                          <td className="p-2">Does the organization have a crisis communication protocol?</td>
+                          <td className="p-2">No formal protocol exists</td>
+                          <td className="p-2">Establish a clear and tested crisis communication protocol</td>
+                          <td className="p-2">
+                            <ol className="list-decimal list-inside space-y-1">
+                              <li>Draft protocol with board input</li>
+                              <li>Conduct simulation exercise</li>
+                            </ol>
+                          </td>
+                          <td className="p-2">Q4 2025</td>
+                          <td className="p-2">Executive Director, Board Secretary</td>
+                          <td className="p-2">Protocol document approved and simulation completed</td>
+                        </tr>
+                        {/* Blank rows for user to fill in */}
+                        {[...Array(6)].map((_, idx) => (
+                          <tr key={idx}>
+                            {Array.from({ length: 8 }).map((__, colIdx) => (
+                              <td key={colIdx} className="p-2"></td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                {/* Stakeholder Engagement */}
+                <section className="p-8 mb-8">
+                  <h3 className="text-2xl font-display font-bold mb-4 text-gray-900">Stakeholder Engagement</h3>
+                  <p className="text-body-lg">
+                    <span className="font-semibold">{assessment.organization.name}</span> will host a stakeholder roundtable on <span className="underline">_______________</span> to share assessment findings, gather feedback, and co-create solutions for identified gaps. This will reinforce transparency and build trust across our network.
+                  </p>
+                </section>
+
+                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={handleDownloadReport}
                     disabled={downloading}
-                    className="btn-primary"
+                    className="btn-primary flex items-center justify-center"
                   >
                     {downloading ? (
                       "Downloading..."
                     ) : (
                       <>
-                        <Download className="h-4 w-4 mr-2" />
-                        Download Report
+                        <FileArchiveIcon className="h-4 w-4 mr-2" />
+                        Download PDF Report
                       </>
                     )}
                   </button>
-                  
                   <button
-                    onClick={handleCheckCompletion}
-                    disabled={checkingCompletion}
-                    className="btn-secondary"
+                    onClick={handleDownloadExcel}
+                    disabled={downloading}
+                    className="btn-secondary flex items-center justify-center"
                   >
-                    {checkingCompletion ? (
-                      "Checking..."
+                    {downloading ? (
+                      "Preparing..."
                     ) : (
                       <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Check Completion Status
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Download Excel Report
                       </>
                     )}
                   </button>
-                  
                   <Link
                     href="/organization/dashboard"
-                    className="btn-secondary"
+                    className="btn-secondary flex items-center justify-center"
                   >
                     Return to Dashboard
                   </Link>
@@ -589,11 +661,10 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
               </>
             ) : (
               <>
-                <p className="text-gray-600">
-                  Your assessment is still in progress. You can continue working on it or return to the dashboard 
+                <p className="text-gray-600 mb-6">
+                  Your assessment is still in progress. You can continue working on it or return to the dashboard
                   to manage your assessments.
                 </p>
-                
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     href={`/assessment/${assessment.id}`}
@@ -601,7 +672,6 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                   >
                     Continue Assessment
                   </Link>
-                  
                   <button
                     onClick={handleCheckCompletion}
                     disabled={checkingCompletion}
@@ -616,7 +686,6 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                       </>
                     )}
                   </button>
-                  
                   <Link
                     href="/organization/dashboard"
                     className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
@@ -626,7 +695,6 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
                 </div>
               </>
             )}
-          </div>
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, A
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import AdminManagement from "@/components/admin-management";
 
 interface Section {
   id: string;
@@ -78,6 +79,7 @@ export default function AdminDashboard() {
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showNewQuestionForm, setShowNewQuestionForm] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -452,7 +454,30 @@ export default function AdminDashboard() {
             </button>
           </motion.div>
         )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <motion.div 
+            className="bg-red-50 text-red-800 p-4 rounded-lg mb-6 flex items-center justify-between"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <span>{errorMessage}</span>
+            <button onClick={() => setErrorMessage(null)} className="text-red-600 hover:text-red-800">
+              <X className="h-5 w-5" />
+            </button>
+          </motion.div>
+        )}
       </FadeIn>
+
+      {/* Admin Management */}
+      <div className="mb-8">
+        <AdminManagement 
+          onSuccess={setSuccessMessage}
+          onError={setErrorMessage}
+        />
+      </div>
 
       {/* Sections Management */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

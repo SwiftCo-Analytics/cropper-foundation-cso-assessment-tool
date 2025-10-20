@@ -35,6 +35,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // Check if admin is invited but hasn't set up password yet
+        if (!admin.password) {
+          console.log("Admin has not set up password yet");
+          return null;
+        }
+
         console.log("Admin found, checking password");
         const isPasswordValid = await compare(credentials.password, admin.password);
 

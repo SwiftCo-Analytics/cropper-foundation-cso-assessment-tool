@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { sendVerificationEmail } from "@/lib/email";
+import { randomBytes } from "crypto";
 
 export const dynamic = 'force-dynamic';
 
@@ -49,15 +51,34 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email } = createOrganizationSchema.parse(body);
 
+    // Check if organization already exists
+    const existingOrg = await prisma.organization.findUnique({
+      where: { email },
+    });
+
+    if (existingOrg) {
+      return NextResponse.json(
+        { error: "Organization already exists" },
+        { status: 400 }
+      );
+    }
+
     // Generate a random password for the organization
     const password = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
     const hashedPassword = await hash(password, 12);
+
+    // Generate verification token and expiry
+    const emailVerifyToken = randomBytes(32).toString('hex');
+    const emailVerifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     const organization = await prisma.organization.create({
       data: {
         name,
         email,
         password: hashedPassword,
+        emailVerified: false,
+        emailVerifyToken,
+        emailVerifyExpiry,
         assessments: {
           create: {
             status: "IN_PROGRESS",
@@ -69,7 +90,22 @@ export async function POST(request: Request) {
       },
     });
 
-    // Create authentication token
+    // Send verification email
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(email)}`;
+
+    const emailResult = await sendVerificationEmail({
+      name: organization.name,
+      email: organization.email,
+      verificationUrl,
+    });
+
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error);
+      // Still return success but log the error
+    }
+
+    // Create authentication token (but they'll need to verify email to actually use it)
     const token = sign(
       { orgId: organization.id },
       process.env.NEXTAUTH_SECRET!,
@@ -80,6 +116,8 @@ export async function POST(request: Request) {
       organizationId: organization.id,
       assessmentId: organization.assessments[0].id,
       token,
+      emailSent: emailResult.success,
+      message: "Organization created successfully. Please check your email to verify your account.",
       organization: {
         id: organization.id,
         name: organization.name,

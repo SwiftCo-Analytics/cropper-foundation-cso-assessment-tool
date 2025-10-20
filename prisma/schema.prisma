@@ -15,13 +15,16 @@ datasource db {
 }
 
 model Organization {
-  id          String       @id @default(cuid())
-  name        String
-  email       String       @unique
-  password    String?      // Hashed password for organization login
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  assessments Assessment[]
+  id                 String       @id @default(cuid())
+  name               String
+  email              String       @unique
+  password           String?      // Hashed password for organization login
+  emailVerified      Boolean      @default(false)
+  emailVerifyToken   String?
+  emailVerifyExpiry  DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  assessments        Assessment[]
 }
 
 model Assessment {
@@ -151,12 +154,17 @@ model ReportSuggestion {
 }
 
 model Admin {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(cuid())
+  name              String
+  email             String   @unique
+  password          String?
+  isInvited         Boolean  @default(false)
+  inviteToken       String?
+  inviteExpiry      DateTime?
+  invitedBy         String?  // Admin ID who invited this admin
+  inviteAcceptedAt  DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 enum AssessmentStatus {

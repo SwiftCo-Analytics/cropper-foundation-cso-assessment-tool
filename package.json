@@ -25,6 +25,7 @@
     "axios": "^1.6.7",
     "bcryptjs": "^3.0.2",
     "chart.js": "^4.5.0",
+    "dotenv": "^16.4.7",
     "exceljs": "^4.4.0",
     "framer-motion": "^12.16.0",
     "jsonwebtoken": "^9.0.2",

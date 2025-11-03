@@ -1,7 +1,6 @@
 const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
-const path = require('path')
 
 // Load environment variables from .env.production
 require('dotenv').config({ path: '.env.production' })

@@ -1,10 +1,10 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-    siteUrl: 'https://tcf.swiftcoanalytics.com',
+    siteUrl: 'https://selfassess.csogo.org',
     generateRobotsTxt: true,
     robotsTxtOptions: {
       additionalSitemaps: [
-        'https://tcf.swiftcoanalytics.com/server-sitemap.xml', // for dynamic pages if needed
+        'https://selfassess.csogo.org/server-sitemap.xml', // for dynamic pages if needed
       ],
       policies: [
         {

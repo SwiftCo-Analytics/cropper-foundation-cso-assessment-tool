@@ -11,6 +11,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLegalOpen, setIsLegalOpen] = useState(false);
   const [orgData, setOrgData] = useState<{ name: string } | null>(null);
 
   const isAdminPath = pathname.startsWith("/admin");
@@ -37,6 +38,13 @@ export default function Header() {
         });
     }
   }, []);
+
+  // Close legal submenu when main menu closes
+  useEffect(() => {
+    if (!isMenuOpen) {
+      setIsLegalOpen(false);
+    }
+  }, [isMenuOpen]);
 
   const handleOrgSignOut = () => {
     localStorage.removeItem("org_token");
@@ -86,27 +94,49 @@ export default function Header() {
                 About
               </Link>
 
-              <Link
-                href="/privacy"
-                className={`text-base font-medium ${
-                  pathname === "/privacy"
+              {/* Legal Dropdown */}
+              <div className="relative group">
+                <button className={`flex items-center space-x-1 text-base font-medium ${
+                  pathname === "/terms" || pathname === "/privacy" || pathname === "/acceptable-use"
                     ? "text-cropper-green-600"
                     : "text-gray-600 hover:text-cropper-green-700"
-                }`}
-              >
-                Privacy Policy
-              </Link>
-
-              <Link
-                href="/terms"
-                className={`text-base font-medium ${
-                  pathname === "/terms"
-                    ? "text-cropper-green-600"
-                    : "text-gray-600 hover:text-cropper-green-700"
-                }`}
-              >
-                Terms of Service
-              </Link>
+                }`}>
+                  <span>Legal</span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                <div className="absolute left-0 w-56 mt-2 py-2 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <Link
+                    href="/terms"
+                    className={`block px-4 py-2 text-sm ${
+                      pathname === "/terms"
+                        ? "text-cropper-green-600 bg-gray-50"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    Terms of Service
+                  </Link>
+                  <Link
+                    href="/privacy"
+                    className={`block px-4 py-2 text-sm ${
+                      pathname === "/privacy"
+                        ? "text-cropper-green-600 bg-gray-50"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    Privacy Policy
+                  </Link>
+                  <Link
+                    href="/acceptable-use"
+                    className={`block px-4 py-2 text-sm ${
+                      pathname === "/acceptable-use"
+                        ? "text-cropper-green-600 bg-gray-50"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    Acceptable Use Policy
+                  </Link>
+                </div>
+              </div>
 
               {/* Organization Auth */}
               {orgData ? (
@@ -219,6 +249,67 @@ export default function Header() {
               >
                 About
               </Link>
+
+              {/* Legal Mobile Section */}
+              <div>
+                <button
+                  onClick={() => setIsLegalOpen(!isLegalOpen)}
+                  className={`flex items-center justify-between w-full text-base font-medium ${
+                    pathname === "/terms" || pathname === "/privacy" || pathname === "/acceptable-use"
+                      ? "text-cropper-green-600"
+                      : "text-gray-600 hover:text-cropper-green-700"
+                  }`}
+                >
+                  <span>Legal</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isLegalOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isLegalOpen && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    <Link
+                      href="/terms"
+                      className={`block text-sm ${
+                        pathname === "/terms"
+                          ? "text-cropper-green-600"
+                          : "text-gray-600 hover:text-cropper-green-700"
+                      }`}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsLegalOpen(false);
+                      }}
+                    >
+                      Terms of Service
+                    </Link>
+                    <Link
+                      href="/privacy"
+                      className={`block text-sm ${
+                        pathname === "/privacy"
+                          ? "text-cropper-green-600"
+                          : "text-gray-600 hover:text-cropper-green-700"
+                      }`}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsLegalOpen(false);
+                      }}
+                    >
+                      Privacy Policy
+                    </Link>
+                    <Link
+                      href="/acceptable-use"
+                      className={`block text-sm ${
+                        pathname === "/acceptable-use"
+                          ? "text-cropper-green-600"
+                          : "text-gray-600 hover:text-cropper-green-700"
+                      }`}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsLegalOpen(false);
+                      }}
+                    >
+                      Acceptable Use Policy
+                    </Link>
+                  </div>
+                )}
+              </div>
 
               {/* Organization Mobile Auth */}
               {orgData ? (

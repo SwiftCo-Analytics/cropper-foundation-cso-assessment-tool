@@ -24,6 +24,7 @@ ChartJS.register(
 interface RecommendationData {
   suggestion: string;
   type: string;
+  category?: string;
   count: number;
   organizationCount: number;
   averagePriority: number;
@@ -112,11 +113,28 @@ export function RecommendationsBarChart({ data, title, height = 400 }: ChartProp
 }
 
 export function RecommendationsByCategoryChart({ data, title, height = 400 }: ChartProps) {
-  // Group data by category/type
+  // Group data by actual category from metadata, filtering out "Overall Assessment"
   const categoryData = data.reduce((acc, item) => {
-    const category = item.type === 'QUESTION' ? 'Question-Based' :
-                    item.type === 'SECTION' ? 'Section-Based' :
-                    item.type === 'ASSESSMENT' ? 'Overall Assessment' : item.type;
+    // Use the category field if available, otherwise fall back to type-based mapping
+    let category = item.category;
+    
+    // If category is not provided, determine it from type
+    if (!category) {
+      if (item.type === 'QUESTION') {
+        category = 'Question-Based';
+      } else if (item.type === 'SECTION') {
+        category = 'Section-Based';
+      } else if (item.type === 'ASSESSMENT') {
+        category = 'Overall Assessment';
+      } else {
+        category = item.type;
+      }
+    }
+    
+    // Filter out "Overall Assessment" category - we want to show actual categories
+    if (category === 'Overall Assessment') {
+      return acc;
+    }
     
     if (!acc[category]) {
       acc[category] = {

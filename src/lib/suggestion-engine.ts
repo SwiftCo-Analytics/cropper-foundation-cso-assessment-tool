@@ -135,7 +135,7 @@ export class SuggestionEngine {
 
     // Determine overall level
     let overallLevel: 'Emerging' | 'Strong Foundation' | 'Leading';
-    if (totalPercentage >= 5 && totalPercentage <= 40) {
+    if (totalPercentage >= 0 && totalPercentage <= 40) {
       overallLevel = 'Emerging';
     } else if (totalPercentage >= 41 && totalPercentage <= 79) {
       overallLevel = 'Strong Foundation';

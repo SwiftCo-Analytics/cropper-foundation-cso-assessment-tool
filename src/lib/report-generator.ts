@@ -215,7 +215,7 @@ export class ReportGenerator {
     // Create table
     const tableData = [
       ['Category', 'Score Range', 'Interpretation'],
-      ['Emerging Organization', '43–86 (5–40%)', 'Basic structures in place; needs significant development in accountability systems'],
+      ['Emerging Organization', '0–86 (0–40%)', 'Basic structures in place; needs significant development in accountability systems'],
       ['Strong Foundation', '87–170 (41–79%)', 'Solid operational base; room to strengthen strategic and governance practices'],
       ['Leading Organization', '171–215 (80–100%)', 'Exemplary accountability; systems are mature, transparent, and stakeholder-driven']
     ];

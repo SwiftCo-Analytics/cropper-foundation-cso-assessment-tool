@@ -319,15 +319,27 @@ export default function AdminReports() {
         <div className="p-8 border-b">
           <h2 className="text-2xl font-display font-bold mb-6 text-gray-900">System-Wide Recommendations Summary</h2>
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="card"><h3 className="font-semibold text-gray-900">Total Recommendations</h3><p className="text-2xl font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.totalSuggestions}</p></div>
-            <div className="card"><h3 className="font-semibold text-gray-900">Organizations with Recommendations</h3><p className="text-2xl font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.organizationsWithSuggestions}</p></div>
-            <div className="card"><h3 className="font-semibold text-gray-900">Coverage Rate</h3><p className="text-2xl font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.coveragePercentage.toFixed(1)}%</p></div>
-            <div className="card"><h3 className="font-semibold text-gray-900">Avg per Organization</h3><p className="text-2xl font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.averageSuggestionsPerOrganization.toFixed(1)}</p></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
+            <div className="card">
+              <h3 className="font-semibold text-md text-gray-900">Total Recommendations</h3>
+              <p className="text-lg font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.totalSuggestions}</p>
+            </div>
+            <div className="card">
+              <h3 className="font-semibold text-md text-gray-900">Organizations with Recommendations</h3>
+              <p className="text-lg font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.organizationsWithSuggestions}</p>
+            </div>
+            <div className="card">
+              <h3 className="font-semibold text-md text-gray-900">Coverage Rate</h3>
+              <p className="text-lg font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.coveragePercentage.toFixed(1)}%</p>
+            </div>
+            <div className="card">
+              <h3 className="font-semibold text-m text-gray-900">Avg. Recommendations per Organization</h3>
+              <p className="text-lg font-bold text-cropper-green-700">{reportsData.suggestionAnalytics.coverage.averageSuggestionsPerOrganization.toFixed(1)}</p>
+            </div>
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <div className="card">
               <RecommendationsBarChart
                 title="Top System-Wide Recommendations"

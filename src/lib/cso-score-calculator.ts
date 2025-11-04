@@ -67,7 +67,7 @@ export class CSOScoreCalculator {
 
     // Determine overall level
     let overallLevel: 'Emerging Organization' | 'Strong Foundation' | 'Leading Organization';
-    if (totalPercentage >= 5 && totalPercentage <= 40) {
+    if (totalPercentage >= 0 && totalPercentage <= 40) {
       overallLevel = 'Emerging Organization';
     } else if (totalPercentage >= 41 && totalPercentage <= 79) {
       overallLevel = 'Strong Foundation';

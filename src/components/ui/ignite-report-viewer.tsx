@@ -104,7 +104,7 @@ export function IgniteReportViewer({
     <div className="max-w-4xl mx-auto bg-white shadow-soft rounded-2xl border border-cropper-green-200 overflow-hidden">
       {/* Title Page */}
       <div className="relative text-white">
-        <div className="absolute inset-0 bg-cropper-green-400"></div>
+        <div className="absolute inset-0 bg-cropper-green-300"></div>
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.4),transparent_60%)]"></div>
         <div className="absolute inset-0 bg-black/15"></div>
         <div className="relative p-12 sm:p-16 text-center">
@@ -174,7 +174,7 @@ export function IgniteReportViewer({
             <tbody className="divide-y divide-gray-200">
               <tr className="bg-white">
                 <td className="p-3 font-medium">Emerging Organization</td>
-                <td className="p-3">43–86 (5–40%)</td>
+                <td className="p-3">0–86 (0–40%)</td>
                 <td className="p-3">Basic structures in place; needs significant development in accountability systems</td>
               </tr>
               <tr className="bg-white">

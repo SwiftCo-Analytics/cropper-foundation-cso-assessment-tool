@@ -260,11 +260,16 @@ export async function GET() {
             // Track by type
             suggestionsByType.set(suggestion.type, (suggestionsByType.get(suggestion.type) || 0) + 1);
             
-            // Track by category (from suggestion.category or suggestion.metadata?.category)
+            // Track by category (from suggestion.category or suggestion.metadata?.category or metadata.sectionTitle)
             let category = 'Uncategorized';
             if (suggestion.metadata && typeof suggestion.metadata === 'object' && suggestion.metadata !== null) {
               const metadata = suggestion.metadata as any;
-              category = metadata.category || 'Uncategorized';
+              // For SECTION type, prefer sectionTitle; otherwise use category
+              if (suggestion.type === 'SECTION' && metadata.sectionTitle) {
+                category = metadata.sectionTitle;
+              } else if (metadata.category) {
+                category = metadata.category;
+              }
             }
             suggestionsByCategory.set(category, (suggestionsByCategory.get(category) || 0) + 1);
 
@@ -282,14 +287,47 @@ export async function GET() {
     const mostCommonSuggestions = Array.from(suggestionAnalysis.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10)
-      .map(analysis => ({
-        suggestion: analysis.suggestion,
-        type: analysis.type,
-        count: analysis.count,
-        organizationCount: analysis.organizations.size,
-        averagePriority: Math.round(analysis.averagePriority * 10) / 10,
-        prevalence: Math.round((analysis.count / totalSuggestions) * 100 * 10) / 10
-      }));
+      .map(analysis => {
+        // Extract category from metadata
+        let category = 'Uncategorized';
+        if (analysis.metadata && analysis.metadata.length > 0) {
+          const firstMetadata = analysis.metadata[0];
+          if (firstMetadata && typeof firstMetadata === 'object' && firstMetadata !== null) {
+            const metadata = firstMetadata as any;
+            // For SECTION type, use sectionTitle; for ASSESSMENT, use category if available
+            if (analysis.type === 'SECTION' && metadata.sectionTitle) {
+              category = metadata.sectionTitle;
+            } else if (metadata.category) {
+              category = metadata.category;
+            } else if (analysis.type === 'QUESTION') {
+              category = 'Question-Based';
+            } else if (analysis.type === 'SECTION') {
+              category = 'Section-Based';
+            } else {
+              category = 'Uncategorized';
+            }
+          }
+        } else {
+          // Fallback based on type
+          if (analysis.type === 'QUESTION') {
+            category = 'Question-Based';
+          } else if (analysis.type === 'SECTION') {
+            category = 'Section-Based';
+          } else {
+            category = 'Uncategorized';
+          }
+        }
+        
+        return {
+          suggestion: analysis.suggestion,
+          type: analysis.type,
+          category: category,
+          count: analysis.count,
+          organizationCount: analysis.organizations.size,
+          averagePriority: Math.round(analysis.averagePriority * 10) / 10,
+          prevalence: Math.round((analysis.count / totalSuggestions) * 100 * 10) / 10
+        };
+      });
 
     // Calculate average scores across all organizations
     const allCompletedAssessments = organizations

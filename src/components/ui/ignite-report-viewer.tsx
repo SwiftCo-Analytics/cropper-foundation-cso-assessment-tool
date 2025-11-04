@@ -38,8 +38,43 @@ export function IgniteReportViewer({
   // Build a map of section -> suggestion texts
   const sectionToSuggestions: Record<string, string[]> = Array.isArray(suggestions)
     ? suggestions.reduce((acc: Record<string, string[]>, s) => {
-        const sectionKey = typeof s.metadata?.section === 'string' ? s.metadata.section.toLowerCase() : undefined;
+        // Determine section key: use metadata.section if available, otherwise infer from type
+        let sectionKey: string | undefined = undefined;
+        
+        // Handle metadata - it might be a JSON object from Prisma
+        const metadata = s.metadata;
+        let metadataSection: string | undefined = undefined;
+        
+        if (metadata) {
+          // Handle both direct access and potential JSON parsing
+          if (typeof metadata === 'object' && metadata !== null) {
+            metadataSection = (metadata as any).section;
+          } else if (typeof metadata === 'string') {
+            // If metadata is a string, try to parse it
+            try {
+              const parsed = JSON.parse(metadata);
+              metadataSection = parsed?.section;
+            } catch (e) {
+              // Not JSON, ignore
+            }
+          }
+        }
+        
+        // Check if this is an ASSESSMENT type suggestion
+        const isAssessmentType = s.type === 'ASSESSMENT' || s.type === 'assessment';
+        
+        // For ASSESSMENT type suggestions, always use 'assessment' as the section key
+        // (they are assessment-level highlights regardless of section-specific metadata)
+        if (isAssessmentType) {
+          sectionKey = 'assessment';
+        } else if (typeof metadataSection === 'string' && metadataSection.trim().length > 0) {
+          // For non-assessment suggestions, use the section from metadata
+          sectionKey = metadataSection.toLowerCase();
+        }
+        
+        // Skip suggestions without a valid section key
         if (!sectionKey) return acc;
+        
         if (!acc[sectionKey]) acc[sectionKey] = [];
         if (typeof s.suggestion === 'string' && s.suggestion.trim().length > 0) {
           acc[sectionKey].push(s.suggestion);
@@ -54,6 +89,16 @@ export function IgniteReportViewer({
 
   // Assessment-wide highlights (section: "assessment")
   const assessmentHighlights = sectionToSuggestions['assessment'] || [];
+
+  // Debug logging (remove in production if needed)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Suggestions data:', {
+      totalSuggestions: suggestions?.length || 0,
+      assessmentTypeSuggestions: suggestions?.filter(s => s.type === 'ASSESSMENT' || s.type === 'assessment').length || 0,
+      sectionToSuggestions,
+      assessmentHighlightsCount: assessmentHighlights.length
+    });
+  }
 
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-soft rounded-2xl border border-cropper-green-200 overflow-hidden">

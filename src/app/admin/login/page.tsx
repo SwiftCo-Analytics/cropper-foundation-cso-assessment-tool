@@ -37,7 +37,11 @@ export default function AdminLoginPage() {
         router.push(callbackUrl);
         router.refresh();
       } else {
-        setError(result.error);
+        // Translate NextAuth error codes to user-friendly messages
+        const errorMessage = result.error === "CredentialsSignin" 
+          ? "Invalid email or password. Please check your credentials and try again."
+          : result.error;
+        setError(errorMessage);
       }
     } catch (error) {
       console.error("Sign in error:", error);

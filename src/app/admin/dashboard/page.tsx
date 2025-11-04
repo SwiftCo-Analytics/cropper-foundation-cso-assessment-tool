@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { QuestionType } from "@/generated/prisma";
-import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock, Settings } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock, Settings, KeyRound, Copy, Check, Shield } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import AdminManagement from "@/components/admin-management";
 
 interface Section {
   id: string;
@@ -80,6 +79,15 @@ export default function AdminDashboard() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showNewQuestionForm, setShowNewQuestionForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [orgPasswordResetData, setOrgPasswordResetData] = useState<{
+    orgId: string;
+    orgName: string;
+    newPassword: string;
+    emailSent: boolean;
+    emailError?: string;
+  } | null>(null);
+  const [isResettingOrgPassword, setIsResettingOrgPassword] = useState<string | null>(null);
+  const [passwordCopied, setPasswordCopied] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -335,6 +343,53 @@ export default function AdminDashboard() {
     }
   }
 
+  async function handleResetOrgPassword(orgId: string, orgName: string) {
+    if (!confirm(`Are you sure you want to reset the password for ${orgName}? A new password will be generated and displayed.`)) {
+      return;
+    }
+
+    setIsResettingOrgPassword(orgId);
+
+    try {
+      const response = await fetch(`/api/organizations/${orgId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "reset-password" }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reset password");
+      }
+
+      setOrgPasswordResetData({
+        orgId,
+        orgName,
+        newPassword: data.newPassword,
+        emailSent: data.emailSent,
+        emailError: data.emailError,
+      });
+
+      showSuccess("Password reset successfully! The new password has been displayed.");
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      setErrorMessage(error instanceof Error ? error.message : "Failed to reset password");
+    } finally {
+      setIsResettingOrgPassword(null);
+    }
+  }
+
+  function handleCopyPassword() {
+    if (orgPasswordResetData) {
+      navigator.clipboard.writeText(orgPasswordResetData.newPassword);
+      setPasswordCopied(true);
+      setTimeout(() => setPasswordCopied(false), 2000);
+    }
+  }
+
   async function handleEditSection(e: React.FormEvent) {
     e.preventDefault();
     if (!editingSection) return;
@@ -437,6 +492,13 @@ export default function AdminDashboard() {
               <Settings className="mr-2 h-5 w-5" />
               Manage Suggestions
             </Link>
+            <Link
+              href="/admin/admins"
+              className="btn-secondary"
+            >
+              <Shield className="mr-2 h-5 w-5" />
+              Manage Admins
+            </Link>
           </motion.div>
         </div>
 
@@ -470,14 +532,6 @@ export default function AdminDashboard() {
           </motion.div>
         )}
       </FadeIn>
-
-      {/* Admin Management */}
-      <div className="mb-8">
-        <AdminManagement 
-          onSuccess={setSuccessMessage}
-          onError={setErrorMessage}
-        />
-      </div>
 
       {/* Sections Management */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -668,8 +722,21 @@ export default function AdminDashboard() {
                   View Reports
                 </Link>
                 <button
+                  onClick={() => handleResetOrgPassword(org.id, org.name)}
+                  disabled={isResettingOrgPassword === org.id}
+                  className="btn-secondary btn-sm"
+                  title="Reset password"
+                >
+                  {isResettingOrgPassword === org.id ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                  ) : (
+                    <KeyRound className="h-4 w-4" />
+                  )}
+                </button>
+                <button
                   onClick={() => handleDownloadResponses(org.id)}
                   className="btn-secondary btn-sm"
+                  title="Download reports"
                 >
                   <Download className="h-4 w-4" />
                 </button>
@@ -945,6 +1012,87 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </form>
+            </div>
+          </ScaleIn>
+        </div>
+      )}
+
+      {/* Organization Password Reset Success Modal */}
+      {orgPasswordResetData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <ScaleIn>
+            <div className="card card-lg max-w-md w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-heading">Password Reset Successful</h3>
+                <button
+                  onClick={() => {
+                    setOrgPasswordResetData(null);
+                    setPasswordCopied(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 mb-2">
+                    Password has been reset for <strong>{orgPasswordResetData.orgName}</strong>
+                  </p>
+                  {orgPasswordResetData.emailSent ? (
+                    <p className="text-sm text-green-700">
+                      ✓ An email with the new password has been sent to the organization.
+                    </p>
+                  ) : (
+                    <div className="text-sm">
+                      <p className="text-yellow-700 mb-2">
+                        ⚠ Email could not be sent: {orgPasswordResetData.emailError || "Unknown error"}
+                      </p>
+                      <p className="text-gray-700">
+                        Please share the password below with the organization manually.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Temporary Password:
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1 bg-gray-50 border border-gray-300 rounded-md p-3 font-mono text-lg text-center tracking-wider">
+                      {orgPasswordResetData.newPassword}
+                    </div>
+                    <button
+                      onClick={handleCopyPassword}
+                      className="btn-secondary btn-sm px-3"
+                      title="Copy password"
+                    >
+                      {passwordCopied ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    ⚠️ Important: The organization should change this password immediately after logging in.
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      setOrgPasswordResetData(null);
+                      setPasswordCopied(false);
+                    }}
+                    className="btn-primary btn-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             </div>
           </ScaleIn>
         </div>

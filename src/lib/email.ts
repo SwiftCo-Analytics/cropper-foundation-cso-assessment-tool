@@ -29,6 +29,22 @@ interface AdminInviteEmailParams {
   invitedBy: string;
 }
 
+interface AdminPasswordResetEmailParams {
+  name: string;
+  email: string;
+  loginUrl: string;
+  resetBy: string;
+  newPassword: string;
+}
+
+interface OrganizationPasswordResetEmailParams {
+  name: string;
+  email: string;
+  loginUrl: string;
+  resetBy: string;
+  newPassword: string;
+}
+
 /**
  * Send email verification email to user
  */
@@ -383,6 +399,294 @@ export async function sendAdminInviteEmail({
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to send admin invite email',
+    };
+  }
+}
+
+/**
+ * Send admin password reset email
+ */
+export async function sendAdminPasswordResetEmail({
+  name,
+  email,
+  loginUrl,
+  resetBy,
+  newPassword,
+}: AdminPasswordResetEmailParams): Promise<EmailResult> {
+  try {
+    if (!process.env.BREVO_API_KEY) {
+      throw new Error('BREVO_API_KEY environment variable is not set');
+    }
+
+    const sender = {
+      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
+      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
+    };
+
+    const recipients = [
+      {
+        email,
+        name,
+      },
+    ];
+
+    // HTML content for password reset email
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Password Reset - CSO Self-Assessment Tool</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px; text-align: center;">
+          <h1 style="color: #2c5530; margin-bottom: 20px;">Admin Password Reset - CSO Self-Assessment Tool</h1>
+          
+          <p style="font-size: 16px; margin-bottom: 30px;">
+            Hi ${name},
+          </p>
+          
+          <p style="font-size: 16px; margin-bottom: 30px;">
+            Your admin password has been reset by ${resetBy}. A new temporary password has been generated for your account.
+          </p>
+          
+          <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; text-align: left;">
+            <h3 style="color: #856404; margin-top: 0;">⚠️ Important Security Notice</h3>
+            <p style="color: #856404; margin-bottom: 10px;">
+              <strong>Your new temporary password is:</strong>
+            </p>
+            <div style="background-color: #fff; padding: 15px; border: 2px solid #ffc107; border-radius: 5px; font-family: monospace; font-size: 18px; font-weight: bold; color: #856404; text-align: center; letter-spacing: 2px;">
+              ${newPassword}
+            </div>
+            <p style="color: #856404; margin-top: 15px; font-size: 14px;">
+              <strong>Please change this password immediately after logging in for security reasons.</strong>
+            </p>
+          </div>
+          
+          <p style="font-size: 16px; margin-bottom: 30px;">
+            Please log in using this temporary password and set a new password of your choice.
+          </p>
+          
+          <div style="margin: 30px 0;">
+            <a href="${loginUrl}" 
+               style="background-color: #2c5530; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+              Log In to Admin Dashboard
+            </a>
+          </div>
+          
+          <p style="font-size: 14px; color: #666; margin-top: 30px;">
+            If the button doesn't work, you can copy and paste this link into your browser:
+            <br>
+            <a href="${loginUrl}" style="color: #2c5530; word-break: break-all;">${loginUrl}</a>
+          </p>
+          
+          <div style="background-color: #fff; border-left: 4px solid #2c5530; padding: 20px; margin: 30px 0; text-align: left;">
+            <h3 style="color: #2c5530; margin-top: 0;">Security Tips:</h3>
+            <ul style="padding-left: 20px; color: #666;">
+              <li>Use a strong, unique password that you haven't used elsewhere</li>
+              <li>Include a mix of uppercase and lowercase letters, numbers, and special characters</li>
+              <li>Do not share your password with anyone</li>
+              <li>Change your password regularly</li>
+            </ul>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          
+          <p style="font-size: 12px; color: #999;">
+            If you did not request this password reset, please contact your system administrator immediately.
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `
+      Admin Password Reset - CSO Self-Assessment Tool
+      
+      Hi ${name},
+      
+      Your admin password has been reset by ${resetBy}. A new temporary password has been generated for your account.
+      
+      Your new temporary password is: ${newPassword}
+      
+      ⚠️ IMPORTANT: Please change this password immediately after logging in for security reasons.
+      
+      Please log in using this temporary password and set a new password of your choice.
+      
+      Log in here: ${loginUrl}
+      
+      Security Tips:
+      - Use a strong, unique password that you haven't used elsewhere
+      - Include a mix of uppercase and lowercase letters, numbers, and special characters
+      - Do not share your password with anyone
+      - Change your password regularly
+      
+      If you did not request this password reset, please contact your system administrator immediately.
+    `;
+
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = sender;
+    sendSmtpEmail.to = recipients;
+    sendSmtpEmail.subject = 'Admin Password Reset - CSO Self-Assessment Tool';
+    sendSmtpEmail.htmlContent = htmlContent;
+    sendSmtpEmail.textContent = textContent;
+
+    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    return {
+      success: true,
+      messageId: response.body?.messageId || 'unknown',
+    };
+  } catch (error) {
+    console.error('Error sending admin password reset email:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to send admin password reset email',
+    };
+  }
+}
+
+/**
+ * Send organization password reset email
+ */
+export async function sendOrganizationPasswordResetEmail({
+  name,
+  email,
+  loginUrl,
+  resetBy,
+  newPassword,
+}: OrganizationPasswordResetEmailParams): Promise<EmailResult> {
+  try {
+    if (!process.env.BREVO_API_KEY) {
+      throw new Error('BREVO_API_KEY environment variable is not set');
+    }
+
+    const sender = {
+      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
+      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
+    };
+
+    const recipients = [
+      {
+        email,
+        name,
+      },
+    ];
+
+    // HTML content for password reset email
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset - CSO Self-Assessment Tool</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px; text-align: center;">
+          <h1 style="color: #2c5530; margin-bottom: 20px;">Password Reset - CSO Self-Assessment Tool</h1>
+          
+          <p style="font-size: 16px; margin-bottom: 30px;">
+            Hi ${name},
+          </p>
+          
+          <p style="font-size: 16px; margin-bottom: 30px;">
+            Your organization account password has been reset by an administrator (${resetBy}). A new temporary password has been generated for your account.
+          </p>
+          
+          <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; text-align: left;">
+            <h3 style="color: #856404; margin-top: 0;">⚠️ Important Security Notice</h3>
+            <p style="color: #856404; margin-bottom: 10px;">
+              <strong>Your new temporary password is:</strong>
+            </p>
+            <div style="background-color: #fff; padding: 15px; border: 2px solid #ffc107; border-radius: 5px; font-family: monospace; font-size: 18px; font-weight: bold; color: #856404; text-align: center; letter-spacing: 2px;">
+              ${newPassword}
+            </div>
+            <p style="color: #856404; margin-top: 15px; font-size: 14px;">
+              <strong>Please change this password immediately after logging in for security reasons.</strong>
+            </p>
+          </div>
+          
+          <p style="font-size: 16px; margin-bottom: 30px;">
+            Please log in using this temporary password. We recommend changing it to a password of your choice after logging in.
+          </p>
+          
+          <div style="margin: 30px 0;">
+            <a href="${loginUrl}" 
+               style="background-color: #2c5530; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+              Log In to Your Account
+            </a>
+          </div>
+          
+          <p style="font-size: 14px; color: #666; margin-top: 30px;">
+            If the button doesn't work, you can copy and paste this link into your browser:
+            <br>
+            <a href="${loginUrl}" style="color: #2c5530; word-break: break-all;">${loginUrl}</a>
+          </p>
+          
+          <div style="background-color: #fff; border-left: 4px solid #2c5530; padding: 20px; margin: 30px 0; text-align: left;">
+            <h3 style="color: #2c5530; margin-top: 0;">Security Tips:</h3>
+            <ul style="padding-left: 20px; color: #666;">
+              <li>Use a strong, unique password that you haven't used elsewhere</li>
+              <li>Include a mix of uppercase and lowercase letters, numbers, and special characters</li>
+              <li>Do not share your password with anyone</li>
+              <li>Change your password regularly</li>
+            </ul>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          
+          <p style="font-size: 12px; color: #999;">
+            If you did not request this password reset, please contact your system administrator immediately.
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `
+      Password Reset - CSO Self-Assessment Tool
+      
+      Hi ${name},
+      
+      Your organization account password has been reset by an administrator (${resetBy}). A new temporary password has been generated for your account.
+      
+      Your new temporary password is: ${newPassword}
+      
+      ⚠️ IMPORTANT: Please change this password immediately after logging in for security reasons.
+      
+      Please log in using this temporary password. We recommend changing it to a password of your choice after logging in.
+      
+      Log in here: ${loginUrl}
+      
+      Security Tips:
+      - Use a strong, unique password that you haven't used elsewhere
+      - Include a mix of uppercase and lowercase letters, numbers, and special characters
+      - Do not share your password with anyone
+      - Change your password regularly
+      
+      If you did not request this password reset, please contact your system administrator immediately.
+    `;
+
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = sender;
+    sendSmtpEmail.to = recipients;
+    sendSmtpEmail.subject = 'Password Reset - CSO Self-Assessment Tool';
+    sendSmtpEmail.htmlContent = htmlContent;
+    sendSmtpEmail.textContent = textContent;
+
+    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    return {
+      success: true,
+      messageId: response.body?.messageId || 'unknown',
+    };
+  } catch (error) {
+    console.error('Error sending organization password reset email:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to send organization password reset email',
     };
   }
 }

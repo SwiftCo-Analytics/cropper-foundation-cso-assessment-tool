@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { SuggestionEngine } from "@/lib/suggestion-engine";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
@@ -105,14 +106,31 @@ export async function POST(
       
       // If all mandatory questions are answered, mark assessment as completed
       if (answeredMandatoryQuestions.length === mandatoryQuestions.length && mandatoryQuestions.length > 0) {
-        console.log(`Marking assessment ${params.id} as completed`);
-        await prisma.assessment.update({
+        // Check if assessment is already completed to avoid duplicate suggestion generation
+        const currentAssessment = await prisma.assessment.findUnique({
           where: { id: params.id },
-          data: {
-            status: "COMPLETED",
-            completedAt: new Date(),
-          },
         });
+        
+        if (currentAssessment?.status !== "COMPLETED") {
+          console.log(`Marking assessment ${params.id} as completed`);
+          await prisma.assessment.update({
+            where: { id: params.id },
+            data: {
+              status: "COMPLETED",
+              completedAt: new Date(),
+            },
+          });
+          
+          // Auto-generate suggestions for the newly completed assessment
+          try {
+            console.log(`Auto-generating suggestions for assessment ${params.id}`);
+            await SuggestionEngine.generateSuggestions(params.id);
+            console.log(`Successfully generated suggestions for assessment ${params.id}`);
+          } catch (error) {
+            console.error("Error auto-generating suggestions:", error);
+            // Don't fail the response save if suggestions fail
+          }
+        }
       } else {
         console.log(`Assessment ${params.id} not completed yet. Missing ${mandatoryQuestions.length - answeredMandatoryQuestions.length} mandatory questions`);
       }

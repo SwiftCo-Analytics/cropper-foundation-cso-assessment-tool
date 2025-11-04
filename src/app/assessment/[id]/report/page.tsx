@@ -304,13 +304,20 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         let loaded = data.suggestions || [];
         // Auto-generate if none exist yet
         if ((!Array.isArray(loaded) || loaded.length === 0) && assessment?.status === "COMPLETED") {
+          console.log("No suggestions found, attempting to auto-generate...");
           const genRes = await fetch(`/api/assessments/${params.id}/suggestions`, { method: "POST" });
           if (genRes.ok) {
             const genData = await genRes.json();
             loaded = genData.suggestions || [];
+            console.log(`Generated ${loaded.length} suggestions`);
+          } else {
+            const errorText = await genRes.text();
+            console.error("Failed to generate suggestions:", genRes.status, errorText);
           }
         }
         setSuggestions(loaded);
+      } else {
+        console.error("Failed to load suggestions:", response.status);
       }
     } catch (error) {
       console.error("Error loading suggestions:", error);
@@ -428,14 +435,24 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         method: "POST",
       });
 
-      if (!response.ok) throw new Error("Failed to generate suggestions");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to generate suggestions:", response.status, errorText);
+        throw new Error(`Failed to generate suggestions: ${response.status}`);
+      }
 
       const result = await response.json();
+      const generatedCount = result.suggestions?.length || 0;
       setSuggestions(result.suggestions || []);
-      alert(`Generated ${result.suggestions?.length || 0} suggestions`);
+      
+      if (generatedCount > 0) {
+        alert(`Successfully generated ${generatedCount} suggestions!`);
+      } else {
+        alert("No suggestions were generated. This might mean there are no matching suggestion rules in the database, or the assessment conditions don't match any suggestion criteria.");
+      }
     } catch (error) {
       console.error("Error generating suggestions:", error);
-      alert("Error generating suggestions");
+      alert(`Error generating suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setGeneratingSuggestions(false);
     }
@@ -511,6 +528,28 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         {/* IGNITE CSOs Report */}
         {assessment.status === "COMPLETED" && csoScores && (
           <div className="mb-8">
+            {/* Show generate suggestions button if no suggestions exist */}
+            {(!suggestions || suggestions.length === 0) && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-yellow-800">
+                      No suggestions available
+                    </h3>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      Generate suggestions to see assessment highlights and recommendations.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGenerateSuggestions}
+                    disabled={generatingSuggestions}
+                    className="ml-4 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  >
+                    {generatingSuggestions ? "Generating..." : "Generate Suggestions"}
+                  </button>
+                </div>
+              </div>
+            )}
             <IgniteReportViewer
               organizationName={assessment.organization.name}
               assessmentDate={assessment.completedAt || assessment.startedAt}

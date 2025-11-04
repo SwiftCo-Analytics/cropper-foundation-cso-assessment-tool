@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Mail, Shield, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { FadeIn, SlideIn } from "@/components/ui/animations";
+import { Plus, Trash2, Mail, Shield, Clock, CheckCircle, AlertCircle, KeyRound, X, Copy, Check } from "lucide-react";
+import { FadeIn, SlideIn, ScaleIn } from "@/components/ui/animations";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 interface Admin {
   id: string;
@@ -22,6 +23,7 @@ interface AdminManagementProps {
 }
 
 export default function AdminManagement({ onSuccess, onError }: AdminManagementProps) {
+  const { data: session } = useSession();
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteForm, setShowInviteForm] = useState(false);
@@ -30,6 +32,15 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
     email: "",
   });
   const [isInviting, setIsInviting] = useState(false);
+  const [passwordResetData, setPasswordResetData] = useState<{
+    adminId: string;
+    adminName: string;
+    newPassword: string;
+    emailSent: boolean;
+    emailError?: string;
+  } | null>(null);
+  const [isResettingPassword, setIsResettingPassword] = useState<string | null>(null);
+  const [passwordCopied, setPasswordCopied] = useState(false);
 
   useEffect(() => {
     fetchAdmins();
@@ -82,6 +93,45 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
     }
   }
 
+  async function handleResetPassword(adminId: string, adminName: string) {
+    if (!confirm(`Are you sure you want to reset the password for ${adminName}? A new password will be generated and displayed.`)) {
+      return;
+    }
+
+    setIsResettingPassword(adminId);
+
+    try {
+      const response = await fetch(`/api/admin/${adminId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "reset-password" }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reset password");
+      }
+
+      setPasswordResetData({
+        adminId,
+        adminName,
+        newPassword: data.newPassword,
+        emailSent: data.emailSent,
+        emailError: data.emailError,
+      });
+
+      onSuccess?.("Password reset successfully! The new password has been displayed.");
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      onError?.(error instanceof Error ? error.message : "Failed to reset password");
+    } finally {
+      setIsResettingPassword(null);
+    }
+  }
+
   async function handleDeleteAdmin(adminId: string, adminName: string) {
     if (!confirm(`Are you sure you want to delete ${adminName}? This action cannot be undone.`)) {
       return;
@@ -102,6 +152,14 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
     } catch (error) {
       console.error("Error deleting admin:", error);
       onError?.(error instanceof Error ? error.message : "Failed to delete admin");
+    }
+  }
+
+  function handleCopyPassword() {
+    if (passwordResetData) {
+      navigator.clipboard.writeText(passwordResetData.newPassword);
+      setPasswordCopied(true);
+      setTimeout(() => setPasswordCopied(false), 2000);
     }
   }
 
@@ -273,6 +331,22 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
                     </div>
                   )}
                   
+                  {/* Only show reset password button if admin has accepted invitation (has password) and is not current user */}
+                  {statusInfo.status === "active" && admin.id !== (session?.user as any)?.id && (
+                    <button
+                      onClick={() => handleResetPassword(admin.id, admin.name)}
+                      disabled={isResettingPassword === admin.id}
+                      className="text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Reset password"
+                    >
+                      {isResettingPassword === admin.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      ) : (
+                        <KeyRound className="h-4 w-4" />
+                      )}
+                    </button>
+                  )}
+                  
                   <button
                     onClick={() => handleDeleteAdmin(admin.id, admin.name)}
                     className="text-red-600 hover:text-red-700 transition-colors"
@@ -286,6 +360,87 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
           })
         )}
       </div>
+
+      {/* Password Reset Success Modal */}
+      {passwordResetData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <ScaleIn>
+            <div className="card card-lg max-w-md w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-heading">Password Reset Successful</h3>
+                <button
+                  onClick={() => {
+                    setPasswordResetData(null);
+                    setPasswordCopied(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 mb-2">
+                    Password has been reset for <strong>{passwordResetData.adminName}</strong>
+                  </p>
+                  {passwordResetData.emailSent ? (
+                    <p className="text-sm text-green-700">
+                      ✓ An email with the new password has been sent to the admin.
+                    </p>
+                  ) : (
+                    <div className="text-sm">
+                      <p className="text-yellow-700 mb-2">
+                        ⚠ Email could not be sent: {passwordResetData.emailError || "Unknown error"}
+                      </p>
+                      <p className="text-gray-700">
+                        Please share the password below with the admin manually.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Temporary Password:
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1 bg-gray-50 border border-gray-300 rounded-md p-3 font-mono text-lg text-center tracking-wider">
+                      {passwordResetData.newPassword}
+                    </div>
+                    <button
+                      onClick={handleCopyPassword}
+                      className="btn-secondary btn-sm px-3"
+                      title="Copy password"
+                    >
+                      {passwordCopied ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    ⚠️ Important: The admin should change this password immediately after logging in.
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      setPasswordResetData(null);
+                      setPasswordCopied(false);
+                    }}
+                    className="btn-primary btn-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ScaleIn>
+        </div>
+      )}
     </div>
   );
 }

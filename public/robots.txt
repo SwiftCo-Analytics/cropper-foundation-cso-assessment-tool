@@ -7,8 +7,8 @@ Disallow: /_*
 Disallow: /api/*
 
 # Host
-Host: https://tcf.swiftcoanalytics.com
+Host: https://selfassess.csogo.org
 
 # Sitemaps
-Sitemap: https://tcf.swiftcoanalytics.com/sitemap.xml
-Sitemap: https://tcf.swiftcoanalytics.com/server-sitemap.xml
+Sitemap: https://selfassess.csogo.org/sitemap.xml
+Sitemap: https://selfassess.csogo.org/server-sitemap.xml

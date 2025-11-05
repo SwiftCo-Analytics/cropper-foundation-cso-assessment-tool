@@ -27,7 +27,7 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl)
   })
   
-  const port = process.env.PORT || 3003
+  const port = process.env.PORT || 3000
   server.listen(port, (err) => {
     if (err) throw err
   })

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsc --project tsconfig.server.json && node server.js",
+    "dev": "tsc --project tsconfig.server.json && node app.js",
     "build": "prisma generate && next build && tsc --project tsconfig.server.json",
-    "start": "node server.js",
+    "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "db:seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
     "create-admin": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts",

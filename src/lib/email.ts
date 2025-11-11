@@ -1,8 +1,119 @@
-import * as brevo from '@getbrevo/brevo';
+import nodemailer, { type Transporter } from 'nodemailer';
 
-// Initialize Brevo API
-const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY!);
+let transporter: Transporter | null = null;
+
+function getSmtpConfig() {
+  const host = process.env.EMAIL_HOST;
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+  const fromEmail = process.env.EMAIL_FROM_EMAIL || user;
+  const fromName = process.env.EMAIL_FROM_NAME || 'CSO Self-Assessment Tool';
+  const portValue = process.env.EMAIL_PORT ?? '465';
+  const secureValue = process.env.EMAIL_SECURE;
+
+  if (!host) {
+    throw new Error('EMAIL_HOST environment variable is not set');
+  }
+
+  if (!user) {
+    throw new Error('EMAIL_USER environment variable is not set');
+  }
+
+  if (!pass) {
+    throw new Error('EMAIL_PASS environment variable is not set');
+  }
+
+  if (!fromEmail) {
+    throw new Error('EMAIL_FROM_EMAIL or EMAIL_USER environment variable is not set');
+  }
+
+  const port = Number(portValue);
+
+  if (Number.isNaN(port)) {
+    throw new Error('EMAIL_PORT environment variable must be a valid number');
+  }
+
+  const secure =
+    typeof secureValue === 'string'
+      ? secureValue.toLowerCase() === 'true'
+      : port === 465;
+
+  return {
+    transport: {
+      host,
+      port,
+      secure,
+      auth: {
+        user,
+        pass,
+      },
+    },
+    sender: {
+      address: fromEmail,
+      name: fromName,
+    },
+  };
+}
+
+function getTransporter(): Transporter {
+  if (transporter) {
+    return transporter;
+  }
+
+  const { transport } = getSmtpConfig();
+
+  transporter = nodemailer.createTransport({
+    ...transport,
+  });
+
+  return transporter;
+}
+
+interface SendTemplatedEmailParams {
+  recipient: {
+    email: string;
+    name: string;
+  };
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+  context: string;
+}
+
+async function sendTemplatedEmail({
+  recipient,
+  subject,
+  htmlContent,
+  textContent,
+  context,
+}: SendTemplatedEmailParams): Promise<EmailResult> {
+  try {
+    const { sender } = getSmtpConfig();
+    const smtpTransporter = getTransporter();
+
+    const info = await smtpTransporter.sendMail({
+      from: sender,
+      to: {
+        address: recipient.email,
+        name: recipient.name,
+      },
+      subject,
+      html: htmlContent,
+      text: textContent,
+    });
+
+    return {
+      success: true,
+      messageId: info.messageId || undefined,
+    };
+  } catch (error) {
+    console.error(`Error sending ${context}:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : `Failed to send ${context}`,
+    };
+  }
+}
 
 interface EmailResult {
   success: boolean;
@@ -53,25 +164,8 @@ export async function sendVerificationEmail({
   email,
   verificationUrl,
 }: VerificationEmailParams): Promise<EmailResult> {
-  try {
-    if (!process.env.BREVO_API_KEY) {
-      throw new Error('BREVO_API_KEY environment variable is not set');
-    }
-
-    const sender = {
-      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
-      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
-    };
-
-    const recipients = [
-      {
-        email,
-        name,
-      },
-    ];
-
-    // HTML content for verification email
-    const htmlContent = `
+  // HTML content for verification email
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -118,7 +212,7 @@ export async function sendVerificationEmail({
       </html>
     `;
 
-    const textContent = `
+  const textContent = `
       Welcome to CSO Self-Assessment Tool!
       
       Hi ${name},
@@ -132,26 +226,13 @@ export async function sendVerificationEmail({
       If you didn't create an account with the CSO Self-Assessment Tool, please ignore this email.
     `;
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = sender;
-    sendSmtpEmail.to = recipients;
-    sendSmtpEmail.subject = 'Verify Your Email Address - CSO Self-Assessment Tool';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    return {
-      success: true,
-      messageId: response.body?.messageId || 'unknown',
-    };
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to send verification email',
-    };
-  }
+  return sendTemplatedEmail({
+    recipient: { email, name },
+    subject: 'Verify Your Email Address - CSO Self-Assessment Tool',
+    htmlContent,
+    textContent,
+    context: 'verification email',
+  });
 }
 
 /**
@@ -162,25 +243,8 @@ export async function sendWelcomeEmail({
   email,
   loginUrl,
 }: WelcomeEmailParams): Promise<EmailResult> {
-  try {
-    if (!process.env.BREVO_API_KEY) {
-      throw new Error('BREVO_API_KEY environment variable is not set');
-    }
-
-    const sender = {
-      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
-      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
-    };
-
-    const recipients = [
-      {
-        email,
-        name,
-      },
-    ];
-
-    // HTML content for welcome email
-    const htmlContent = `
+  // HTML content for welcome email
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -235,7 +299,7 @@ export async function sendWelcomeEmail({
       </html>
     `;
 
-    const textContent = `
+  const textContent = `
       Welcome to CSO Self-Assessment Tool!
       
       Hi ${name},
@@ -255,26 +319,13 @@ export async function sendWelcomeEmail({
       If you have any questions or need assistance, please don't hesitate to contact our support team.
     `;
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = sender;
-    sendSmtpEmail.to = recipients;
-    sendSmtpEmail.subject = 'Welcome to CSO Self-Assessment Tool - Email Verified!';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    return {
-      success: true,
-      messageId: response.body?.messageId || 'unknown',
-    };
-  } catch (error) {
-    console.error('Error sending welcome email:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to send welcome email',
-    };
-  }
+  return sendTemplatedEmail({
+    recipient: { email, name },
+    subject: 'Welcome to CSO Self-Assessment Tool - Email Verified!',
+    htmlContent,
+    textContent,
+    context: 'welcome email',
+  });
 }
 
 /**
@@ -286,25 +337,8 @@ export async function sendAdminInviteEmail({
   inviteUrl,
   invitedBy,
 }: AdminInviteEmailParams): Promise<EmailResult> {
-  try {
-    if (!process.env.BREVO_API_KEY) {
-      throw new Error('BREVO_API_KEY environment variable is not set');
-    }
-
-    const sender = {
-      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
-      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
-    };
-
-    const recipients = [
-      {
-        email,
-        name,
-      },
-    ];
-
-    // HTML content for admin invitation email
-    const htmlContent = `
+  // HTML content for admin invitation email
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -365,7 +399,7 @@ export async function sendAdminInviteEmail({
       </html>
     `;
 
-    const textContent = `
+  const textContent = `
       Admin Invitation - CSO Self-Assessment Tool
       
       Hi ${name},
@@ -381,26 +415,13 @@ export async function sendAdminInviteEmail({
       If you were not expecting this invitation, please ignore this email or contact the system administrator.
     `;
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = sender;
-    sendSmtpEmail.to = recipients;
-    sendSmtpEmail.subject = 'Admin Invitation - CSO Self-Assessment Tool';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    return {
-      success: true,
-      messageId: response.body?.messageId || 'unknown',
-    };
-  } catch (error) {
-    console.error('Error sending admin invite email:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to send admin invite email',
-    };
-  }
+  return sendTemplatedEmail({
+    recipient: { email, name },
+    subject: 'Admin Invitation - CSO Self-Assessment Tool',
+    htmlContent,
+    textContent,
+    context: 'admin invite email',
+  });
 }
 
 /**
@@ -413,25 +434,8 @@ export async function sendAdminPasswordResetEmail({
   resetBy,
   newPassword,
 }: AdminPasswordResetEmailParams): Promise<EmailResult> {
-  try {
-    if (!process.env.BREVO_API_KEY) {
-      throw new Error('BREVO_API_KEY environment variable is not set');
-    }
-
-    const sender = {
-      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
-      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
-    };
-
-    const recipients = [
-      {
-        email,
-        name,
-      },
-    ];
-
-    // HTML content for password reset email
-    const htmlContent = `
+  // HTML content for password reset email
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -501,7 +505,7 @@ export async function sendAdminPasswordResetEmail({
       </html>
     `;
 
-    const textContent = `
+  const textContent = `
       Admin Password Reset - CSO Self-Assessment Tool
       
       Hi ${name},
@@ -525,26 +529,13 @@ export async function sendAdminPasswordResetEmail({
       If you did not request this password reset, please contact your system administrator immediately.
     `;
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = sender;
-    sendSmtpEmail.to = recipients;
-    sendSmtpEmail.subject = 'Admin Password Reset - CSO Self-Assessment Tool';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    return {
-      success: true,
-      messageId: response.body?.messageId || 'unknown',
-    };
-  } catch (error) {
-    console.error('Error sending admin password reset email:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to send admin password reset email',
-    };
-  }
+  return sendTemplatedEmail({
+    recipient: { email, name },
+    subject: 'Admin Password Reset - CSO Self-Assessment Tool',
+    htmlContent,
+    textContent,
+    context: 'admin password reset email',
+  });
 }
 
 /**
@@ -557,25 +548,8 @@ export async function sendOrganizationPasswordResetEmail({
   resetBy,
   newPassword,
 }: OrganizationPasswordResetEmailParams): Promise<EmailResult> {
-  try {
-    if (!process.env.BREVO_API_KEY) {
-      throw new Error('BREVO_API_KEY environment variable is not set');
-    }
-
-    const sender = {
-      email: process.env.BREVO_FROM_EMAIL || 'noreply@csogo.org',
-      name: process.env.BREVO_FROM_NAME || 'CSO Self-Assessment Tool',
-    };
-
-    const recipients = [
-      {
-        email,
-        name,
-      },
-    ];
-
-    // HTML content for password reset email
-    const htmlContent = `
+  // HTML content for password reset email
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -645,7 +619,7 @@ export async function sendOrganizationPasswordResetEmail({
       </html>
     `;
 
-    const textContent = `
+  const textContent = `
       Password Reset - CSO Self-Assessment Tool
       
       Hi ${name},
@@ -669,24 +643,11 @@ export async function sendOrganizationPasswordResetEmail({
       If you did not request this password reset, please contact your system administrator immediately.
     `;
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = sender;
-    sendSmtpEmail.to = recipients;
-    sendSmtpEmail.subject = 'Password Reset - CSO Self-Assessment Tool';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    return {
-      success: true,
-      messageId: response.body?.messageId || 'unknown',
-    };
-  } catch (error) {
-    console.error('Error sending organization password reset email:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to send organization password reset email',
-    };
-  }
+  return sendTemplatedEmail({
+    recipient: { email, name },
+    subject: 'Password Reset - CSO Self-Assessment Tool',
+    htmlContent,
+    textContent,
+    context: 'organization password reset email',
+  });
 }

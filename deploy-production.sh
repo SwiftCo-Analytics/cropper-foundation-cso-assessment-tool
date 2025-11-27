@@ -48,7 +48,18 @@ fi
 
 echo "📦 Installing dependencies..."
 # Install all dependencies (including devDependencies needed for build)
-npm ci
+# Using --legacy-peer-deps to handle dependency conflicts
+# Remove node_modules first to ensure clean install
+if [ -d "node_modules" ]; then
+    echo "🧹 Cleaning existing node_modules for fresh install..."
+    rm -rf node_modules
+fi
+# Ensure devDependencies are installed (needed for build)
+# Temporarily unset NODE_ENV if it's set to production (npm skips devDeps when NODE_ENV=production)
+OLD_NODE_ENV="$NODE_ENV"
+unset NODE_ENV
+npm install --legacy-peer-deps
+export NODE_ENV="$OLD_NODE_ENV"
 
 echo "🗄️ Setting up database schema..."
 # Ensure DATABASE_URL is set in environment
@@ -61,11 +72,11 @@ fi
 
 # Generate Prisma client first
 echo "📦 Generating Prisma client..."
-npx prisma generate
+./node_modules/.bin/prisma generate
 
 # Use db push to create schema directly (no migrations needed for fresh DB with imported data)
 echo "📊 Pushing database schema..."
-npx prisma db push --accept-data-loss
+./node_modules/.bin/prisma db push --accept-data-loss
 
 # Import data from postgres-export.json if it exists (for initial setup)
 if [ -f "postgres-export.json" ]; then
@@ -73,7 +84,7 @@ if [ -f "postgres-export.json" ]; then
     
     # Prisma client already generated above, but regenerate to be safe
     echo "📦 Regenerating Prisma client..."
-    npx prisma generate
+    ./node_modules/.bin/prisma generate
     
     echo "📊 Importing PostgreSQL data to MySQL..."
     echo "   (Using upsert mode - existing records will be updated, new ones will be added)"

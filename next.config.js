@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === 'production';
+const path = require('path');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -15,6 +16,14 @@ const nextConfig = {
   assetPrefix: isProd ? '/' : '', 
   // Optional: If your app will be served from a subfolder like /app
   // assetPrefix: isProd ? '/your-subfolder/' : '',
+  webpack: (config) => {
+    // Explicitly configure path aliases for webpack
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './src'),
+    };
+    return config;
+  },
 };
 
 module.exports = nextConfig;

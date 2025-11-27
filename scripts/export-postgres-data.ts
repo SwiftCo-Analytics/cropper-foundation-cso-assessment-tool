@@ -1,16 +1,13 @@
 /**
  * Export data from PostgreSQL database to JSON file
  * 
- * IMPORTANT: This script requires temporarily switching your Prisma schema to PostgreSQL.
+ * This script automatically switches the Prisma schema to PostgreSQL,
+ * exports the data, then switches back to MySQL.
  * 
  * Usage:
- *   1. Temporarily change prisma/schema.prisma provider to "postgresql"
- *   2. Run: npx prisma generate
- *   3. Run: DATABASE_URL="postgresql://user:pass@localhost:5432/dbname" npm run export-postgres
- *   4. Change schema back to "mysql"
- *   5. Run: npx prisma generate
- * 
- * Or use the helper script: npm run export-postgres-helper
+ *   DATABASE_URL="postgresql://user:pass@localhost:5432/dbname" npm run export-postgres
+ *   OR
+ *   POSTGRES_DATABASE_URL="postgresql://user:pass@localhost:5432/dbname" npm run export-postgres
  * 
  * This script exports all data from PostgreSQL tables in the correct order
  * to maintain referential integrity during import.
@@ -18,14 +15,15 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { PrismaClient } from '../src/generated/prisma';
 import * as dotenv from 'dotenv';
+import { execSync } from 'child_process';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env' });
 
-const prisma = new PrismaClient();
+const SCHEMA_PATH = path.join(process.cwd(), 'prisma', 'schema.prisma');
+const LOCK_PATH = path.join(process.cwd(), 'prisma', 'migrations', 'migration_lock.toml');
 
 interface ExportData {
   organizations: any[];
@@ -42,6 +40,24 @@ interface ExportData {
   exportedAt: string;
 }
 
+async function switchSchemaProvider(provider: 'postgresql' | 'mysql') {
+  const schemaContent = fs.readFileSync(SCHEMA_PATH, 'utf-8');
+  const updatedContent = schemaContent.replace(
+    /provider\s*=\s*"postgresql"|provider\s*=\s*"mysql"/,
+    `provider = "${provider}"`
+  );
+  fs.writeFileSync(SCHEMA_PATH, updatedContent, 'utf-8');
+  
+  // Update migration lock file
+  if (fs.existsSync(LOCK_PATH)) {
+    const lockContent = fs.readFileSync(LOCK_PATH, 'utf-8');
+    const updatedLock = lockContent.replace(/provider\s*=\s*"[^"]+"/, `provider = "${provider}"`);
+    fs.writeFileSync(LOCK_PATH, updatedLock, 'utf-8');
+  }
+  
+  console.log(`✅ Switched schema provider to ${provider}`);
+}
+
 async function exportData() {
   console.log('🔄 Starting PostgreSQL data export...\n');
 
@@ -50,13 +66,27 @@ async function exportData() {
   if (!dbUrl || !dbUrl.startsWith('postgresql://')) {
     console.error('❌ ERROR: DATABASE_URL or POSTGRES_DATABASE_URL must be a PostgreSQL connection string');
     console.error('   Example: postgresql://user:password@localhost:5432/database');
-    console.error('\n   Also ensure:');
-    console.error('   1. prisma/schema.prisma provider is set to "postgresql"');
-    console.error('   2. You have run: npx prisma generate');
     process.exit(1);
   }
 
+  let prisma: any;
+  let schemaSwitched = false;
+  
   try {
+    // Switch to PostgreSQL
+    console.log('📝 Switching Prisma schema to PostgreSQL...');
+    await switchSchemaProvider('postgresql');
+    schemaSwitched = true;
+    
+    // Generate Prisma client for PostgreSQL
+    console.log('📦 Generating Prisma client for PostgreSQL...');
+    process.env.DATABASE_URL = dbUrl;
+    execSync('npx prisma generate', { stdio: 'inherit' });
+    
+    // Now import and use PrismaClient
+    const { PrismaClient } = require('../src/generated/prisma');
+    prisma = new PrismaClient();
+
     // Verify connection
     await prisma.$connect();
     console.log('✅ Connected to PostgreSQL database\n');
@@ -150,12 +180,44 @@ async function exportData() {
     console.log(`   - Reports: ${exportData.reports.length}`);
     console.log(`   - Admins: ${exportData.admins.length}`);
     console.log(`   - Suggestions: ${exportData.questionSuggestions.length + exportData.sectionSuggestions.length + exportData.assessmentSuggestions.length + exportData.reportSuggestions.length}`);
-
+    
   } catch (error) {
     console.error('\n❌ Error during export:', error);
+    
+    // Clean up: disconnect Prisma if it was created
+    if (prisma) {
+      try {
+        await prisma.$disconnect();
+      } catch (e) {
+        // Ignore disconnect errors
+      }
+    }
+    
     process.exit(1);
   } finally {
-    await prisma.$disconnect();
+    // Always switch back to MySQL in finally block
+    if (schemaSwitched) {
+      console.log('\n📝 Switching Prisma schema back to MySQL...');
+      await switchSchemaProvider('mysql');
+      
+      // Generate Prisma client for MySQL
+      console.log('📦 Generating Prisma client for MySQL...');
+      try {
+        execSync('npx prisma generate', { stdio: 'inherit' });
+        console.log('✅ Schema restored to MySQL');
+      } catch (e) {
+        console.error('⚠️  Warning: Failed to regenerate MySQL client. Please run: npx prisma generate');
+      }
+    }
+    
+    // Clean up Prisma connection
+    if (prisma) {
+      try {
+        await prisma.$disconnect();
+      } catch (e) {
+        // Ignore disconnect errors
+      }
+    }
   }
 }
 

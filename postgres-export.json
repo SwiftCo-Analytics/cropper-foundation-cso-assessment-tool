@@ -1,0 +1,3524 @@
+{
+  "organizations": [
+    {
+      "id": "cme7uy2el00001283juwcyqpy",
+      "name": "ABC Org",
+      "email": "abc@example.com",
+      "password": "$2b$12$HOkEHUKx2m10o4Yd8uu1DOmtZblVcrg2fWelQ/LpUP.HMwHOSnWJq",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-12T01:23:23.950Z",
+      "updatedAt": "2025-08-12T01:23:23.950Z"
+    },
+    {
+      "id": "cmesmud2n0000kd9qvjhk5cnm",
+      "name": "The Picong Party",
+      "email": "thepicongparty@gmail.com",
+      "password": "$2b$12$NRNfc1CyIsDcRtesH3tI9evo3kxEFeBJ9q/f88Zcj/MgGG2khiqaO",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-26T14:19:43.920Z",
+      "updatedAt": "2025-08-26T14:19:43.920Z"
+    },
+    {
+      "id": "cmeu2fmml0001kd9q1bjw5pdp",
+      "name": "The Cropper Foundation",
+      "email": "kboodoo@thecropperfoundation.org",
+      "password": "$2b$12$JXxZ7wZCzbc7vZoJWmpfcu2wuB1VbmpnJ2deVv0AsYm09bkJdFLpC",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-27T14:23:56.491Z",
+      "updatedAt": "2025-08-27T14:23:56.491Z"
+    },
+    {
+      "id": "cmeu447d7002ikd9qngd5qe92",
+      "name": "The Center for Non-Violence, Research and Development",
+      "email": "shernabenjamin@oabivoices.org",
+      "password": "$2b$12$EBM2zqf/bG5ziO4EniLsw.rOMzecCeGQUk0cTzfJw.1MOb0lL7k9i",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-27T15:11:02.731Z",
+      "updatedAt": "2025-08-27T15:11:02.731Z"
+    },
+    {
+      "id": "cmeu44zh1002jkd9quw40oe8u",
+      "name": "CAISO: Sex and Gender Justice",
+      "email": "info@caisott.org",
+      "password": "$2b$12$1Blho8B8zQ/JgNf9Rb3rkOp2Qp4V3XWQQfjFU/0qRFz9dyZad.uai",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-27T15:11:39.157Z",
+      "updatedAt": "2025-08-27T15:11:39.157Z"
+    },
+    {
+      "id": "cmeu49l58002mkd9qvccof6cl",
+      "name": "DVDF",
+      "email": "dvdf2021.2022@gmail.com",
+      "password": "$2b$12$uhF/zJabLuYUKqOvFdo4r.o5HbFJ9lCdUDOgRLtulV7IBhOcxt3iK",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-27T15:15:13.868Z",
+      "updatedAt": "2025-08-27T15:15:13.868Z"
+    },
+    {
+      "id": "cmeu4eq33004jkd9qe8qmxnx5",
+      "name": "Colleen Davis ",
+      "email": "daviscolleenm99@gmail.com",
+      "password": "$2b$12$0CoY1D2JtJ2z5KxHT3E7FuHo1MoTLO4nVgmjVtDlHWQEs/QnsR/2y",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-27T15:19:13.552Z",
+      "updatedAt": "2025-08-27T15:19:13.552Z"
+    },
+    {
+      "id": "cmeu4sq9z006gkd9qssxxv3sa",
+      "name": "Trinity Sports Group",
+      "email": "gerarddeonarine3@gmail.com",
+      "password": "$2b$12$T5M8ZrGmOtT7uVCEGUD7A.Ze72.9igCF/TR.5d.Wq6xPDQfkxApl6",
+      "emailVerified": false,
+      "emailVerifyToken": null,
+      "emailVerifyExpiry": null,
+      "createdAt": "2025-08-27T15:30:06.983Z",
+      "updatedAt": "2025-08-27T15:30:06.983Z"
+    }
+  ],
+  "sections": [
+    {
+      "id": "governance-section",
+      "title": "Governance",
+      "description": "Assessment of governance practices, board oversight, stakeholder engagement, and ethical standards",
+      "order": 1,
+      "weight": 1,
+      "createdAt": "2025-08-12T00:54:12.999Z",
+      "updatedAt": "2025-08-12T00:54:12.999Z"
+    },
+    {
+      "id": "financial-section",
+      "title": "Financial Management",
+      "description": "Evaluation of financial planning, budgeting, auditing, and sustainability practices",
+      "order": 2,
+      "weight": 1,
+      "createdAt": "2025-08-12T00:54:13.493Z",
+      "updatedAt": "2025-08-12T00:54:13.493Z"
+    },
+    {
+      "id": "programme-section",
+      "title": "Programme/Project Accountability",
+      "description": "Assessment of monitoring, evaluation, stakeholder involvement, and programme effectiveness",
+      "order": 3,
+      "weight": 1,
+      "createdAt": "2025-08-12T00:54:13.803Z",
+      "updatedAt": "2025-08-12T00:54:13.803Z"
+    },
+    {
+      "id": "hr-section",
+      "title": "Human Resource Accountability",
+      "description": "Evaluation of HR strategy, collaboration, workplace environment, and organizational culture",
+      "order": 4,
+      "weight": 1,
+      "createdAt": "2025-08-12T00:54:14.198Z",
+      "updatedAt": "2025-08-12T00:54:14.198Z"
+    }
+  ],
+  "questions": [
+    {
+      "id": "hr-q1",
+      "sectionId": "hr-section",
+      "text": "Our organization has an HR strategy which aligns with vision, mission and goals",
+      "description": "HR strategy that supports organizational vision and mission",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 1,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:17.211Z",
+      "updatedAt": "2025-08-12T00:54:17.211Z"
+    },
+    {
+      "id": "fin-q1",
+      "sectionId": "financial-section",
+      "text": "Budgeting and financial planning processes are aligned with strategic goals",
+      "description": "Financial planning that supports organizational strategic objectives",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 1,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.158Z",
+      "updatedAt": "2025-08-12T00:54:16.158Z"
+    },
+    {
+      "id": "gov-q1",
+      "sectionId": "governance-section",
+      "text": "Governing body prioritizes business ethics, corporate responsibility, and social mission",
+      "description": "The board demonstrates commitment to ethical practices and social impact",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 1,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "prog-q1",
+      "sectionId": "programme-section",
+      "text": "Monitoring and evaluation systems are established to effectively measure programme outcomes and impact",
+      "description": "Comprehensive M&E systems for measuring programme effectiveness",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 1,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.792Z",
+      "updatedAt": "2025-08-12T00:54:16.792Z"
+    },
+    {
+      "id": "fin-q2",
+      "sectionId": "financial-section",
+      "text": "A system for participatory budgeting is implemented",
+      "description": "Inclusive budgeting processes involving key stakeholders",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 2,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.158Z",
+      "updatedAt": "2025-08-12T00:54:16.158Z"
+    },
+    {
+      "id": "hr-q2",
+      "sectionId": "hr-section",
+      "text": "Our organization actively encourages partnership and collaboration",
+      "description": "Active promotion of partnership and collaborative approaches",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 2,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:17.211Z",
+      "updatedAt": "2025-08-12T00:54:17.211Z"
+    },
+    {
+      "id": "prog-q2",
+      "sectionId": "programme-section",
+      "text": "Clear performance indicators for measuring success are established for all programmes and projects",
+      "description": "Well-defined KPIs for programme and project success measurement",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 2,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.792Z",
+      "updatedAt": "2025-08-12T00:54:16.792Z"
+    },
+    {
+      "id": "gov-q2",
+      "sectionId": "governance-section",
+      "text": "Members of the governing body are independent in character, judgment, and apolitical",
+      "description": "Board members demonstrate independence and avoid political bias",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 2,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "hr-q3",
+      "sectionId": "hr-section",
+      "text": "We actively create respectful and motivating in-person and online workspaces",
+      "description": "Creation of positive and motivating work environments",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 3,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:17.211Z",
+      "updatedAt": "2025-08-12T00:54:17.211Z"
+    },
+    {
+      "id": "gov-q3",
+      "sectionId": "governance-section",
+      "text": "Our governing body provides consistent oversight of the organization",
+      "description": "Regular and effective board oversight of organizational activities",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 3,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "fin-q3",
+      "sectionId": "financial-section",
+      "text": "Regular audits are conducted and recommendations are implemented",
+      "description": "Regular financial audits with follow-through on recommendations",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 3,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.158Z",
+      "updatedAt": "2025-08-12T00:54:16.158Z"
+    },
+    {
+      "id": "prog-q3",
+      "sectionId": "programme-section",
+      "text": "Regular assessments are conducted to evaluate programme effectiveness and impact",
+      "description": "Regular evaluation of programme effectiveness and impact",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 3,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.792Z",
+      "updatedAt": "2025-08-12T00:54:16.792Z"
+    },
+    {
+      "id": "prog-q4",
+      "sectionId": "programme-section",
+      "text": "Stakeholders including beneficiaries and partners are involved in programme design and evaluation",
+      "description": "Inclusive stakeholder involvement in programme design and evaluation",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 4,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.792Z",
+      "updatedAt": "2025-08-12T00:54:16.792Z"
+    },
+    {
+      "id": "hr-q4",
+      "sectionId": "hr-section",
+      "text": "Everybody in our organization embraces our HR vision and proactively contributes to its implementation",
+      "description": "Organization-wide commitment to HR vision and implementation",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 4,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:17.211Z",
+      "updatedAt": "2025-08-12T00:54:17.211Z"
+    },
+    {
+      "id": "fin-q4",
+      "sectionId": "financial-section",
+      "text": "Funding strategies promote long-term sustainability",
+      "description": "Sustainable funding approaches for organizational longevity",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 4,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "gov-q4",
+      "sectionId": "governance-section",
+      "text": "The roles and responsibilities of board members are clearly defined",
+      "description": "Clear documentation of board member roles and expectations",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 4,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "fin-q5",
+      "sectionId": "financial-section",
+      "text": "Organizational performance is reviewed against determined criteria and corrective action taken to arrest and reverse declining financial performance and results",
+      "description": "Regular performance review and corrective action for financial issues",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 5,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "prog-q5",
+      "sectionId": "programme-section",
+      "text": "Feedback mechanisms, e.g. community forums and surveys, exist",
+      "description": "Established feedback mechanisms for programme improvement",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 5,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.792Z",
+      "updatedAt": "2025-08-12T00:54:16.792Z"
+    },
+    {
+      "id": "gov-q5",
+      "sectionId": "governance-section",
+      "text": "The board is trained and adequately supported to fulfill its duties",
+      "description": "Board members receive appropriate training and resources",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 5,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q6",
+      "sectionId": "governance-section",
+      "text": "We conduct regular self-assessments and external evaluations of board performance",
+      "description": "Regular evaluation of board effectiveness and performance",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 6,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "prog-q6",
+      "sectionId": "programme-section",
+      "text": "Programmes are adapted to changing needs and contexts",
+      "description": "Flexible programme adaptation to changing circumstances",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 6,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.792Z",
+      "updatedAt": "2025-08-12T00:54:16.792Z"
+    },
+    {
+      "id": "fin-q6",
+      "sectionId": "financial-section",
+      "text": "Accurate records of organizational property and resources are maintained and all assets safeguarded",
+      "description": "Proper asset management and safeguarding of organizational resources",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 6,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "fin-q7",
+      "sectionId": "financial-section",
+      "text": "Financial reports/management accounts are timely, accessible and understandable to stakeholders",
+      "description": "Transparent and accessible financial reporting to stakeholders",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 7,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "gov-q7",
+      "sectionId": "governance-section",
+      "text": "Stakeholders are identified and prioritized effectively",
+      "description": "Systematic identification and prioritization of key stakeholders",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 7,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "fin-q8",
+      "sectionId": "financial-section",
+      "text": "Donor intent is respected and transparent reports provided to donors on the use of funds",
+      "description": "Respect for donor intent and transparent donor reporting",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 8,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "gov-q8",
+      "sectionId": "governance-section",
+      "text": "There is active stakeholder participation in decision-making processes",
+      "description": "Meaningful stakeholder involvement in organizational decisions",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 8,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q9",
+      "sectionId": "governance-section",
+      "text": "Marginalized voices are represented in engagement efforts",
+      "description": "Inclusion of underrepresented and marginalized communities",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 9,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "fin-q9",
+      "sectionId": "financial-section",
+      "text": "A Fund Accounting System is implemented where necessary",
+      "description": "Implementation of appropriate fund accounting systems",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 9,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "fin-q10",
+      "sectionId": "financial-section",
+      "text": "Due diligence on potential and current donors is conducted to mitigate against being used as channels for Terrorist Financing and Money Laundering",
+      "description": "Donor due diligence to prevent financial crime risks",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 10,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:16.159Z",
+      "updatedAt": "2025-08-12T00:54:16.159Z"
+    },
+    {
+      "id": "gov-q10",
+      "sectionId": "governance-section",
+      "text": "Relationships with other CSOs, government entities, and private sector partners are transparent",
+      "description": "Transparent partnerships and collaborations with various sectors",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 10,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q11",
+      "sectionId": "governance-section",
+      "text": "There is evidence of collaboration in strategic initiatives",
+      "description": "Demonstrated collaboration in key strategic projects",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 11,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q12",
+      "sectionId": "governance-section",
+      "text": "Ethical standards and guidelines are enforced",
+      "description": "Active enforcement of ethical policies and guidelines",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 12,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q13",
+      "sectionId": "governance-section",
+      "text": "Our organization has signed on to the Revised Caribbean Policy Development Centre's (CPDC) Code of Conduct and Ethics for Caribbean NGOs",
+      "description": "Commitment to regional ethical standards for NGOs",
+      "type": "BOOLEAN",
+      "options": null,
+      "order": 13,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q14",
+      "sectionId": "governance-section",
+      "text": "Our organization is informed about and compliant with the relevant legal framework governing CSOs in Trinidad and Tobago, including registration requirements and compliance with the Companies Act 1995 or the NPO Act 2019",
+      "description": "Legal compliance with Trinidad and Tobago CSO regulations",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 14,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q15",
+      "sectionId": "governance-section",
+      "text": "A risk management plan is developed to identify potential risks and create mitigation strategies",
+      "description": "Comprehensive risk management planning and implementation",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 15,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q16",
+      "sectionId": "governance-section",
+      "text": "A crisis communication plan is developed for transparent communication during crises to maintain trust",
+      "description": "Crisis communication planning and transparency protocols",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 16,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q17",
+      "sectionId": "governance-section",
+      "text": "Key policies such as HR management, financial management, and IT security are established and in place",
+      "description": "Comprehensive policy framework across key organizational areas",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 17,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q18",
+      "sectionId": "governance-section",
+      "text": "Policies are regularly reviewed and updated as needed",
+      "description": "Regular policy review and update processes",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 18,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q19",
+      "sectionId": "governance-section",
+      "text": "Information about the organization's work is accessible and understandable to stakeholders",
+      "description": "Transparent and accessible information sharing with stakeholders",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 19,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q20",
+      "sectionId": "governance-section",
+      "text": "Communication channels are established for stakeholder feedback",
+      "description": "Established feedback mechanisms for stakeholder input",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 20,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q21",
+      "sectionId": "governance-section",
+      "text": "Platforms like social media, websites and newsletters are regularly utilized to keep stakeholders informed about organizational developments",
+      "description": "Regular use of communication platforms to inform stakeholders",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 21,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q22",
+      "sectionId": "governance-section",
+      "text": "Annual reports and financial statements are prepared and disseminated in a timely manner",
+      "description": "Timely preparation and distribution of annual reports and financial statements",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 22,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    },
+    {
+      "id": "gov-q23",
+      "sectionId": "governance-section",
+      "text": "Information about governance structures and decision-making processes are accessible to stakeholders",
+      "description": "Transparency in governance structures and decision-making processes",
+      "type": "LIKERT_SCALE",
+      "options": null,
+      "order": 23,
+      "weight": 1,
+      "isHidden": false,
+      "mandatory": true,
+      "createdAt": "2025-08-12T00:54:14.509Z",
+      "updatedAt": "2025-08-12T00:54:14.509Z"
+    }
+  ],
+  "questionSuggestions": [],
+  "sectionSuggestions": [],
+  "assessmentSuggestions": [
+    {
+      "id": "emerging-financial",
+      "condition": {
+        "sectionScore": {
+          "max": 20,
+          "min": 10,
+          "section": "financial-section"
+        }
+      },
+      "suggestion": "It's time to take some steps that will ensure improved financial accountability. For example, start using simple accounting tools (e.g. spreadsheets or free software), develop basic financial protocols like expense tracking and approval processes and do due diligence on your current and potential donors.",
+      "category": "Financial Management",
+      "priority": 9,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "strong-hr",
+      "condition": {
+        "sectionScore": {
+          "max": 16,
+          "min": 9,
+          "section": "hr-section"
+        }
+      },
+      "suggestion": "You have made good progress. You are well on your way to creating an enabling work environment, key for a civil society organization to thrive. To build on your achievements here are some concrete recommendations. For example, develop new policies to address remote work and enhanced cybersecurity in post COVID and AI contexts.",
+      "category": "Human Resource Management",
+      "priority": 7,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.896Z",
+      "updatedAt": "2025-08-12T00:54:17.896Z"
+    },
+    {
+      "id": "strong-overall",
+      "condition": {
+        "overallScore": {
+          "max": 170,
+          "min": 87
+        }
+      },
+      "suggestion": "You Have a Strong Foundation. Your organization has a solid accountability structure in place. You're doing well — now's the time to focus on specific areas that could move you toward sector leadership. Use your scores to prioritize improvements — for example, if transparency or crisis planning scored lower, choose one to address this quarter. A few targeted upgrades can elevate your overall impact and credibility.",
+      "category": "Overall Assessment",
+      "priority": 8,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.896Z",
+      "updatedAt": "2025-08-12T00:54:17.896Z"
+    },
+    {
+      "id": "strong-programme",
+      "condition": {
+        "sectionScore": {
+          "max": 24,
+          "min": 13,
+          "section": "programme-section"
+        }
+      },
+      "suggestion": "The design of your programmes and projects is informed by systems analysis and strategic goals with project partners (donors, other CSOs) are proactively selected because of their alignment with your vision. Explore more sophisticated project tools to ensure and highlight documented project success. For example, utilize real-time, online project monitoring and evaluation software. Integrate lessons learned from previous projects for continuous improvement. Demonstrate your emerging leadership by initiating or joining multi-sectoral, collaborative interventions.",
+      "category": "Programme/Project Accountability",
+      "priority": 7,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "leading-governance",
+      "condition": {
+        "sectionScore": {
+          "max": 115,
+          "min": 92,
+          "section": "governance-section"
+        }
+      },
+      "suggestion": "Your board is functioning well. To stay on track, continue documenting decisions, refining practices, and mentoring new board members to maintain strong institutional knowledge and accountability. For example, develop a board orientation package and assign a mentor from the current board to support new members for their first six months.",
+      "category": "Governance",
+      "priority": 5,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "leading-hr",
+      "condition": {
+        "sectionScore": {
+          "max": 20,
+          "min": 17,
+          "section": "hr-section"
+        }
+      },
+      "suggestion": "Congratulations, your organization attracts and retains highly skilled personnel who thrive. Share your success within the sector: For example, while maintaining the cutting edge in this area, encourage board, staff and volunteers to pay it forward by finding ways to generously share lessons learned about establishing and maintaining creative and motivating workspaces.",
+      "category": "Human Resource Management",
+      "priority": 5,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.896Z",
+      "updatedAt": "2025-08-12T00:54:17.896Z"
+    },
+    {
+      "id": "strong-financial",
+      "condition": {
+        "sectionScore": {
+          "max": 40,
+          "min": 21,
+          "section": "financial-section"
+        }
+      },
+      "suggestion": "Now that you have a proven solid financial management base, press towards cutting-edge accountability. For example, proactively develop funding strategies to promote your organisation's sustainability.",
+      "category": "Financial Management",
+      "priority": 7,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "leading-financial",
+      "condition": {
+        "sectionScore": {
+          "max": 50,
+          "min": 41,
+          "section": "financial-section"
+        }
+      },
+      "suggestion": "Your reputation for rigorous financial accountability and transparency precedes you. You are also sought out as a reputable partner for multi-level programmes by international, regional, state and private sector funders. You are often regarded as an umbrella organization through which large numbers of CSOs could benefit from critical financial capacity-building initiatives. For example, your organization could focus on leading the research, adaptation and implementation of global best fiscal practice to be applied within the national and regional spheres.",
+      "category": "Financial Management",
+      "priority": 5,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.896Z",
+      "updatedAt": "2025-08-12T00:54:17.896Z"
+    },
+    {
+      "id": "strong-governance",
+      "condition": {
+        "sectionScore": {
+          "max": 91,
+          "min": 47,
+          "section": "governance-section"
+        }
+      },
+      "suggestion": "Your board is functioning well. To stay on track, continue documenting decisions, refining practices, and mentoring new board members to maintain strong institutional knowledge and accountability. For example, develop a board orientation package and assign a mentor from the current board to support new members for their first six months.",
+      "category": "Governance",
+      "priority": 7,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "emerging-overall",
+      "condition": {
+        "overallScore": {
+          "max": 86,
+          "min": 43
+        }
+      },
+      "suggestion": "You are an Emerging Organization. Your organization is in the early stages of building accountability. This is a critical period to establish your foundation — and the good news is that small wins can create big momentum. Start with essential systems like board structure, financial tracking, and legal compliance. Use simple tools like checklists and templates to get moving, and seek support from peer organizations or umbrella bodies as needed.",
+      "category": "Overall Assessment",
+      "priority": 10,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "leading-overall",
+      "condition": {
+        "overallScore": {
+          "max": 215,
+          "min": 171
+        }
+      },
+      "suggestion": "You are a Recognized Leader in the Civil Society Sector. You demonstrate strong accountability across your organization. Your systems are clear, consistent, and well-documented. This is the kind of practice that builds public trust and positions your CSO as a sector leader. Consider sharing your strategies through case studies, workshops, or peer mentoring to support other CSOs. Even top performers benefit from reviewing practices annually to stay sharp and adapt to change.",
+      "category": "Overall Assessment",
+      "priority": 6,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "emerging-hr",
+      "condition": {
+        "sectionScore": {
+          "max": 8,
+          "min": 4,
+          "section": "hr-section"
+        }
+      },
+      "suggestion": "Now is the time to start developing your volunteers and staff so they contribute effectively to the achievement of your CSO's goals. For example, draft an HR strategy that aligns with your CSO's vision, mission and goals, and reinforce the message that each member plays an integral role in upholding and bringing the vision to pass.",
+      "category": "Human Resource Management",
+      "priority": 9,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "emerging-programme",
+      "condition": {
+        "sectionScore": {
+          "max": 12,
+          "min": 6,
+          "section": "programme-section"
+        }
+      },
+      "suggestion": "This is the opportune time to put systems in place for good programme and project accountability from the outset. For example ensure that programmes and projects are aligned with your mission, vision and strategic goals, and that monitoring and evaluation systems are in place.",
+      "category": "Programme/Project Accountability",
+      "priority": 9,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "emerging-governance",
+      "condition": {
+        "sectionScore": {
+          "max": 46,
+          "min": 23,
+          "section": "governance-section"
+        }
+      },
+      "suggestion": "It's time to get the fundamentals in place. Consider conducting a governance audit to identify critical gaps in oversight and board function. Provide training to ensure board members fully understand their fiduciary roles and responsibilities. For example, use a simple checklist to assess how often the board meets, if minutes are documented, and whether board members have signed a code of conduct.",
+      "category": "Governance",
+      "priority": 9,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.895Z",
+      "updatedAt": "2025-08-12T00:54:17.895Z"
+    },
+    {
+      "id": "leading-programme",
+      "condition": {
+        "sectionScore": {
+          "max": 30,
+          "min": 25,
+          "section": "programme-section"
+        }
+      },
+      "suggestion": "Your partnerships are solid. Now's the time to deepen those relationships through joint initiatives, co-hosted events, and regular strategy sessions to amplify impact. For example, consider sharing your success by publishing case studies and highlighting examples where stakeholder input directly influenced your work.",
+      "category": "Programme/Project Accountability",
+      "priority": 5,
+      "weight": 1,
+      "isActive": true,
+      "createdAt": "2025-08-12T00:54:17.896Z",
+      "updatedAt": "2025-08-12T00:54:17.896Z"
+    }
+  ],
+  "admins": [
+    {
+      "id": "cmd429aa100004g34lbdl2kgf",
+      "name": "John Doe",
+      "email": "admin@example.com",
+      "password": "$2b$12$hUQbTyonpIFyjDK4SqHwx.QFvWOswakEFERF7pByhq4yenPly79cS",
+      "isInvited": false,
+      "inviteToken": null,
+      "inviteExpiry": null,
+      "invitedBy": null,
+      "inviteAcceptedAt": null,
+      "createdAt": "2025-07-15T04:57:17.641Z",
+      "updatedAt": "2025-07-15T04:57:17.641Z"
+    },
+    {
+      "id": "cme7twiyu0000umeejzrx6g2z",
+      "name": "Admin User",
+      "email": "admin@cropper.com",
+      "password": "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8i",
+      "isInvited": false,
+      "inviteToken": null,
+      "inviteExpiry": null,
+      "invitedBy": null,
+      "inviteAcceptedAt": null,
+      "createdAt": "2025-08-12T00:54:12.486Z",
+      "updatedAt": "2025-08-12T00:54:12.486Z"
+    },
+    {
+      "id": "cmhjwgmbe0000aybk7man7ttq",
+      "name": "Admin",
+      "email": "duane@example.com",
+      "password": "$2b$12$9VG7XdhRweac0/6AZ3xKCuDC3TD0vezxSyOdfWUmqr/hNL61SnsPi",
+      "isInvited": false,
+      "inviteToken": null,
+      "inviteExpiry": null,
+      "invitedBy": null,
+      "inviteAcceptedAt": null,
+      "createdAt": "2025-11-04T01:38:10.299Z",
+      "updatedAt": "2025-11-04T01:38:10.299Z"
+    },
+    {
+      "id": "cmhuotn920003687k8shz39v0",
+      "name": "Duane",
+      "email": "duanerichardswift@gmail.com",
+      "password": null,
+      "isInvited": true,
+      "inviteToken": "4023526c6eb17f98b3142a655761562cdd9a4fe19025b349b83ddd1f5b1aabdb",
+      "inviteExpiry": "2025-11-18T14:49:49.045Z",
+      "invitedBy": "cmhjwgmbe0000aybk7man7ttq",
+      "inviteAcceptedAt": null,
+      "createdAt": "2025-11-11T14:49:49.047Z",
+      "updatedAt": "2025-11-11T14:49:49.047Z"
+    }
+  ],
+  "assessments": [
+    {
+      "id": "cme8xj5sr0001d4h2kk2scoay",
+      "name": "Assessment 8/12/2025 3:23:33 PM",
+      "organizationId": "cme7uy2el00001283juwcyqpy",
+      "status": "COMPLETED",
+      "startedAt": "2025-08-12T19:23:33.524Z",
+      "completedAt": "2025-08-12T19:25:04.137Z",
+      "shareableLink": null,
+      "createdAt": "2025-08-12T19:23:33.524Z",
+      "updatedAt": "2025-08-12T19:25:04.139Z"
+    },
+    {
+      "id": "cmeiq95b20001lm7cd4a7nwh0",
+      "name": "Assessment 8/19/2025 11:57:30 AM",
+      "organizationId": "cme7uy2el00001283juwcyqpy",
+      "status": "IN_PROGRESS",
+      "startedAt": "2025-08-19T15:57:30.782Z",
+      "completedAt": null,
+      "shareableLink": null,
+      "createdAt": "2025-08-19T15:57:30.782Z",
+      "updatedAt": "2025-08-19T15:57:30.782Z"
+    },
+    {
+      "id": "cmeiqbgvv0003lm7cfgu9k19a",
+      "name": "Assessment 8/19/2025 11:59:19 AM",
+      "organizationId": "cme7uy2el00001283juwcyqpy",
+      "status": "IN_PROGRESS",
+      "startedAt": "2025-08-19T15:59:19.099Z",
+      "completedAt": null,
+      "shareableLink": null,
+      "createdAt": "2025-08-19T15:59:19.099Z",
+      "updatedAt": "2025-08-19T15:59:19.099Z"
+    },
+    {
+      "id": "cmeu37yfj0003kd9qo4ygq0hm",
+      "name": "Assessment 8/27/2025 10:45:58 AM",
+      "organizationId": "cmeu2fmml0001kd9q1bjw5pdp",
+      "status": "COMPLETED",
+      "startedAt": "2025-08-27T14:45:58.142Z",
+      "completedAt": "2025-08-27T14:56:52.939Z",
+      "shareableLink": null,
+      "createdAt": "2025-08-27T14:45:58.142Z",
+      "updatedAt": "2025-08-27T14:56:52.940Z"
+    },
+    {
+      "id": "cmeu459zu002lkd9q67j0xprp",
+      "name": "Assessment 8/27/2025 11:11:52 AM",
+      "organizationId": "cmeu44zh1002jkd9quw40oe8u",
+      "status": "COMPLETED",
+      "startedAt": "2025-08-27T15:11:52.794Z",
+      "completedAt": "2025-08-27T15:20:07.156Z",
+      "shareableLink": null,
+      "createdAt": "2025-08-27T15:11:52.794Z",
+      "updatedAt": "2025-08-27T15:20:07.159Z"
+    },
+    {
+      "id": "cmeu4ai45002okd9q0y1a47gs",
+      "name": "Assessment 8/27/2025 11:15:56 AM",
+      "organizationId": "cmeu49l58002mkd9qvccof6cl",
+      "status": "COMPLETED",
+      "startedAt": "2025-08-27T15:15:56.597Z",
+      "completedAt": "2025-08-27T15:37:41.141Z",
+      "shareableLink": null,
+      "createdAt": "2025-08-27T15:15:56.597Z",
+      "updatedAt": "2025-08-27T15:37:41.155Z"
+    },
+    {
+      "id": "cmeu4f5x6004lkd9qfx3d26i5",
+      "name": "Assessment 8/27/2025 11:19:34 AM",
+      "organizationId": "cmeu4eq33004jkd9qe8qmxnx5",
+      "status": "IN_PROGRESS",
+      "startedAt": "2025-08-27T15:19:34.061Z",
+      "completedAt": null,
+      "shareableLink": null,
+      "createdAt": "2025-08-27T15:19:34.061Z",
+      "updatedAt": "2025-08-27T15:19:34.061Z"
+    },
+    {
+      "id": "cmeu4t8it006ikd9qy6p10sz4",
+      "name": "Assessment 8/27/2025 11:30:30 AM",
+      "organizationId": "cmeu4sq9z006gkd9qssxxv3sa",
+      "status": "IN_PROGRESS",
+      "startedAt": "2025-08-27T15:30:30.621Z",
+      "completedAt": null,
+      "shareableLink": null,
+      "createdAt": "2025-08-27T15:30:30.621Z",
+      "updatedAt": "2025-08-27T15:30:30.621Z"
+    },
+    {
+      "id": "cmeu50ubw008ekd9q7wylawto",
+      "name": "Assessment 8/27/2025 11:36:25 AM",
+      "organizationId": "cmeu44zh1002jkd9quw40oe8u",
+      "status": "IN_PROGRESS",
+      "startedAt": "2025-08-27T15:36:25.485Z",
+      "completedAt": null,
+      "shareableLink": null,
+      "createdAt": "2025-08-27T15:36:25.485Z",
+      "updatedAt": "2025-08-27T15:36:25.485Z"
+    }
+  ],
+  "responses": [
+    {
+      "id": "cme8xk4ju0003d4h2p70cf7pb",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q20",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.570Z",
+      "updatedAt": "2025-08-12T19:24:18.570Z"
+    },
+    {
+      "id": "cme8xk4k40005d4h2i5xkwa4d",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q12",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4k90007d4h23sqpcf2s",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q22",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kg0009d4h25xe6ymig",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q5",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kj000fd4h2uhaufz3o",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q19",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kj000dd4h22cwvaxou",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q9",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4ki000bd4h2uxnjljyl",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q14",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.570Z",
+      "updatedAt": "2025-08-12T19:24:18.570Z"
+    },
+    {
+      "id": "cme8xk4kq000jd4h22yf11xh9",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q4",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kq000hd4h2vqknmglg",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q2",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kt000nd4h2y6k3u310",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q18",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4ku000pd4h2aasft3mn",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q3",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4ku000rd4h2415gnepn",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q11",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kv000vd4h2fnlkaz51",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q23",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.572Z",
+      "updatedAt": "2025-08-12T19:24:18.572Z"
+    },
+    {
+      "id": "cme8xk4kr000ld4h2eh6mxlj7",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q15",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kv000xd4h2sv68l7iv",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q7",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kv000td4h29ubjoks2",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q8",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kw000zd4h2ct9igu4t",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q1",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.571Z",
+      "updatedAt": "2025-08-12T19:24:18.571Z"
+    },
+    {
+      "id": "cme8xk4kz0011d4h24gvekzj4",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q16",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.572Z",
+      "updatedAt": "2025-08-12T19:24:18.572Z"
+    },
+    {
+      "id": "cme8xk4kz0013d4h2gzq6cxzi",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q17",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.570Z",
+      "updatedAt": "2025-08-12T19:24:18.570Z"
+    },
+    {
+      "id": "cme8xk4l10016d4h216ih0zxo",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q21",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:18.572Z",
+      "updatedAt": "2025-08-12T19:24:18.572Z"
+    },
+    {
+      "id": "cme8xk4l2001bd4h2qdh69s8o",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q10",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:18.572Z",
+      "updatedAt": "2025-08-12T19:24:18.572Z"
+    },
+    {
+      "id": "cme8xk4l10019d4h2ndbv23kn",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q13",
+      "value": "true",
+      "createdAt": "2025-08-12T19:24:18.572Z",
+      "updatedAt": "2025-08-12T19:24:18.572Z"
+    },
+    {
+      "id": "cme8xk4l10017d4h220bm7lip",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "gov-q6",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:18.572Z",
+      "updatedAt": "2025-08-12T19:24:18.572Z"
+    },
+    {
+      "id": "cme8xkowg001fd4h2yfsql438",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q4",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:44.944Z",
+      "updatedAt": "2025-08-12T19:24:44.944Z"
+    },
+    {
+      "id": "cme8xkowh001ld4h2fpfljt1d",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q3",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:44.944Z",
+      "updatedAt": "2025-08-12T19:24:44.944Z"
+    },
+    {
+      "id": "cme8xkowg001hd4h2fd6di4dh",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q7",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:44.943Z",
+      "updatedAt": "2025-08-12T19:24:44.943Z"
+    },
+    {
+      "id": "cme8xkowg001jd4h2f2vbvqg9",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q2",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:44.943Z",
+      "updatedAt": "2025-08-12T19:24:44.943Z"
+    },
+    {
+      "id": "cme8xkowh001nd4h22cxwy5wa",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q9",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:44.943Z",
+      "updatedAt": "2025-08-12T19:24:44.943Z"
+    },
+    {
+      "id": "cme8xkowh001pd4h23y8rtkun",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q10",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:44.943Z",
+      "updatedAt": "2025-08-12T19:24:44.943Z"
+    },
+    {
+      "id": "cme8xkowf001dd4h2sgd207qt",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q5",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:44.943Z",
+      "updatedAt": "2025-08-12T19:24:44.943Z"
+    },
+    {
+      "id": "cme8xkowm001rd4h2kkay6mqi",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q1",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:44.944Z",
+      "updatedAt": "2025-08-12T19:24:44.944Z"
+    },
+    {
+      "id": "cme8xkown001td4h2y1wmirpu",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q8",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:44.944Z",
+      "updatedAt": "2025-08-12T19:24:44.944Z"
+    },
+    {
+      "id": "cme8xkowo001vd4h2p8frzkt9",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "fin-q6",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:44.944Z",
+      "updatedAt": "2025-08-12T19:24:44.944Z"
+    },
+    {
+      "id": "cme8xkwld001xd4h234dk5yt1",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "prog-q2",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:54.913Z",
+      "updatedAt": "2025-08-12T19:24:54.913Z"
+    },
+    {
+      "id": "cme8xkwle0025d4h2vjrofdo4",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "prog-q5",
+      "value": "1",
+      "createdAt": "2025-08-12T19:24:54.914Z",
+      "updatedAt": "2025-08-12T19:24:54.914Z"
+    },
+    {
+      "id": "cme8xkwld0021d4h23zm3bnmc",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "prog-q1",
+      "value": "3",
+      "createdAt": "2025-08-12T19:24:54.914Z",
+      "updatedAt": "2025-08-12T19:24:54.914Z"
+    },
+    {
+      "id": "cme8xkwld001zd4h2rtd5has6",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "prog-q3",
+      "value": "2",
+      "createdAt": "2025-08-12T19:24:54.914Z",
+      "updatedAt": "2025-08-12T19:24:54.914Z"
+    },
+    {
+      "id": "cme8xkwld0023d4h2ejm2nwdg",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "prog-q4",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:54.914Z",
+      "updatedAt": "2025-08-12T19:24:54.914Z"
+    },
+    {
+      "id": "cme8xkwle0027d4h2iwxnlw8q",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "prog-q6",
+      "value": "4",
+      "createdAt": "2025-08-12T19:24:54.913Z",
+      "updatedAt": "2025-08-12T19:24:54.913Z"
+    },
+    {
+      "id": "cme8xl3p2002bd4h2sv145x32",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "hr-q3",
+      "value": "2",
+      "createdAt": "2025-08-12T19:25:04.118Z",
+      "updatedAt": "2025-08-12T19:25:04.118Z"
+    },
+    {
+      "id": "cme8xl3p10029d4h2j89v2k5o",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "hr-q1",
+      "value": "3",
+      "createdAt": "2025-08-12T19:25:04.118Z",
+      "updatedAt": "2025-08-12T19:25:04.118Z"
+    },
+    {
+      "id": "cme8xl3p3002dd4h2ch15597d",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "hr-q4",
+      "value": "4",
+      "createdAt": "2025-08-12T19:25:04.118Z",
+      "updatedAt": "2025-08-12T19:25:04.118Z"
+    },
+    {
+      "id": "cme8xl3p3002fd4h23h9656b9",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "questionId": "hr-q2",
+      "value": "4",
+      "createdAt": "2025-08-12T19:25:04.118Z",
+      "updatedAt": "2025-08-12T19:25:04.118Z"
+    },
+    {
+      "id": "cmeu3fhpo0005kd9q4gd8fdyg",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q20",
+      "value": "4",
+      "createdAt": "2025-08-27T14:51:49.741Z",
+      "updatedAt": "2025-08-27T14:51:49.741Z"
+    },
+    {
+      "id": "cmeu3fhq60007kd9qijfl7x3j",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q18",
+      "value": "2",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhqb0009kd9qz0bnqrhi",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q6",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhqg000bkd9qqmlc7a0v",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q9",
+      "value": "1",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhqq000fkd9qmioqw2s7",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q10",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.741Z",
+      "updatedAt": "2025-08-27T14:51:49.741Z"
+    },
+    {
+      "id": "cmeu3fhqp000dkd9qaptanq99",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q22",
+      "value": "5",
+      "createdAt": "2025-08-27T14:51:49.743Z",
+      "updatedAt": "2025-08-27T14:51:49.743Z"
+    },
+    {
+      "id": "cmeu3fhqr000hkd9qhifrm59s",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q13",
+      "value": "true",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhqv000jkd9qsaez7puk",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q8",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.741Z",
+      "updatedAt": "2025-08-27T14:51:49.741Z"
+    },
+    {
+      "id": "cmeu3fhqz000nkd9q8dge5qlm",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q12",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhqx000lkd9q61brk1o8",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q1",
+      "value": "4",
+      "createdAt": "2025-08-27T14:51:49.744Z",
+      "updatedAt": "2025-08-27T14:51:49.744Z"
+    },
+    {
+      "id": "cmeu3fhr2000rkd9qf04n46pv",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q21",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr2000tkd9qmkaxw05j",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q5",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr3000vkd9qvzohcxax",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q17",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr4000xkd9qnyysqq6w",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q2",
+      "value": "5",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr0000pkd9qq0e1t7dy",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q16",
+      "value": "5",
+      "createdAt": "2025-08-27T14:51:49.741Z",
+      "updatedAt": "2025-08-27T14:51:49.741Z"
+    },
+    {
+      "id": "cmeu3fhr50013kd9qqxvobdpe",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q7",
+      "value": "2",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr5000zkd9qume6ty0i",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q11",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr60015kd9qqi65i6uq",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q4",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr50011kd9q47ufwx3y",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q23",
+      "value": "4",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhr60017kd9qfv3v3jwz",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q19",
+      "value": "3",
+      "createdAt": "2025-08-27T14:51:49.744Z",
+      "updatedAt": "2025-08-27T14:51:49.744Z"
+    },
+    {
+      "id": "cmeu3fhra001bkd9qmv7j3amk",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q3",
+      "value": "5",
+      "createdAt": "2025-08-27T14:51:49.745Z",
+      "updatedAt": "2025-08-27T14:51:49.745Z"
+    },
+    {
+      "id": "cmeu3fhra001dkd9qjdjmvhl4",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q15",
+      "value": "5",
+      "createdAt": "2025-08-27T14:51:49.746Z",
+      "updatedAt": "2025-08-27T14:51:49.746Z"
+    },
+    {
+      "id": "cmeu3fhr90019kd9qskvu9ktr",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "gov-q14",
+      "value": "5",
+      "createdAt": "2025-08-27T14:51:49.746Z",
+      "updatedAt": "2025-08-27T14:51:49.746Z"
+    },
+    {
+      "id": "cmeu3ikit001hkd9q33qfamhw",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q8",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.349Z",
+      "updatedAt": "2025-08-27T14:54:13.349Z"
+    },
+    {
+      "id": "cmeu3ikit001jkd9qyq7pndv4",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q3",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.349Z",
+      "updatedAt": "2025-08-27T14:54:13.349Z"
+    },
+    {
+      "id": "cmeu3ikiu001rkd9qtcq2c36j",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q9",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.348Z",
+      "updatedAt": "2025-08-27T14:54:13.348Z"
+    },
+    {
+      "id": "cmeu3ikis001fkd9qvg3q0j4i",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q10",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.348Z",
+      "updatedAt": "2025-08-27T14:54:13.348Z"
+    },
+    {
+      "id": "cmeu3ikit001lkd9q488825ti",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q4",
+      "value": "4",
+      "createdAt": "2025-08-27T14:54:13.348Z",
+      "updatedAt": "2025-08-27T14:54:13.348Z"
+    },
+    {
+      "id": "cmeu3ikiu001pkd9q0wvlev0s",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q7",
+      "value": "4",
+      "createdAt": "2025-08-27T14:54:13.348Z",
+      "updatedAt": "2025-08-27T14:54:13.348Z"
+    },
+    {
+      "id": "cmeu3ikj0001vkd9qhniu641j",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q2",
+      "value": "1",
+      "createdAt": "2025-08-27T14:54:13.349Z",
+      "updatedAt": "2025-08-27T14:54:13.349Z"
+    },
+    {
+      "id": "cmeu3kd69001zkd9qi8ecunsr",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "prog-q2",
+      "value": "5",
+      "createdAt": "2025-08-27T14:55:37.137Z",
+      "updatedAt": "2025-08-27T14:55:37.137Z"
+    },
+    {
+      "id": "cmeu3kd6f0027kd9q2lqls5zu",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "prog-q6",
+      "value": "5",
+      "createdAt": "2025-08-27T14:55:37.140Z",
+      "updatedAt": "2025-08-27T14:55:37.140Z"
+    },
+    {
+      "id": "cmeu3ikiu001nkd9qvanhvr9h",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q1",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.349Z",
+      "updatedAt": "2025-08-27T14:54:13.349Z"
+    },
+    {
+      "id": "cmeu3kd6k0029kd9qfekak42y",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "prog-q3",
+      "value": "5",
+      "createdAt": "2025-08-27T14:55:37.139Z",
+      "updatedAt": "2025-08-27T14:55:37.139Z"
+    },
+    {
+      "id": "cmeu3ikiy001tkd9qxupgscdd",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q6",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.349Z",
+      "updatedAt": "2025-08-27T14:54:13.349Z"
+    },
+    {
+      "id": "cmeu3kd6c0023kd9qaq8g070o",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "prog-q5",
+      "value": "3",
+      "createdAt": "2025-08-27T14:55:37.138Z",
+      "updatedAt": "2025-08-27T14:55:37.138Z"
+    },
+    {
+      "id": "cmeu3ikj1001xkd9qotxg4gk9",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "fin-q5",
+      "value": "5",
+      "createdAt": "2025-08-27T14:54:13.349Z",
+      "updatedAt": "2025-08-27T14:54:13.349Z"
+    },
+    {
+      "id": "cmeu3kd6c0021kd9q9ge8d2ln",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "prog-q4",
+      "value": "3",
+      "createdAt": "2025-08-27T14:55:37.138Z",
+      "updatedAt": "2025-08-27T14:55:37.138Z"
+    },
+    {
+      "id": "cmeu3kd6d0025kd9qsm6a6yfe",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "prog-q1",
+      "value": "5",
+      "createdAt": "2025-08-27T14:55:37.140Z",
+      "updatedAt": "2025-08-27T14:55:37.140Z"
+    },
+    {
+      "id": "cmeu3lzlv002bkd9qiqgiwb16",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "hr-q3",
+      "value": "1",
+      "createdAt": "2025-08-27T14:56:52.867Z",
+      "updatedAt": "2025-08-27T14:56:52.867Z"
+    },
+    {
+      "id": "cmeu3lzmk002dkd9qjltszimb",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "hr-q1",
+      "value": "1",
+      "createdAt": "2025-08-27T14:56:52.868Z",
+      "updatedAt": "2025-08-27T14:56:52.868Z"
+    },
+    {
+      "id": "cmeu3lzmw002fkd9qzxtnzg52",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "hr-q4",
+      "value": "1",
+      "createdAt": "2025-08-27T14:56:52.867Z",
+      "updatedAt": "2025-08-27T14:56:52.867Z"
+    },
+    {
+      "id": "cmeu3lzmy002hkd9qh161fdat",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "questionId": "hr-q2",
+      "value": "1",
+      "createdAt": "2025-08-27T14:56:52.867Z",
+      "updatedAt": "2025-08-27T14:56:52.867Z"
+    },
+    {
+      "id": "cmeu4b08u002qkd9qvyxqf0fr",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q20",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.095Z",
+      "updatedAt": "2025-08-27T15:16:20.095Z"
+    },
+    {
+      "id": "cmeu4b0a6002skd9qraq1sjs9",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q22",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0ae002ukd9qmwybxaj5",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q5",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0ao002wkd9qgsrv672y",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q19",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0ay0030kd9qqgqauvti",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q2",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0av002ykd9q50gilc91",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q4",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.107Z",
+      "updatedAt": "2025-08-27T15:16:20.107Z"
+    },
+    {
+      "id": "cmeu4b0b70032kd9qwggxkvrb",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q1",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.095Z",
+      "updatedAt": "2025-08-27T15:16:20.095Z"
+    },
+    {
+      "id": "cmeu4b0bg0036kd9qio8ehx82",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q18",
+      "value": "3",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0bh0038kd9q5foufih0",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q11",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0bj003ckd9qgtwkxjg7",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q17",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.096Z",
+      "updatedAt": "2025-08-27T15:16:20.096Z"
+    },
+    {
+      "id": "cmeu4b0bf0034kd9q4yj2kdug",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q14",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.101Z",
+      "updatedAt": "2025-08-27T15:16:20.101Z"
+    },
+    {
+      "id": "cmeu4b0bp003gkd9qcx3s5hw8",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q9",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0bi003akd9qlrx9mvdm",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q8",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.096Z",
+      "updatedAt": "2025-08-27T15:16:20.096Z"
+    },
+    {
+      "id": "cmeu4b0bm003ekd9qei4r4zn2",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q21",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.095Z",
+      "updatedAt": "2025-08-27T15:16:20.095Z"
+    },
+    {
+      "id": "cmeu4b0bw003ikd9q3hvdw1og",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q23",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0bz003kkd9qtj3i8xmm",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q12",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0c2003mkd9qdgz7rsww",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q3",
+      "value": "5",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0c3003okd9q2fymli8u",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q7",
+      "value": "3",
+      "createdAt": "2025-08-27T15:16:20.113Z",
+      "updatedAt": "2025-08-27T15:16:20.113Z"
+    },
+    {
+      "id": "cmeu4b0c4003qkd9qaox0f38d",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q15",
+      "value": "2",
+      "createdAt": "2025-08-27T15:16:20.114Z",
+      "updatedAt": "2025-08-27T15:16:20.114Z"
+    },
+    {
+      "id": "cmeu4b0c5003ukd9qwb89tys9",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q6",
+      "value": "1",
+      "createdAt": "2025-08-27T15:16:20.114Z",
+      "updatedAt": "2025-08-27T15:16:20.114Z"
+    },
+    {
+      "id": "cmeu4b0c6003wkd9qtndv8g53",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q16",
+      "value": "1",
+      "createdAt": "2025-08-27T15:16:20.114Z",
+      "updatedAt": "2025-08-27T15:16:20.114Z"
+    },
+    {
+      "id": "cmeu4b0c6003ykd9qb4v50hhp",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q13",
+      "value": "false",
+      "createdAt": "2025-08-27T15:16:20.114Z",
+      "updatedAt": "2025-08-27T15:16:20.114Z"
+    },
+    {
+      "id": "cmeu4b0c5003skd9q8o68ve0j",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "gov-q10",
+      "value": "4",
+      "createdAt": "2025-08-27T15:16:20.114Z",
+      "updatedAt": "2025-08-27T15:16:20.114Z"
+    },
+    {
+      "id": "cmeu4d0mb0040kd9qph6d52h7",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q5",
+      "value": "4",
+      "createdAt": "2025-08-27T15:17:53.892Z",
+      "updatedAt": "2025-08-27T15:17:53.892Z"
+    },
+    {
+      "id": "cmeu4d0my0042kd9qsn0q6v3d",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q3",
+      "value": "5",
+      "createdAt": "2025-08-27T15:17:53.905Z",
+      "updatedAt": "2025-08-27T15:17:53.905Z"
+    },
+    {
+      "id": "cmeu4d0mz0046kd9qfc4qj6dw",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q6",
+      "value": "4",
+      "createdAt": "2025-08-27T15:17:53.901Z",
+      "updatedAt": "2025-08-27T15:17:53.901Z"
+    },
+    {
+      "id": "cmeu4d0n00048kd9qzu3k3eju",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q4",
+      "value": "3",
+      "createdAt": "2025-08-27T15:17:53.905Z",
+      "updatedAt": "2025-08-27T15:17:53.905Z"
+    },
+    {
+      "id": "cmeu4d0n1004ckd9q6x3vdpbr",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q7",
+      "value": "4",
+      "createdAt": "2025-08-27T15:17:53.905Z",
+      "updatedAt": "2025-08-27T15:17:53.905Z"
+    },
+    {
+      "id": "cmeu4d0mz0045kd9qs3907v4c",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q2",
+      "value": "3",
+      "createdAt": "2025-08-27T15:17:53.902Z",
+      "updatedAt": "2025-08-27T15:17:53.902Z"
+    },
+    {
+      "id": "cmeu4d0n0004akd9qxx6g1whn",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q9",
+      "value": "4",
+      "createdAt": "2025-08-27T15:17:53.902Z",
+      "updatedAt": "2025-08-27T15:17:53.902Z"
+    },
+    {
+      "id": "cmeu4d0n2004ekd9qkdtyrkny",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q1",
+      "value": "5",
+      "createdAt": "2025-08-27T15:17:53.905Z",
+      "updatedAt": "2025-08-27T15:17:53.905Z"
+    },
+    {
+      "id": "cmeu4d0n5004gkd9q3zjy9wxz",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q8",
+      "value": "5",
+      "createdAt": "2025-08-27T15:17:53.905Z",
+      "updatedAt": "2025-08-27T15:17:53.905Z"
+    },
+    {
+      "id": "cmeu4d0ne004ikd9qqo4kuouf",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "fin-q10",
+      "value": "3",
+      "createdAt": "2025-08-27T15:17:53.902Z",
+      "updatedAt": "2025-08-27T15:17:53.902Z"
+    },
+    {
+      "id": "cmeu4f94i004pkd9qzskg4e23",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "prog-q6",
+      "value": "5",
+      "createdAt": "2025-08-27T15:19:38.226Z",
+      "updatedAt": "2025-08-27T15:19:38.226Z"
+    },
+    {
+      "id": "cmeu4f94u004vkd9qsvebbo07",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "prog-q4",
+      "value": "4",
+      "createdAt": "2025-08-27T15:19:38.226Z",
+      "updatedAt": "2025-08-27T15:19:38.226Z"
+    },
+    {
+      "id": "cmeu4f94h004nkd9qdosuqenk",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "prog-q2",
+      "value": "4",
+      "createdAt": "2025-08-27T15:19:38.226Z",
+      "updatedAt": "2025-08-27T15:19:38.226Z"
+    },
+    {
+      "id": "cmeu4f951004xkd9q6fbca34i",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "prog-q3",
+      "value": "3",
+      "createdAt": "2025-08-27T15:19:38.226Z",
+      "updatedAt": "2025-08-27T15:19:38.226Z"
+    },
+    {
+      "id": "cmeu4f94t004tkd9qfqyk8tx5",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "prog-q1",
+      "value": "3",
+      "createdAt": "2025-08-27T15:19:38.226Z",
+      "updatedAt": "2025-08-27T15:19:38.226Z"
+    },
+    {
+      "id": "cmeu4f94k004rkd9q6p7fk1hl",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "prog-q5",
+      "value": "4",
+      "createdAt": "2025-08-27T15:19:38.226Z",
+      "updatedAt": "2025-08-27T15:19:38.226Z"
+    },
+    {
+      "id": "cmeu4fveb004zkd9qxycubuhb",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "hr-q3",
+      "value": "5",
+      "createdAt": "2025-08-27T15:20:07.092Z",
+      "updatedAt": "2025-08-27T15:20:07.092Z"
+    },
+    {
+      "id": "cmeu4fves0053kd9qfnr9q5jb",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "hr-q1",
+      "value": "4",
+      "createdAt": "2025-08-27T15:20:07.092Z",
+      "updatedAt": "2025-08-27T15:20:07.092Z"
+    },
+    {
+      "id": "cmeu4fves0051kd9qfdcbs139",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "hr-q2",
+      "value": "5",
+      "createdAt": "2025-08-27T15:20:07.092Z",
+      "updatedAt": "2025-08-27T15:20:07.092Z"
+    },
+    {
+      "id": "cmeu4fves0055kd9q4bb1oip0",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "questionId": "hr-q4",
+      "value": "4",
+      "createdAt": "2025-08-27T15:20:07.092Z",
+      "updatedAt": "2025-08-27T15:20:07.092Z"
+    },
+    {
+      "id": "cmeu4x4ct006kkd9qtk6ylfr3",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q20",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.853Z",
+      "updatedAt": "2025-08-27T15:33:31.853Z"
+    },
+    {
+      "id": "cmeu4x4eo006mkd9qvbez00e2",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q1",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.854Z",
+      "updatedAt": "2025-08-27T15:33:31.854Z"
+    },
+    {
+      "id": "cmeu4x4ep006okd9qqh4v6uzd",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q17",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.870Z",
+      "updatedAt": "2025-08-27T15:33:31.870Z"
+    },
+    {
+      "id": "cmeu4x4et006qkd9qp4w44i8l",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q4",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4ew006ukd9qv5ywkk6d",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q22",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4ey006xkd9q2ofxv08z",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q5",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4ew006skd9qcgxgt3xn",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q8",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.870Z",
+      "updatedAt": "2025-08-27T15:33:31.870Z"
+    },
+    {
+      "id": "cmeu4x4ey006ykd9qrnkaglom",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q21",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.859Z",
+      "updatedAt": "2025-08-27T15:33:31.859Z"
+    },
+    {
+      "id": "cmeu4x4f90070kd9qxydgk0oa",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q19",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4fa0074kd9qy1u7ur47",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q12",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4f90072kd9qwbrbb7hu",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q2",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4fk007akd9qbyxne39l",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q9",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4fi0078kd9qonvbl2ez",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q11",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4fi0076kd9qonk6c5w4",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q18",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4fs007ckd9qs7lkieyw",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q23",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.873Z",
+      "updatedAt": "2025-08-27T15:33:31.873Z"
+    },
+    {
+      "id": "cmeu4x4ft007gkd9qzx6xaitw",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q3",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4fz007ikd9qrnq978a5",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q14",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4fs007ekd9qu4iejywp",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q7",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4gl007mkd9qeczpdw0t",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q10",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4gk007kkd9qbji1wwmu",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q15",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4h5007qkd9q94hqe659",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q6",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4gl007okd9qu1ljk05w",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q16",
+      "value": "1",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu4x4hq007skd9qf2thbjml",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "gov-q13",
+      "value": "false",
+      "createdAt": "2025-08-27T15:33:31.874Z",
+      "updatedAt": "2025-08-27T15:33:31.874Z"
+    },
+    {
+      "id": "cmeu500a8007wkd9qqs1xie5z",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q6",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500aa0080kd9q8zs7f0zi",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q7",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500aa007ykd9qlu7xze4x",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q10",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500a5007ukd9qgivd7s0p",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q5",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.541Z",
+      "updatedAt": "2025-08-27T15:35:46.541Z"
+    },
+    {
+      "id": "cmeu500at0082kd9q62mp5i4h",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q9",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500b30086kd9qne6uowg6",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q4",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500au0084kd9q6fj7jume",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q2",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500bi0088kd9qdgw0vntx",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q3",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500bj008akd9qrj2igtyj",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q1",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu500cp008ckd9qekv93f2l",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "fin-q8",
+      "value": "1",
+      "createdAt": "2025-08-27T15:35:46.542Z",
+      "updatedAt": "2025-08-27T15:35:46.542Z"
+    },
+    {
+      "id": "cmeu51ft6008gkd9q9ece7i1x",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "prog-q5",
+      "value": "1",
+      "createdAt": "2025-08-27T15:36:53.323Z",
+      "updatedAt": "2025-08-27T15:36:53.323Z"
+    },
+    {
+      "id": "cmeu51ft8008ikd9qduijdugi",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "prog-q6",
+      "value": "1",
+      "createdAt": "2025-08-27T15:36:53.324Z",
+      "updatedAt": "2025-08-27T15:36:53.324Z"
+    },
+    {
+      "id": "cmeu51fta008mkd9qx11va10k",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "prog-q3",
+      "value": "1",
+      "createdAt": "2025-08-27T15:36:53.325Z",
+      "updatedAt": "2025-08-27T15:36:53.325Z"
+    },
+    {
+      "id": "cmeu51fta008okd9qogfa5i4w",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "prog-q4",
+      "value": "1",
+      "createdAt": "2025-08-27T15:36:53.324Z",
+      "updatedAt": "2025-08-27T15:36:53.324Z"
+    },
+    {
+      "id": "cmeu51fta008lkd9qzk0jjwhl",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "prog-q2",
+      "value": "1",
+      "createdAt": "2025-08-27T15:36:53.324Z",
+      "updatedAt": "2025-08-27T15:36:53.324Z"
+    },
+    {
+      "id": "cmeu51fta008qkd9qnfhg2iw3",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "prog-q1",
+      "value": "1",
+      "createdAt": "2025-08-27T15:36:53.324Z",
+      "updatedAt": "2025-08-27T15:36:53.324Z"
+    },
+    {
+      "id": "cmeu52gn9008skd9qy4qdjhoj",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "hr-q3",
+      "value": "1",
+      "createdAt": "2025-08-27T15:37:41.061Z",
+      "updatedAt": "2025-08-27T15:37:41.061Z"
+    },
+    {
+      "id": "cmeu52gnf008ukd9q5ih8b20c",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "hr-q2",
+      "value": "1",
+      "createdAt": "2025-08-27T15:37:41.065Z",
+      "updatedAt": "2025-08-27T15:37:41.065Z"
+    },
+    {
+      "id": "cmeu52gng008ykd9qsvvnaevs",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "hr-q4",
+      "value": "1",
+      "createdAt": "2025-08-27T15:37:41.066Z",
+      "updatedAt": "2025-08-27T15:37:41.066Z"
+    },
+    {
+      "id": "cmeu52gnf008wkd9qsxyl7kmt",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "questionId": "hr-q1",
+      "value": "1",
+      "createdAt": "2025-08-27T15:37:41.065Z",
+      "updatedAt": "2025-08-27T15:37:41.065Z"
+    },
+    {
+      "id": "cmeu5uoay0090kd9qbut0fb6c",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q20",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.354Z",
+      "updatedAt": "2025-08-27T15:59:37.354Z"
+    },
+    {
+      "id": "cmeu5uobm0092kd9qpwjvrtoz",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q23",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uobo0094kd9qdh3cbshs",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q17",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uobw0096kd9qcl8o7a6y",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q3",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uoc30098kd9q60iopck7",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q4",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uocc009ckd9qh1cmfl7q",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q7",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uoch009gkd9qmkad9sgo",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q1",
+      "value": "4",
+      "createdAt": "2025-08-27T15:59:37.355Z",
+      "updatedAt": "2025-08-27T15:59:37.355Z"
+    },
+    {
+      "id": "cmeu5uocc009akd9qo5p6im7y",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q21",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.355Z",
+      "updatedAt": "2025-08-27T15:59:37.355Z"
+    },
+    {
+      "id": "cmeu5uock009kkd9q5br68pld",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q2",
+      "value": "4",
+      "createdAt": "2025-08-27T15:59:37.357Z",
+      "updatedAt": "2025-08-27T15:59:37.357Z"
+    },
+    {
+      "id": "cmeu5uock009mkd9qsk3qrg0j",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q22",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uocr009qkd9qcq0dum0f",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q19",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uoco009okd9qwll521j8",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q11",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.358Z",
+      "updatedAt": "2025-08-27T15:59:37.358Z"
+    },
+    {
+      "id": "cmeu5uocj009ikd9qg3iq6lrw",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q9",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.355Z",
+      "updatedAt": "2025-08-27T15:59:37.355Z"
+    },
+    {
+      "id": "cmeu5uocu009skd9qi2zr0jgw",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q12",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uoch009ekd9qyjn142ia",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q18",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.355Z",
+      "updatedAt": "2025-08-27T15:59:37.355Z"
+    },
+    {
+      "id": "cmeu5uocv009ukd9qvvqobscv",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q5",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uocw009wkd9qkgoq3kf9",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q8",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uocy009ykd9qhc0q4pme",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q10",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uocy00a0kd9qythmrvcr",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q14",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.361Z",
+      "updatedAt": "2025-08-27T15:59:37.361Z"
+    },
+    {
+      "id": "cmeu5uod000a2kd9qzberucd7",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q15",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.362Z",
+      "updatedAt": "2025-08-27T15:59:37.362Z"
+    },
+    {
+      "id": "cmeu5uod000a4kd9qhb5nsm2b",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q16",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.362Z",
+      "updatedAt": "2025-08-27T15:59:37.362Z"
+    },
+    {
+      "id": "cmeu5uod200a6kd9qy27m2mw4",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q6",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.362Z",
+      "updatedAt": "2025-08-27T15:59:37.362Z"
+    },
+    {
+      "id": "cmeu5uod200a8kd9qezlye2wb",
+      "assessmentId": "cmeu4t8it006ikd9qy6p10sz4",
+      "questionId": "gov-q13",
+      "value": null,
+      "createdAt": "2025-08-27T15:59:37.362Z",
+      "updatedAt": "2025-08-27T15:59:37.362Z"
+    }
+  ],
+  "reports": [
+    {
+      "id": "cme8xqows000112zo6mp0bamb",
+      "assessmentId": "cme8xj5sr0001d4h2kk2scoay",
+      "content": {},
+      "createdAt": "2025-08-12T19:29:24.892Z",
+      "updatedAt": "2025-08-12T19:29:24.892Z"
+    },
+    {
+      "id": "cmhjwuhgc000111mzlqsx77y2",
+      "assessmentId": "cmeu459zu002lkd9q67j0xprp",
+      "content": {},
+      "createdAt": "2025-11-04T01:48:57.179Z",
+      "updatedAt": "2025-11-04T01:48:57.179Z"
+    },
+    {
+      "id": "cmhjx3yt5000d11mzie5ldruj",
+      "assessmentId": "cmeu4ai45002okd9q0y1a47gs",
+      "content": {},
+      "createdAt": "2025-11-04T01:56:19.575Z",
+      "updatedAt": "2025-11-04T01:56:19.575Z"
+    },
+    {
+      "id": "cmhjx87h1000p11mzd1kdg9cj",
+      "assessmentId": "cmeu37yfj0003kd9qo4ygq0hm",
+      "content": {},
+      "createdAt": "2025-11-04T01:59:37.430Z",
+      "updatedAt": "2025-11-04T01:59:37.430Z"
+    }
+  ],
+  "reportSuggestions": [
+    {
+      "id": "cmeu21iz00001pey1fjns0pjy",
+      "reportId": "cme8xqows000112zo6mp0bamb",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "You Have a Strong Foundation. Your organization has a solid accountability structure in place. You're doing well — now's the time to focus on specific areas that could move you toward sector leadership. Use your scores to prioritize improvements — for example, if transparency or crisis planning scored lower, choose one to address this quarter. A few targeted upgrades can elevate your overall impact and credibility.",
+      "priority": 8,
+      "weight": 1,
+      "metadata": {
+        "section": "assessment",
+        "category": "Overall Assessment",
+        "condition": {
+          "overallScore": {
+            "max": 170,
+            "min": 87
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 138,
+        "sectionScores": {
+          "hr": 13,
+          "financial": 32,
+          "programme": 17,
+          "governance": 76
+        },
+        "overallPercentage": 64.18604651162791,
+        "sectionPercentages": {
+          "hr": 65,
+          "financial": 64,
+          "programme": 56.66666666666666,
+          "governance": 66.08695652173913
+        }
+      },
+      "createdAt": "2025-08-27T14:12:58.572Z",
+      "updatedAt": "2025-08-27T14:12:58.572Z"
+    },
+    {
+      "id": "cmeu21j3w0003pey1ou2x70z7",
+      "reportId": "cme8xqows000112zo6mp0bamb",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Now that you have a proven solid financial management base, press towards cutting-edge accountability. For example, proactively develop funding strategies to promote your organisation's sustainability.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "financial",
+        "category": "Financial Management",
+        "condition": {
+          "sectionScore": {
+            "max": 40,
+            "min": 21,
+            "section": "financial-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 138,
+        "sectionScore": 32,
+        "sectionTitle": "Financial Management",
+        "sectionScores": {
+          "hr": 13,
+          "financial": 32,
+          "programme": 17,
+          "governance": 76
+        },
+        "overallPercentage": 64.18604651162791,
+        "sectionPercentage": 64,
+        "sectionPercentages": {
+          "hr": 65,
+          "financial": 64,
+          "programme": 56.66666666666666,
+          "governance": 66.08695652173913
+        }
+      },
+      "createdAt": "2025-08-27T14:12:58.748Z",
+      "updatedAt": "2025-08-27T14:12:58.748Z"
+    },
+    {
+      "id": "cmeu21j5y0005pey1mtjrgtz7",
+      "reportId": "cme8xqows000112zo6mp0bamb",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "The design of your programmes and projects is informed by systems analysis and strategic goals with project partners (donors, other CSOs) are proactively selected because of their alignment with your vision. Explore more sophisticated project tools to ensure and highlight documented project success. For example, utilize real-time, online project monitoring and evaluation software. Integrate lessons learned from previous projects for continuous improvement. Demonstrate your emerging leadership by initiating or joining multi-sectoral, collaborative interventions.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "programme",
+        "category": "Programme/Project Accountability",
+        "condition": {
+          "sectionScore": {
+            "max": 24,
+            "min": 13,
+            "section": "programme-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 138,
+        "sectionScore": 17,
+        "sectionTitle": "Programme/Project Accountability",
+        "sectionScores": {
+          "hr": 13,
+          "financial": 32,
+          "programme": 17,
+          "governance": 76
+        },
+        "overallPercentage": 64.18604651162791,
+        "sectionPercentage": 56.66666666666666,
+        "sectionPercentages": {
+          "hr": 65,
+          "financial": 64,
+          "programme": 56.66666666666666,
+          "governance": 66.08695652173913
+        }
+      },
+      "createdAt": "2025-08-27T14:12:58.823Z",
+      "updatedAt": "2025-08-27T14:12:58.823Z"
+    },
+    {
+      "id": "cmeu21j8e0007pey1d18f1o4b",
+      "reportId": "cme8xqows000112zo6mp0bamb",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Your board is functioning well. To stay on track, continue documenting decisions, refining practices, and mentoring new board members to maintain strong institutional knowledge and accountability. For example, develop a board orientation package and assign a mentor from the current board to support new members for their first six months.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "governance",
+        "category": "Governance",
+        "condition": {
+          "sectionScore": {
+            "max": 91,
+            "min": 47,
+            "section": "governance-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 138,
+        "sectionScore": 76,
+        "sectionTitle": "Governance",
+        "sectionScores": {
+          "hr": 13,
+          "financial": 32,
+          "programme": 17,
+          "governance": 76
+        },
+        "overallPercentage": 64.18604651162791,
+        "sectionPercentage": 66.08695652173913,
+        "sectionPercentages": {
+          "hr": 65,
+          "financial": 64,
+          "programme": 56.66666666666666,
+          "governance": 66.08695652173913
+        }
+      },
+      "createdAt": "2025-08-27T14:12:58.910Z",
+      "updatedAt": "2025-08-27T14:12:58.910Z"
+    },
+    {
+      "id": "cmeu21jap0009pey159wn1pgo",
+      "reportId": "cme8xqows000112zo6mp0bamb",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "You have made good progress. You are well on your way to creating an enabling work environment, key for a civil society organization to thrive. To build on your achievements here are some concrete recommendations. For example, develop new policies to address remote work and enhanced cybersecurity in post COVID and AI contexts.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "hr",
+        "category": "Human Resource Management",
+        "condition": {
+          "sectionScore": {
+            "max": 16,
+            "min": 9,
+            "section": "hr-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 138,
+        "sectionScore": 13,
+        "sectionTitle": "Human Resource Accountability",
+        "sectionScores": {
+          "hr": 13,
+          "financial": 32,
+          "programme": 17,
+          "governance": 76
+        },
+        "overallPercentage": 64.18604651162791,
+        "sectionPercentage": 65,
+        "sectionPercentages": {
+          "hr": 65,
+          "financial": 64,
+          "programme": 56.66666666666666,
+          "governance": 66.08695652173913
+        }
+      },
+      "createdAt": "2025-08-27T14:12:58.994Z",
+      "updatedAt": "2025-08-27T14:12:58.994Z"
+    },
+    {
+      "id": "cmhjwuhov000311mzldopphq0",
+      "reportId": "cmhjwuhgc000111mzlqsx77y2",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "You Have a Strong Foundation. Your organization has a solid accountability structure in place. You're doing well — now's the time to focus on specific areas that could move you toward sector leadership. Use your scores to prioritize improvements — for example, if transparency or crisis planning scored lower, choose one to address this quarter. A few targeted upgrades can elevate your overall impact and credibility.",
+      "priority": 8,
+      "weight": 1,
+      "metadata": {
+        "section": "assessment",
+        "category": "Overall Assessment",
+        "condition": {
+          "overallScore": {
+            "max": 170,
+            "min": 87
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 168,
+        "sectionScores": {
+          "hr": 18,
+          "financial": 40,
+          "programme": 23,
+          "governance": 87
+        },
+        "overallPercentage": 78.13953488372093,
+        "sectionPercentages": {
+          "hr": 90,
+          "financial": 80,
+          "programme": 76.66666666666667,
+          "governance": 75.65217391304347
+        }
+      },
+      "createdAt": "2025-11-04T01:48:57.487Z",
+      "updatedAt": "2025-11-04T01:48:57.487Z"
+    },
+    {
+      "id": "cmhjwuhtk000511mzhiguvq6n",
+      "reportId": "cmhjwuhgc000111mzlqsx77y2",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Now that you have a proven solid financial management base, press towards cutting-edge accountability. For example, proactively develop funding strategies to promote your organisation's sustainability.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "financial",
+        "category": "Financial Management",
+        "condition": {
+          "sectionScore": {
+            "max": 40,
+            "min": 21,
+            "section": "financial-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 168,
+        "sectionScore": 40,
+        "sectionTitle": "Financial Management",
+        "sectionScores": {
+          "hr": 18,
+          "financial": 40,
+          "programme": 23,
+          "governance": 87
+        },
+        "overallPercentage": 78.13953488372093,
+        "sectionPercentage": 80,
+        "sectionPercentages": {
+          "hr": 90,
+          "financial": 80,
+          "programme": 76.66666666666667,
+          "governance": 75.65217391304347
+        }
+      },
+      "createdAt": "2025-11-04T01:48:57.656Z",
+      "updatedAt": "2025-11-04T01:48:57.656Z"
+    },
+    {
+      "id": "cmhjwuhvm000711mzq8rq0oik",
+      "reportId": "cmhjwuhgc000111mzlqsx77y2",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "The design of your programmes and projects is informed by systems analysis and strategic goals with project partners (donors, other CSOs) are proactively selected because of their alignment with your vision. Explore more sophisticated project tools to ensure and highlight documented project success. For example, utilize real-time, online project monitoring and evaluation software. Integrate lessons learned from previous projects for continuous improvement. Demonstrate your emerging leadership by initiating or joining multi-sectoral, collaborative interventions.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "programme",
+        "category": "Programme/Project Accountability",
+        "condition": {
+          "sectionScore": {
+            "max": 24,
+            "min": 13,
+            "section": "programme-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 168,
+        "sectionScore": 23,
+        "sectionTitle": "Programme/Project Accountability",
+        "sectionScores": {
+          "hr": 18,
+          "financial": 40,
+          "programme": 23,
+          "governance": 87
+        },
+        "overallPercentage": 78.13953488372093,
+        "sectionPercentage": 76.66666666666667,
+        "sectionPercentages": {
+          "hr": 90,
+          "financial": 80,
+          "programme": 76.66666666666667,
+          "governance": 75.65217391304347
+        }
+      },
+      "createdAt": "2025-11-04T01:48:57.730Z",
+      "updatedAt": "2025-11-04T01:48:57.730Z"
+    },
+    {
+      "id": "cmhjwuhxo000911mzx9ph5acd",
+      "reportId": "cmhjwuhgc000111mzlqsx77y2",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Your board is functioning well. To stay on track, continue documenting decisions, refining practices, and mentoring new board members to maintain strong institutional knowledge and accountability. For example, develop a board orientation package and assign a mentor from the current board to support new members for their first six months.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "governance",
+        "category": "Governance",
+        "condition": {
+          "sectionScore": {
+            "max": 91,
+            "min": 47,
+            "section": "governance-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 168,
+        "sectionScore": 87,
+        "sectionTitle": "Governance",
+        "sectionScores": {
+          "hr": 18,
+          "financial": 40,
+          "programme": 23,
+          "governance": 87
+        },
+        "overallPercentage": 78.13953488372093,
+        "sectionPercentage": 75.65217391304347,
+        "sectionPercentages": {
+          "hr": 90,
+          "financial": 80,
+          "programme": 76.66666666666667,
+          "governance": 75.65217391304347
+        }
+      },
+      "createdAt": "2025-11-04T01:48:57.805Z",
+      "updatedAt": "2025-11-04T01:48:57.805Z"
+    },
+    {
+      "id": "cmhjwuhzs000b11mzk3qr1t8l",
+      "reportId": "cmhjwuhgc000111mzlqsx77y2",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Congratulations, your organization attracts and retains highly skilled personnel who thrive. Share your success within the sector: For example, while maintaining the cutting edge in this area, encourage board, staff and volunteers to pay it forward by finding ways to generously share lessons learned about establishing and maintaining creative and motivating workspaces.",
+      "priority": 5,
+      "weight": 1,
+      "metadata": {
+        "section": "hr",
+        "category": "Human Resource Management",
+        "condition": {
+          "sectionScore": {
+            "max": 20,
+            "min": 17,
+            "section": "hr-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 168,
+        "sectionScore": 18,
+        "sectionTitle": "Human Resource Accountability",
+        "sectionScores": {
+          "hr": 18,
+          "financial": 40,
+          "programme": 23,
+          "governance": 87
+        },
+        "overallPercentage": 78.13953488372093,
+        "sectionPercentage": 90,
+        "sectionPercentages": {
+          "hr": 90,
+          "financial": 80,
+          "programme": 76.66666666666667,
+          "governance": 75.65217391304347
+        }
+      },
+      "createdAt": "2025-11-04T01:48:57.880Z",
+      "updatedAt": "2025-11-04T01:48:57.880Z"
+    },
+    {
+      "id": "cmhjx3z0u000f11mze40a0pku",
+      "reportId": "cmhjx3yt5000d11mzie5ldruj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "You are an Emerging Organization. Your organization is in the early stages of building accountability. This is a critical period to establish your foundation — and the good news is that small wins can create big momentum. Start with essential systems like board structure, financial tracking, and legal compliance. Use simple tools like checklists and templates to get moving, and seek support from peer organizations or umbrella bodies as needed.",
+      "priority": 10,
+      "weight": 1,
+      "metadata": {
+        "section": "assessment",
+        "category": "Overall Assessment",
+        "condition": {
+          "overallScore": {
+            "max": 86,
+            "min": 43
+          }
+        },
+        "overallLevel": "Emerging",
+        "overallScore": 43,
+        "sectionScores": {
+          "hr": 4,
+          "financial": 10,
+          "programme": 6,
+          "governance": 23
+        },
+        "overallPercentage": 20,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 20,
+          "programme": 20,
+          "governance": 20
+        }
+      },
+      "createdAt": "2025-11-04T01:56:19.854Z",
+      "updatedAt": "2025-11-04T01:56:19.854Z"
+    },
+    {
+      "id": "cmhjx3z4b000h11mzb7orj0gs",
+      "reportId": "cmhjx3yt5000d11mzie5ldruj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Now is the time to start developing your volunteers and staff so they contribute effectively to the achievement of your CSO's goals. For example, draft an HR strategy that aligns with your CSO's vision, mission and goals, and reinforce the message that each member plays an integral role in upholding and bringing the vision to pass.",
+      "priority": 9,
+      "weight": 1,
+      "metadata": {
+        "section": "hr",
+        "category": "Human Resource Management",
+        "condition": {
+          "sectionScore": {
+            "max": 8,
+            "min": 4,
+            "section": "hr-section"
+          }
+        },
+        "overallLevel": "Emerging",
+        "overallScore": 43,
+        "sectionScore": 4,
+        "sectionTitle": "Human Resource Accountability",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 10,
+          "programme": 6,
+          "governance": 23
+        },
+        "overallPercentage": 20,
+        "sectionPercentage": 20,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 20,
+          "programme": 20,
+          "governance": 20
+        }
+      },
+      "createdAt": "2025-11-04T01:56:19.979Z",
+      "updatedAt": "2025-11-04T01:56:19.979Z"
+    },
+    {
+      "id": "cmhjx3z66000j11mzrm0yimvq",
+      "reportId": "cmhjx3yt5000d11mzie5ldruj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "This is the opportune time to put systems in place for good programme and project accountability from the outset. For example ensure that programmes and projects are aligned with your mission, vision and strategic goals, and that monitoring and evaluation systems are in place.",
+      "priority": 9,
+      "weight": 1,
+      "metadata": {
+        "section": "programme",
+        "category": "Programme/Project Accountability",
+        "condition": {
+          "sectionScore": {
+            "max": 12,
+            "min": 6,
+            "section": "programme-section"
+          }
+        },
+        "overallLevel": "Emerging",
+        "overallScore": 43,
+        "sectionScore": 6,
+        "sectionTitle": "Programme/Project Accountability",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 10,
+          "programme": 6,
+          "governance": 23
+        },
+        "overallPercentage": 20,
+        "sectionPercentage": 20,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 20,
+          "programme": 20,
+          "governance": 20
+        }
+      },
+      "createdAt": "2025-11-04T01:56:20.047Z",
+      "updatedAt": "2025-11-04T01:56:20.047Z"
+    },
+    {
+      "id": "cmhjx3z81000l11mzhr0s7vfz",
+      "reportId": "cmhjx3yt5000d11mzie5ldruj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "It's time to get the fundamentals in place. Consider conducting a governance audit to identify critical gaps in oversight and board function. Provide training to ensure board members fully understand their fiduciary roles and responsibilities. For example, use a simple checklist to assess how often the board meets, if minutes are documented, and whether board members have signed a code of conduct.",
+      "priority": 9,
+      "weight": 1,
+      "metadata": {
+        "section": "governance",
+        "category": "Governance",
+        "condition": {
+          "sectionScore": {
+            "max": 46,
+            "min": 23,
+            "section": "governance-section"
+          }
+        },
+        "overallLevel": "Emerging",
+        "overallScore": 43,
+        "sectionScore": 23,
+        "sectionTitle": "Governance",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 10,
+          "programme": 6,
+          "governance": 23
+        },
+        "overallPercentage": 20,
+        "sectionPercentage": 20,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 20,
+          "programme": 20,
+          "governance": 20
+        }
+      },
+      "createdAt": "2025-11-04T01:56:20.113Z",
+      "updatedAt": "2025-11-04T01:56:20.113Z"
+    },
+    {
+      "id": "cmhjx3z9u000n11mz1oacr15d",
+      "reportId": "cmhjx3yt5000d11mzie5ldruj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "It's time to take some steps that will ensure improved financial accountability. For example, start using simple accounting tools (e.g. spreadsheets or free software), develop basic financial protocols like expense tracking and approval processes and do due diligence on your current and potential donors.",
+      "priority": 9,
+      "weight": 1,
+      "metadata": {
+        "section": "financial",
+        "category": "Financial Management",
+        "condition": {
+          "sectionScore": {
+            "max": 20,
+            "min": 10,
+            "section": "financial-section"
+          }
+        },
+        "overallLevel": "Emerging",
+        "overallScore": 43,
+        "sectionScore": 10,
+        "sectionTitle": "Financial Management",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 10,
+          "programme": 6,
+          "governance": 23
+        },
+        "overallPercentage": 20,
+        "sectionPercentage": 20,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 20,
+          "programme": 20,
+          "governance": 20
+        }
+      },
+      "createdAt": "2025-11-04T01:56:20.179Z",
+      "updatedAt": "2025-11-04T01:56:20.179Z"
+    },
+    {
+      "id": "cmhjx87kt000r11mzvv9x9atf",
+      "reportId": "cmhjx87h1000p11mzd1kdg9cj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Now is the time to start developing your volunteers and staff so they contribute effectively to the achievement of your CSO's goals. For example, draft an HR strategy that aligns with your CSO's vision, mission and goals, and reinforce the message that each member plays an integral role in upholding and bringing the vision to pass.",
+      "priority": 9,
+      "weight": 1,
+      "metadata": {
+        "section": "hr",
+        "category": "Human Resource Management",
+        "condition": {
+          "sectionScore": {
+            "max": 8,
+            "min": 4,
+            "section": "hr-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 152,
+        "sectionScore": 4,
+        "sectionTitle": "Human Resource Accountability",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 44,
+          "programme": 26,
+          "governance": 78
+        },
+        "overallPercentage": 70.69767441860465,
+        "sectionPercentage": 20,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 88,
+          "programme": 86.66666666666667,
+          "governance": 67.82608695652173
+        }
+      },
+      "createdAt": "2025-11-04T01:59:37.565Z",
+      "updatedAt": "2025-11-04T01:59:37.565Z"
+    },
+    {
+      "id": "cmhjx87ml000t11mztcapnh5k",
+      "reportId": "cmhjx87h1000p11mzd1kdg9cj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "You Have a Strong Foundation. Your organization has a solid accountability structure in place. You're doing well — now's the time to focus on specific areas that could move you toward sector leadership. Use your scores to prioritize improvements — for example, if transparency or crisis planning scored lower, choose one to address this quarter. A few targeted upgrades can elevate your overall impact and credibility.",
+      "priority": 8,
+      "weight": 1,
+      "metadata": {
+        "section": "assessment",
+        "category": "Overall Assessment",
+        "condition": {
+          "overallScore": {
+            "max": 170,
+            "min": 87
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 152,
+        "sectionScores": {
+          "hr": 4,
+          "financial": 44,
+          "programme": 26,
+          "governance": 78
+        },
+        "overallPercentage": 70.69767441860465,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 88,
+          "programme": 86.66666666666667,
+          "governance": 67.82608695652173
+        }
+      },
+      "createdAt": "2025-11-04T01:59:37.630Z",
+      "updatedAt": "2025-11-04T01:59:37.630Z"
+    },
+    {
+      "id": "cmhjx87om000v11mzhr88d12n",
+      "reportId": "cmhjx87h1000p11mzd1kdg9cj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Your board is functioning well. To stay on track, continue documenting decisions, refining practices, and mentoring new board members to maintain strong institutional knowledge and accountability. For example, develop a board orientation package and assign a mentor from the current board to support new members for their first six months.",
+      "priority": 7,
+      "weight": 1,
+      "metadata": {
+        "section": "governance",
+        "category": "Governance",
+        "condition": {
+          "sectionScore": {
+            "max": 91,
+            "min": 47,
+            "section": "governance-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 152,
+        "sectionScore": 78,
+        "sectionTitle": "Governance",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 44,
+          "programme": 26,
+          "governance": 78
+        },
+        "overallPercentage": 70.69767441860465,
+        "sectionPercentage": 67.82608695652173,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 88,
+          "programme": 86.66666666666667,
+          "governance": 67.82608695652173
+        }
+      },
+      "createdAt": "2025-11-04T01:59:37.702Z",
+      "updatedAt": "2025-11-04T01:59:37.702Z"
+    },
+    {
+      "id": "cmhjx87qc000x11mz4wewttjb",
+      "reportId": "cmhjx87h1000p11mzd1kdg9cj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Your partnerships are solid. Now's the time to deepen those relationships through joint initiatives, co-hosted events, and regular strategy sessions to amplify impact. For example, consider sharing your success by publishing case studies and highlighting examples where stakeholder input directly influenced your work.",
+      "priority": 5,
+      "weight": 1,
+      "metadata": {
+        "section": "programme",
+        "category": "Programme/Project Accountability",
+        "condition": {
+          "sectionScore": {
+            "max": 30,
+            "min": 25,
+            "section": "programme-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 152,
+        "sectionScore": 26,
+        "sectionTitle": "Programme/Project Accountability",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 44,
+          "programme": 26,
+          "governance": 78
+        },
+        "overallPercentage": 70.69767441860465,
+        "sectionPercentage": 86.66666666666667,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 88,
+          "programme": 86.66666666666667,
+          "governance": 67.82608695652173
+        }
+      },
+      "createdAt": "2025-11-04T01:59:37.764Z",
+      "updatedAt": "2025-11-04T01:59:37.764Z"
+    },
+    {
+      "id": "cmhjx87sd000z11mzjpfg0lrk",
+      "reportId": "cmhjx87h1000p11mzd1kdg9cj",
+      "type": "ASSESSMENT",
+      "sourceId": null,
+      "suggestion": "Your reputation for rigorous financial accountability and transparency precedes you. You are also sought out as a reputable partner for multi-level programmes by international, regional, state and private sector funders. You are often regarded as an umbrella organization through which large numbers of CSOs could benefit from critical financial capacity-building initiatives. For example, your organization could focus on leading the research, adaptation and implementation of global best fiscal practice to be applied within the national and regional spheres.",
+      "priority": 5,
+      "weight": 1,
+      "metadata": {
+        "section": "financial",
+        "category": "Financial Management",
+        "condition": {
+          "sectionScore": {
+            "max": 50,
+            "min": 41,
+            "section": "financial-section"
+          }
+        },
+        "overallLevel": "Strong Foundation",
+        "overallScore": 152,
+        "sectionScore": 44,
+        "sectionTitle": "Financial Management",
+        "sectionScores": {
+          "hr": 4,
+          "financial": 44,
+          "programme": 26,
+          "governance": 78
+        },
+        "overallPercentage": 70.69767441860465,
+        "sectionPercentage": 88,
+        "sectionPercentages": {
+          "hr": 20,
+          "financial": 88,
+          "programme": 86.66666666666667,
+          "governance": 67.82608695652173
+        }
+      },
+      "createdAt": "2025-11-04T01:59:37.837Z",
+      "updatedAt": "2025-11-04T01:59:37.837Z"
+    }
+  ],
+  "exportedAt": "2025-11-27T18:07:47.386Z"
+}

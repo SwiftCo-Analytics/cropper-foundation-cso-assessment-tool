@@ -7,11 +7,15 @@ set -e  # Exit on any error (except where explicitly handled)
 
 echo "🚀 Starting production deployment..."
 
-# Switch to the site directory
-cd /var/www/selfassess.csogo.org
+# Switch to the site directory (update this path for your xcloud setup)
+# cd /var/www/selfassess.csogo.org
+# Or use the current directory if running from the app root
+APP_DIR="${APP_DIR:-$(pwd)}"
+cd "$APP_DIR"
 
 echo "📦 Installing dependencies..."
-npm ci --production
+# Install all dependencies (including devDependencies needed for build)
+npm ci
 
 echo "🗄️ Running database migrations..."
 # Ensure DATABASE_URL is set in environment
@@ -60,11 +64,11 @@ npm run build
 echo "✅ Deployment complete!"
 echo ""
 echo "📝 Next steps:"
-echo "1. Restart the Node.js application in cPanel Application Manager"
+echo "1. Restart the Node.js application (via xcloud dashboard or process manager)"
 echo "2. Check application logs for any errors"
-echo "3. Verify the application is running at https://selfassess.csogo.org"
+echo "3. Verify the application is running"
 echo ""
-echo "💡 To restart the app manually, use cPanel Application Manager:"
-echo "   - Go to Software → Application Manager"
-echo "   - Find 'cso-self-assessment' and click 'Restart'"
+echo "💡 To start/restart the app:"
+echo "   - Run: npm start"
+echo "   - Or use your xcloud process manager (PM2, systemd, etc.)"
 

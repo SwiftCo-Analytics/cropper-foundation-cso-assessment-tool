@@ -23,7 +23,8 @@ This is a quick reference for migrating your data from PostgreSQL to MySQL.
 npx prisma generate
 
 # Step 3: Export data
-DATABASE_URL="postgresql://user:pass@localhost:5432/dbname" npm run export-postgres
+# Note: Use single quotes to avoid zsh history expansion issues with special characters
+DATABASE_URL='postgresql://un:pw@server/db' npm run export-postgres
 
 # This creates: postgres-export.json
 

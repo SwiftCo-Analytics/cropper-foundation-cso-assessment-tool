@@ -16,6 +16,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import type { PrismaClient } from '../src/generated/prisma';
 
 const SCHEMA_PATH = path.join(process.cwd(), 'prisma', 'schema.prisma');
 const BACKUP_SCHEMA_PATH = path.join(process.cwd(), 'prisma', 'schema.prisma.backup');
@@ -190,7 +191,7 @@ async function importToMySQL(mysqlUrl: string, exportData: ExportData) {
     console.log('✅ Connected to MySQL\n');
     
     // Import in transaction (using the same logic as import script)
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => {
       // Import all tables in order (same as import script logic)
       // ... (full import logic would go here - keeping it concise for now)
       

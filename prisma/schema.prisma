@@ -45,7 +45,7 @@ model Assessment {
 model Section {
   id          String     @id @default(cuid())
   title       String
-  description String?
+  description String?    @db.Text // Using Text for MySQL to support longer descriptions
   order       Int
   weight      Float     @default(1.0) // Weight of this section in overall assessment
   questions   Question[]
@@ -58,8 +58,8 @@ model Question {
   id          String     @id @default(cuid())
   sectionId   String
   section     Section    @relation(fields: [sectionId], references: [id])
-  text        String
-  description String?
+  text        String     @db.Text // Using Text for MySQL to support longer question text
+  description String?    @db.Text // Using Text for MySQL to support longer descriptions
   type        QuestionType
   options     Json?      // For multiple choice questions
   order       Int
@@ -89,7 +89,7 @@ model QuestionSuggestion {
   questionId  String
   question    Question @relation(fields: [questionId], references: [id])
   condition   Json     // Conditions that trigger this suggestion (e.g., {"value": "low", "operator": "equals"})
-  suggestion  String   // The suggestion text
+  suggestion  String   @db.Text // The suggestion text (using Text for MySQL to support longer content)
   category    String?  // Category for organizing suggestions (e.g., "Security", "Operations", "Training")
   priority    Int      @default(0) // Priority level (higher = more important)
   weight      Float    @default(1.0) // Weight of this suggestion
@@ -104,7 +104,7 @@ model SectionSuggestion {
   sectionId   String
   section     Section  @relation(fields: [sectionId], references: [id])
   condition   Json     // Conditions that trigger this suggestion (e.g., {"minScore": 0.6, "maxScore": 0.8})
-  suggestion  String   // The suggestion text
+  suggestion  String   @db.Text // The suggestion text (using Text for MySQL to support longer content)
   category    String?  // Category for organizing suggestions (e.g., "Security", "Operations", "Training")
   priority    Int      @default(0) // Priority level (higher = more important)
   weight      Float    @default(1.0) // Weight of this suggestion
@@ -117,7 +117,7 @@ model SectionSuggestion {
 model AssessmentSuggestion {
   id          String   @id @default(cuid())
   condition   Json     // Conditions that trigger this suggestion (e.g., {"overallScore": {"min": 0.7, "max": 0.9}})
-  suggestion  String   // The suggestion text
+  suggestion  String   @db.Text // The suggestion text (using Text for MySQL to support longer content)
   category    String?  // Category for organizing suggestions (e.g., "Strategic", "Leadership", "Overall Performance")
   priority    Int      @default(0) // Priority level (higher = more important)
   weight      Float    @default(1.0) // Weight of this suggestion
@@ -145,7 +145,7 @@ model ReportSuggestion {
   report      Report   @relation(fields: [reportId], references: [id])
   type        SuggestionType // QUESTION, SECTION, or ASSESSMENT
   sourceId    String?  // ID of the question/section that triggered this suggestion
-  suggestion  String   // The actual suggestion text
+  suggestion  String   @db.Text // The actual suggestion text (using Text for MySQL to support longer content)
   priority    Int      @default(0)
   weight      Float    @default(1.0)
   metadata    Json?    // Additional metadata about the suggestion

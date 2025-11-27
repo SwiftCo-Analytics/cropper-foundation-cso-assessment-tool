@@ -50,7 +50,7 @@ echo "📦 Installing dependencies..."
 # Install all dependencies (including devDependencies needed for build)
 npm ci
 
-echo "🗄️ Running database migrations..."
+echo "🗄️ Setting up database schema..."
 # Ensure DATABASE_URL is set in environment
 if [ -z "$DATABASE_URL" ]; then
     echo "⚠️  WARNING: DATABASE_URL environment variable not set"
@@ -59,14 +59,20 @@ if [ -z "$DATABASE_URL" ]; then
     exit 1
 fi
 
-npx prisma migrate deploy
+# Generate Prisma client first
+echo "📦 Generating Prisma client..."
+npx prisma generate
 
-# Import data from postgres-export.json if it exists (for initial migration)
+# Use db push to create schema directly (no migrations needed for fresh DB with imported data)
+echo "📊 Pushing database schema..."
+npx prisma db push --accept-data-loss
+
+# Import data from postgres-export.json if it exists (for initial setup)
 if [ -f "postgres-export.json" ]; then
     echo "📥 Found postgres-export.json - preparing to import data..."
     
-    # Generate Prisma client before import (migrations might have created schema)
-    echo "📦 Generating Prisma client..."
+    # Prisma client already generated above, but regenerate to be safe
+    echo "📦 Regenerating Prisma client..."
     npx prisma generate
     
     echo "📊 Importing PostgreSQL data to MySQL..."

@@ -52,6 +52,13 @@ export default function Header() {
     router.push("/");
   };
 
+  // Don't show full navbar on public pages - use floating pills instead
+  const isPublicPage = !isAdminPath && !isOrgPath;
+
+  if (isPublicPage) {
+    return null; // Floating pills will be shown instead
+  }
+
   return (
     <header className="bg-white shadow-sm border-b border-cropper-green-200">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">

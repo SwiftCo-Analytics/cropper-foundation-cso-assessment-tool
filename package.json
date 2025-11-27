@@ -9,6 +9,8 @@
     "lint": "next lint",
     "db:seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
     "create-admin": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts",
+    "export-postgres": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/export-postgres-data.ts",
+    "import-mysql": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/import-mysql-data.ts",
     "postbuild": "next-sitemap"
   },
   "prisma": {

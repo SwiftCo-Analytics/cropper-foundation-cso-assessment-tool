@@ -23,7 +23,7 @@ A comprehensive self-assessment tool for Civil Society Organizations (CSOs) to e
 
 - **Frontend**: Next.js 14 with App Router, TypeScript, TailwindCSS
 - **Backend**: Next.js API Routes, NextAuth.js for authentication
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: MySQL with Prisma ORM
 - **Forms**: React Hook Form with Zod validation
 - **PDF Generation**: @react-pdf/renderer
 - **Styling**: TailwindCSS with custom components
@@ -35,7 +35,7 @@ A comprehensive self-assessment tool for Civil Society Organizations (CSOs) to e
 ### Prerequisites
 
 - Node.js 20.x or later
-- PostgreSQL 15.x or later
+- MySQL 8.0 or later (or MariaDB 10.3+)
 - npm or yarn
 
 ### Installation
@@ -55,7 +55,7 @@ A comprehensive self-assessment tool for Civil Society Organizations (CSOs) to e
    Create a `.env.local` file in the root directory:
    ```env
    # Database
-   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cropper_cso_assessment"
+   DATABASE_URL="mysql://root:password@localhost:3306/cropper_cso_assessment"
    
    # Authentication
    NEXTAUTH_SECRET="your-super-secret-key-here"
@@ -67,12 +67,20 @@ A comprehensive self-assessment tool for Civil Society Organizations (CSOs) to e
 
 4. **Database Setup:**
    ```bash
-   # Run database migrations
+   # If converting from PostgreSQL, you'll need to reset migrations
+   # ⚠️ This will delete existing migrations - backup your data first!
+   # Option 1: Delete migrations folder and create fresh migration
+   rm -rf prisma/migrations
+   npx prisma migrate dev --name init
+   
+   # Option 2: If starting fresh, just run migrations
    npx prisma migrate dev
    
    # (Optional) Seed the database with sample data
    npm run db:seed
    ```
+   
+   **Note:** If you're converting from PostgreSQL to MySQL, the existing migrations in `prisma/migrations/` are PostgreSQL-specific and won't work with MySQL. You'll need to create a fresh migration after updating the schema provider to `mysql`.
 
 5. **Create an Admin User:**
    ```bash
@@ -141,14 +149,21 @@ scripts/
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | ✅ |
+| `DATABASE_URL` | MySQL connection string | ✅ |
 | `NEXTAUTH_SECRET` | Secret for NextAuth.js | ✅ |
 | `NEXTAUTH_URL` | Base URL for NextAuth.js | ✅ |
 | `NEXT_PUBLIC_APP_URL` | Public app URL | ✅ |
+| `EMAIL_HOST` | SMTP server host | ✅ |
+| `EMAIL_PORT` | SMTP server port | ✅ |
+| `EMAIL_SECURE` | Whether to use TLS/SSL (`true`/`false`) | ✅ |
+| `EMAIL_USER` | SMTP username (email address) | ✅ |
+| `EMAIL_PASS` | SMTP password | ✅ |
+| `EMAIL_FROM_EMAIL` | Sender email address | ✅ |
+| `EMAIL_FROM_NAME` | Sender display name | ✅ |
 
 ## 🗄 Database Schema
 
-The application uses PostgreSQL with the following main entities:
+The application uses MySQL with the following main entities:
 - **Organizations**: CSO organizations taking assessments
 - **Assessments**: Individual assessment instances
 - **Sections**: Assessment categories (e.g., Governance, Finance)
@@ -162,11 +177,12 @@ The application uses PostgreSQL with the following main entities:
 
 **Database Connection Error**
 ```bash
-# Check if PostgreSQL is running
-brew services start postgresql
+# Check if MySQL is running
+brew services start mysql
 
 # Verify database exists
-createdb cropper_cso_assessment
+mysql -u root -p
+CREATE DATABASE cropper_cso_assessment;
 ```
 
 **Migration Issues**

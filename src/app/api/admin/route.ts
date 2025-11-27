@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendAdminInviteEmail } from "@/lib/email";
+import { hash } from "bcryptjs";
 import { z } from "zod";
-import { randomBytes } from "crypto";
 
 export const dynamic = 'force-dynamic';
 
-const inviteAdminSchema = z.object({
+const createAdminSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
+  password: z.string().min(8),
 });
 
 export async function GET() {
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email } = inviteAdminSchema.parse(body);
+    const { name, email, password } = createAdminSchema.parse(body);
 
     // Check if admin already exists
     const existingAdmin = await prisma.admin.findUnique({
@@ -97,48 +97,30 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate invitation token and expiry (7 days)
-    const inviteToken = randomBytes(32).toString('hex');
-    const inviteExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // Hash the password
+    const hashedPassword = await hash(password, 12);
 
-    // Create invited admin
-    const invitedAdmin = await prisma.admin.create({
+    // Create admin directly (no invitation flow)
+    const newAdmin = await prisma.admin.create({
       data: {
         name,
         email,
-        isInvited: true,
-        inviteToken,
-        inviteExpiry,
+        password: hashedPassword,
+        isInvited: false,
+        inviteToken: null,
+        inviteExpiry: null,
         invitedBy: (session.user as any).id,
+        inviteAcceptedAt: new Date(),
       },
     });
 
-    // Send invitation email
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const inviteUrl = `${baseUrl}/admin/setup?token=${inviteToken}&email=${encodeURIComponent(email)}`;
-
-    const emailResult = await sendAdminInviteEmail({
-      name: invitedAdmin.name,
-      email: invitedAdmin.email,
-      inviteUrl,
-      invitedBy: (session.user as any).name || 'System Administrator',
-    });
-
-    if (!emailResult.success) {
-      console.error('Failed to send admin invite email:', emailResult.error);
-      return NextResponse.json(
-        { error: "Failed to send invitation email" },
-        { status: 500 }
-      );
-    }
-
     return NextResponse.json({
-      message: "Admin invitation sent successfully",
+      message: "Admin created successfully",
       admin: {
-        id: invitedAdmin.id,
-        name: invitedAdmin.name,
-        email: invitedAdmin.email,
-        isInvited: true,
+        id: newAdmin.id,
+        name: newAdmin.name,
+        email: newAdmin.email,
+        isInvited: false,
       },
     });
   } catch (error) {

@@ -3,8 +3,6 @@ import { hash, compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { sign } from "jsonwebtoken";
-import { sendVerificationEmail } from "@/lib/email";
-import { randomBytes } from "crypto";
 
 export const dynamic = 'force-dynamic';
 
@@ -40,40 +38,28 @@ export async function POST(request: Request) {
       }
 
       const hashedPassword = await hash(password, 12);
-      
-      // Generate verification token and expiry
-      const emailVerifyToken = randomBytes(32).toString('hex');
-      const emailVerifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       const organization = await prisma.organization.create({
         data: {
           name,
           email,
           password: hashedPassword,
-          emailVerified: false,
-          emailVerifyToken,
-          emailVerifyExpiry,
+          emailVerified: true, // Auto-verify email
+          emailVerifyToken: null,
+          emailVerifyExpiry: null,
         },
       });
 
-      // Send verification email
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-      const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(email)}`;
-
-      const emailResult = await sendVerificationEmail({
-        name: organization.name,
-        email: organization.email,
-        verificationUrl,
-      });
-
-      if (!emailResult.success) {
-        console.error('Failed to send verification email:', emailResult.error);
-        // Still return success but log the error
-      }
+      // Create auth token immediately after registration
+      const token = sign(
+        { orgId: organization.id },
+        process.env.NEXTAUTH_SECRET!,
+        { expiresIn: "7d" }
+      );
 
       return NextResponse.json({ 
-        message: "Organization created successfully. Please check your email to verify your account.",
-        emailSent: emailResult.success,
+        message: "Organization created successfully. You can now log in.",
+        token, // Return token so user is automatically logged in
         organization: { id: organization.id, name: organization.name, email: organization.email }
       });
     }
@@ -99,14 +85,6 @@ export async function POST(request: Request) {
         return NextResponse.json(
           { error: "Invalid credentials" },
           { status: 401 }
-        );
-      }
-
-      // Check if email is verified
-      if (!organization.emailVerified) {
-        return NextResponse.json(
-          { error: "Please verify your email address before logging in. Check your email for the verification link." },
-          { status: 403 }
         );
       }
 

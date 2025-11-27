@@ -4,6 +4,7 @@ import "./globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Header from "@/components/ui/header";
+import FloatingLoginPills from "@/components/ui/floating-login-pills";
 import AuthProvider from "@/components/providers/session-provider";
 import Logos from "@/components/ui/logos";
 import Link from "next/link";
@@ -39,6 +40,7 @@ export default async function RootLayout({
         <AuthProvider session={session}>
           <div className="min-h-screen flex flex-col bg-cropper-yellow-50">
             <Header />
+            <FloatingLoginPills />
             <main className="flex-grow">
               {children}
             </main>

@@ -67,12 +67,20 @@ export default function OrganizationLogin() {
         throw new Error(data.error || "Authentication failed");
       }
 
-      localStorage.setItem("org_token", data.token);
-      
-      // Add a small delay to ensure token is stored
-      setTimeout(() => {
-        router.push("/organization/dashboard");
-      }, 100);
+      // If registration, token is returned for auto-login
+      if (data.token) {
+        localStorage.setItem("org_token", data.token);
+        // Add a small delay to ensure token is stored
+        setTimeout(() => {
+          router.push("/organization/dashboard");
+        }, 100);
+      } else {
+        // Login flow
+        localStorage.setItem("org_token", data.token);
+        setTimeout(() => {
+          router.push("/organization/dashboard");
+        }, 100);
+      }
     } catch (error) {
       console.error("Auth error:", error);
       setError(error instanceof Error ? error.message : "Authentication failed");

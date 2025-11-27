@@ -30,6 +30,7 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
   const [inviteData, setInviteData] = useState({
     name: "",
     email: "",
+    password: "",
   });
   const [isInviting, setIsInviting] = useState(false);
   const [passwordResetData, setPasswordResetData] = useState<{
@@ -78,16 +79,16 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to invite admin");
+        throw new Error(data.error || "Failed to create admin");
       }
 
-      onSuccess?.("Admin invitation sent successfully!");
-      setInviteData({ name: "", email: "" });
+      onSuccess?.("Admin created successfully!");
+      setInviteData({ name: "", email: "", password: "" });
       setShowInviteForm(false);
       fetchAdmins(); // Refresh the list
     } catch (error) {
       console.error("Error inviting admin:", error);
-      onError?.(error instanceof Error ? error.message : "Failed to send invitation");
+      onError?.(error instanceof Error ? error.message : "Failed to create admin");
     } finally {
       setIsInviting(false);
     }
@@ -203,7 +204,7 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
           className="btn-primary btn-sm"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Invite Admin
+          Create Admin
         </button>
       </div>
 
@@ -241,13 +242,28 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
                     placeholder="admin@example.com"
                   />
                 </div>
+                <div>
+                  <label htmlFor="adminPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="adminPassword"
+                    required
+                    minLength={8}
+                    value={inviteData.password}
+                    onChange={(e) => setInviteData({ ...inviteData, password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    placeholder="Minimum 8 characters"
+                  />
+                </div>
               </div>
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => {
                     setShowInviteForm(false);
-                    setInviteData({ name: "", email: "" });
+                    setInviteData({ name: "", email: "", password: "" });
                   }}
                   className="btn-secondary btn-sm"
                 >
@@ -266,7 +282,7 @@ export default function AdminManagement({ onSuccess, onError }: AdminManagementP
                   ) : (
                     <>
                       <Mail className="h-4 w-4 mr-2" />
-                      Send Invitation
+                      Create Admin
                     </>
                   )}
                 </button>

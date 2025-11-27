@@ -5,20 +5,20 @@ This guide will help you deploy your Next.js CSO Self-Assessment Tool to cPanel 
 
 ## Prerequisites
 - cPanel access with Node.js support
-- PostgreSQL database access
+- MySQL database access
 - SFTP/FTP access to upload files
 
 ## Step 1: Database Setup
 
-### Create PostgreSQL Database in cPanel
+### Create MySQL Database in cPanel
 1. Log into cPanel
-2. Navigate to "PostgreSQL Databases" (or contact hosting provider if not available)
+2. Navigate to "MySQL Databases" (or "MySQL Database Wizard")
 3. Create a new database: `thecrop_csoapp`
-4. Create a new PostgreSQL user with a strong password
-5. Grant full privileges to the user on the database
+4. Create a new MySQL user with a strong password
+5. Grant full privileges (ALL PRIVILEGES) to the user on the database
 6. Note the connection details:
    - Host: localhost (usually)
-   - Port: 5432 (default PostgreSQL port)
+   - Port: 3306 (default MySQL port)
    - Database name: `thecrop_csoapp`
    - Username and password
 
@@ -28,7 +28,7 @@ Create a `.env.production` file with the following variables:
 
 ```bash
 NODE_ENV=production
-DATABASE_URL="postgresql://username:password@localhost:5432/thecrop_csoapp"
+DATABASE_URL="mysql://username:password@localhost:3306/thecrop_csoapp"
 NEXTAUTH_SECRET="your-super-secret-key-here-generate-a-random-string"
 NEXTAUTH_URL="https://selfassess.csogo.org"
 PORT=3000
@@ -192,7 +192,7 @@ npm run db:seed
    - Ensure environment variables are correct
 
 2. **Database Connection Issues:**
-   - Verify PostgreSQL is running
+   - Verify MySQL is running
    - Check database credentials
    - Ensure database exists and user has permissions
 
@@ -250,4 +250,4 @@ If you encounter issues:
 1. Check cPanel application logs
 2. Verify all environment variables
 3. Ensure database connectivity
-4. Contact hosting provider for Node.js/PostgreSQL support
+4. Contact hosting provider for Node.js/MySQL support

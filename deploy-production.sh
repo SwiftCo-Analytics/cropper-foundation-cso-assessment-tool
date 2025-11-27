@@ -131,6 +131,25 @@ echo "🔨 Building the application..."
 # This will also generate Prisma client (included in build script)
 npm run build
 
+# Verify build completed successfully
+if [ ! -d ".next" ]; then
+    echo "❌ ERROR: Build failed - .next directory not found"
+    exit 1
+fi
+
+if [ ! -f ".next/BUILD_ID" ]; then
+    echo "❌ ERROR: Build failed - BUILD_ID file not found"
+    exit 1
+fi
+
+if [ ! -d ".next/standalone" ]; then
+    echo "❌ ERROR: Build failed - standalone directory not found"
+    echo "   Make sure 'output: standalone' is set in next.config.js"
+    exit 1
+fi
+
+echo "✅ Build verification passed"
+
 echo "✅ Deployment complete!"
 echo ""
 echo "📝 Next steps:"

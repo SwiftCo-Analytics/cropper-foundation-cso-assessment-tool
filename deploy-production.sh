@@ -5,6 +5,25 @@
 
 set -e  # Exit on any error (except where explicitly handled)
 
+# Find npm if not in PATH (common on some hosting platforms)
+if ! command -v npm &> /dev/null; then
+    # Try common npm locations
+    if [ -f "$HOME/.nvm/nvm.sh" ]; then
+        source "$HOME/.nvm/nvm.sh"
+    elif [ -f "/usr/local/bin/npm" ]; then
+        export PATH="/usr/local/bin:$PATH"
+    elif [ -f "/opt/nodejs/bin/npm" ]; then
+        export PATH="/opt/nodejs/bin:$PATH"
+    else
+        echo "❌ ERROR: npm not found. Please ensure Node.js and npm are installed."
+        echo "   You may need to:"
+        echo "   1. Install Node.js on your server"
+        echo "   2. Add npm to your PATH"
+        echo "   3. Or run this script from a directory where npm is available"
+        exit 1
+    fi
+fi
+
 echo "🚀 Starting production deployment..."
 
 # Switch to the site directory (update this path for your xcloud setup)
@@ -122,4 +141,9 @@ echo ""
 echo "💡 To start/restart the app:"
 echo "   - Run: npm start"
 echo "   - Or use your xcloud process manager (PM2, systemd, etc.)"
+echo ""
+echo "⚠️  IMPORTANT: If npm is not in your PATH on the server:"
+echo "   1. Find npm location: which npm or find / -name npm 2>/dev/null"
+echo "   2. Add it to PATH: export PATH=\"/path/to/node/bin:\$PATH\""
+echo "   3. Or use full path: /path/to/npm start"
 

@@ -1,10 +1,14 @@
 import React from 'react';
+import BackButton from "@/components/ui/back-button";
 
 export default function PrivacyPolicy() {
   return (
     <main className="min-h-screen bg-mint-50">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <BackButton />
+          </div>
           {/* Page Header */}
           <div className="text-center mb-16">
             <h1 className="text-hero font-bold text-mint-900 mb-6">Privacy Policy</h1>

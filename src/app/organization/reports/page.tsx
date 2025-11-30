@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, FileSpreadsheet } from "lucide-react";
-import Link from "next/link";
+import { Download, FileSpreadsheet } from "lucide-react";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
+import BackButton from "@/components/ui/back-button";
+import Link from "next/link";
 
 interface ReportsData {
   overview: {
@@ -216,13 +217,7 @@ export default function OrganizationReports() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <Link
-          href="/organization/dashboard"
-          className="inline-flex items-center text-cropper-mint-600 hover:text-cropper-mint-700 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Link>
+        <BackButton href="/organization/dashboard" />
       </div>
 
       {scores ? (

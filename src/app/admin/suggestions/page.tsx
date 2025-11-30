@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
+import BackButton from "@/components/ui/back-button";
 
 interface Section {
   id: string;
@@ -505,14 +506,10 @@ export default function SuggestionsManagement() {
   return (
     <div className="content-container section-spacing">
       <FadeIn>
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="page-header">
-          <Link
-            href="/admin/dashboard"
-            className="inline-flex items-center text-cropper-mint-600 hover:text-cropper-mint-700 mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Link>
           
           <motion.h1 
             className="page-title"

@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
+import { Download } from "lucide-react";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
+import BackButton from "@/components/ui/back-button";
 
 interface OrganizationReportProps {
   params: {
@@ -164,13 +165,7 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <Link
-          href="/admin/reports"
-          className="inline-flex items-center text-cropper-green-600 hover:text-cropper-green-700 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Reports
-        </Link>
+        <BackButton href="/admin/reports" label="Back to Reports" />
       </div>
 
       {scores ? (

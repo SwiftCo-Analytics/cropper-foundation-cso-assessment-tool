@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Building2, ArrowLeft, Users, Lock } from "lucide-react";
+import { Loader2, Building2, Users, Lock } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import BackButton from "@/components/ui/back-button";
 
 export default function OrganizationLogin() {
   const router = useRouter();
@@ -285,13 +285,7 @@ export default function OrganizationLogin() {
                   transition={{ duration: 0.7, delay: 0.6 }}
                 >
                   <Hover>
-                    <Link
-                      href="/"
-                      className="nav-link inline-flex items-center"
-                    >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Home
-                    </Link>
+                    <BackButton />
                   </Hover>
                 </motion.div>
               </div>

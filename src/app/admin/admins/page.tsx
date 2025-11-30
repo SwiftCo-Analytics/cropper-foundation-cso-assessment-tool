@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Shield, X } from "lucide-react";
-import Link from "next/link";
+import { Shield, X } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import AdminManagement from "@/components/admin-management";
+import BackButton from "@/components/ui/back-button";
 
 export default function AdminManagementPage() {
   const { data: session, status } = useSession();
@@ -43,6 +43,9 @@ export default function AdminManagementPage() {
   return (
     <div className="content-container section-spacing">
       <FadeIn>
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="page-header">
           <motion.h1 
             className="page-title"
@@ -60,22 +63,6 @@ export default function AdminManagementPage() {
           >
             Manage system administrators and their access
           </motion.p>
-          
-          {/* Navigation */}
-          <motion.div 
-            className="flex space-x-4 mt-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-          >
-            <Link
-              href="/admin/dashboard"
-              className="btn-secondary"
-            >
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              Back to Dashboard
-            </Link>
-          </motion.div>
         </div>
 
         {/* Success Message */}

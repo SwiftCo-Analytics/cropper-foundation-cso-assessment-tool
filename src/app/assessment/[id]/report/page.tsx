@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, ArrowLeft, CheckCircle, Clock, Lightbulb, Target, BarChart3, FileSpreadsheet, FileArchiveIcon } from "lucide-react";
-import Link from "next/link";
+import { Download, CheckCircle, Clock, Lightbulb, Target, BarChart3, FileSpreadsheet, FileArchiveIcon } from "lucide-react";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
+import BackButton from "@/components/ui/back-button";
+import Link from "next/link";
 
 interface AssessmentReportProps {
   params: {
@@ -486,13 +487,7 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
     <div className="container mx-auto px-4 py-16">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <Link
-            href="/organization/dashboard"
-            className="inline-flex items-center text-cropper-mint-600 hover:text-cropper-mint-700 mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Link>
+          <BackButton href="/organization/dashboard" />
           
           <div className="flex items-center justify-between">
             <div>

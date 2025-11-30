@@ -16,6 +16,7 @@ export default function Header() {
 
   const isAdminPath = pathname.startsWith("/admin");
   const isOrgPath = pathname.startsWith("/organization");
+  const isLoginPage = pathname === "/admin/login" || pathname === "/organization/login";
 
   useEffect(() => {
     // Check for organization login
@@ -52,12 +53,9 @@ export default function Header() {
     router.push("/");
   };
 
-  // Don't show full navbar on public pages - use floating pills instead
-  const isPublicPage = !isAdminPath && !isOrgPath;
-
-  if (isPublicPage) {
-    return null; // Floating pills will be shown instead
-  }
+  // Don't show navbar on any pages - use floating pills and back buttons instead
+  // This provides a cleaner, more consistent navigation experience
+  return null;
 
   return (
     <header className="bg-white shadow-sm border-b border-cropper-green-200">
@@ -149,7 +147,7 @@ export default function Header() {
               {orgData ? (
                 <div className="relative group">
                   <button className="flex items-center space-x-1 text-base font-medium text-cropper-blue-600">
-                    <span>Organization: {orgData.name}</span>
+                    <span>Organization: {orgData?.name}</span>
                     <ChevronDown className="h-4 w-4" />
                   </button>
                   <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -182,7 +180,7 @@ export default function Header() {
               {status === "authenticated" && session?.user ? (
                 <div className="relative group">
                   <button className="flex items-center space-x-1 text-base font-medium text-cropper-orange-600">
-                    <span>Admin: {session.user.name || 'Admin'}</span>
+                    <span>Admin: {session?.user?.name || 'Admin'}</span>
                     <ChevronDown className="h-4 w-4" />
                   </button>
                   <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -322,7 +320,7 @@ export default function Header() {
               {orgData ? (
                 <>
                   <div className="text-base font-medium text-cropper-blue-600">
-                    Organization: {orgData.name}
+                    Organization: {orgData?.name}
                   </div>
                   <Link
                     href="/organization/dashboard"
@@ -357,7 +355,7 @@ export default function Header() {
               {status === "authenticated" && session?.user ? (
                 <>
                   <div className="text-base font-medium text-cropper-orange-600">
-                    Admin: {session.user.name || 'Admin'}
+                    Admin: {session?.user?.name || 'Admin'}
                   </div>
                   <Link
                     href="/admin/dashboard"

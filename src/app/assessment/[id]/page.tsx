@@ -1,6 +1,7 @@
 import { getAssessment } from "@/lib/prisma";
 import { AssessmentForm } from "@/components/forms/assessment-form";
 import { redirect } from "next/navigation";
+import BackButton from "@/components/ui/back-button";
 
 interface AssessmentPageProps {
   params: {
@@ -19,6 +20,9 @@ export default async function AssessmentPage({ params }: AssessmentPageProps) {
   return (
     <div className="content-container section-spacing">
       <div className="content-wide">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="page-header">
           <h1 className="page-title">
             CSO Self Assessment

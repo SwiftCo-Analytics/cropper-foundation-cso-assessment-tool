@@ -4,10 +4,14 @@ import Image from "next/image";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Logos from "@/components/ui/logos";
+import BackButton from "@/components/ui/back-button";
 
 export default function AboutPage() {
   return (
     <div className="content-container section-spacing">
+      <div className="mb-6">
+        <BackButton />
+      </div>
       {/* Hero Section */}
       <FadeIn>
         <div className="text-center mb-16 relative">

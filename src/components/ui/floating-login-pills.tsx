@@ -43,10 +43,12 @@ export default function FloatingLoginPills() {
     router.push("/");
   };
 
-  // Don't show on login pages or authenticated admin/org pages (show normal header there)
-  if (pathname === "/organization/login" || pathname === "/admin/login" || isAdminPath || isOrgPath) {
+  // Don't show on login pages (they have back buttons instead)
+  if (pathname === "/organization/login" || pathname === "/admin/login") {
     return null;
   }
+  
+  // Show on all other pages (public, admin, and org pages)
 
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 items-end">

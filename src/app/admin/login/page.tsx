@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Shield, ArrowLeft } from "lucide-react";
+import { Lock, Shield } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import BackButton from "@/components/ui/back-button";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -175,13 +175,7 @@ export default function AdminLoginPage() {
                   transition={{ duration: 0.7, delay: 0.6 }}
                 >
                   <Hover>
-                    <Link
-                      href="/"
-                      className="nav-link inline-flex items-center"
-                    >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Home
-                    </Link>
+                    <BackButton />
                   </Hover>
                 </motion.div>
               </div>

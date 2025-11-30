@@ -142,10 +142,13 @@ if [ ! -f ".next/BUILD_ID" ]; then
     exit 1
 fi
 
-if [ ! -d ".next/standalone" ]; then
-    echo "❌ ERROR: Build failed - standalone directory not found"
-    echo "   Make sure 'output: standalone' is set in next.config.js"
-    exit 1
+# Check if standalone build was used (optional)
+if [ -d ".next/standalone" ]; then
+    echo "ℹ️  Standalone build detected - using standalone server"
+    echo "   To use standalone: npm run build:standalone && npm run start:standalone"
+else
+    echo "ℹ️  Standard build detected - using next start"
+    echo "   This is the recommended approach for most deployments"
 fi
 
 echo "✅ Build verification passed"
@@ -158,7 +161,11 @@ echo "2. Check application logs for any errors"
 echo "3. Verify the application is running"
 echo ""
 echo "💡 To start/restart the app:"
-echo "   - Run: npm start"
+if [ -d ".next/standalone" ]; then
+    echo "   - Run: npm run start:standalone (for standalone build)"
+else
+    echo "   - Run: npm start (for standard build)"
+fi
 echo "   - Or use your xcloud process manager (PM2, systemd, etc.)"
 echo ""
 echo "⚠️  IMPORTANT: If npm is not in your PATH on the server:"

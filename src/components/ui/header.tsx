@@ -171,7 +171,7 @@ export default function Header() {
                     href="/organization/login"
                     className="text-base font-medium text-cropper-blue-600 hover:text-cropper-blue-500"
                   >
-                    Organization Login
+                    Self Assessment Login
                   </Link>
                 )
               )}

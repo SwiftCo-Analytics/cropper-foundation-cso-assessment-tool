@@ -16,7 +16,7 @@ export default function FloatingLoginPills() {
   const isOrgPath = pathname.startsWith("/organization");
 
   useEffect(() => {
-    // Check for organization login
+    // Check for organization for self assessment login
     const token = localStorage.getItem("org_token");
     if (token) {
       fetch("/api/organizations/me", {
@@ -52,7 +52,7 @@ export default function FloatingLoginPills() {
 
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 items-end">
-      {/* Organization Login */}
+      {/* Organization for Self Assessment Login */}
       {orgData ? (
         <div className="group relative">
           <button className="flex items-center gap-2 px-4 py-2 bg-cropper-blue-500 text-white rounded-full shadow-lg hover:bg-cropper-blue-600 transition-colors">
@@ -80,7 +80,7 @@ export default function FloatingLoginPills() {
           className="flex items-center gap-2 px-4 py-2 bg-cropper-blue-500 text-white rounded-full shadow-lg hover:bg-cropper-blue-600 transition-colors"
         >
           <Building2 className="h-4 w-4" />
-          <span className="text-sm font-medium">Organization Login</span>
+          <span className="text-sm font-medium">Self Assessment Login</span>
         </Link>
       )}
 

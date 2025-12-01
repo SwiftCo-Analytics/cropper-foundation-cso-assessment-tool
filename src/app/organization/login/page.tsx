@@ -115,7 +115,7 @@ export default function OrganizationLogin() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.2 }}
                   >
-                    {isLogin ? "Organization Login" : "Register Organization"}
+                    {isLogin ? "Self Assessment Login" : "Register Organization for Self Assessment"}
                   </motion.h1>
                   
                   <motion.p 

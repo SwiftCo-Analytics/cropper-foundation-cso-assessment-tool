@@ -86,8 +86,8 @@ export default function Error({ error, reset }: ErrorProps) {
                         <div className="h-12 w-12 rounded-lg bg-cropper-blue-100 flex items-center justify-center mx-auto mb-3 group-hover:bg-cropper-blue-200 transition-colors duration-200">
                           <Building2 className="h-6 w-6 text-cropper-blue-600" />
                         </div>
-                        <h3 className="text-subheading mb-2">Organization Login</h3>
-                        <p className="text-caption text-gray-600">Access your organization dashboard</p>
+                        <h3 className="text-subheading mb-2">Self Assessment Login</h3>
+                        <p className="text-caption text-gray-600">Access your self assessment dashboard</p>
                       </Link>
                     </Hover>
 

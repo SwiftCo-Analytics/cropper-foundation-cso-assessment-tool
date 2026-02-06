@@ -6,6 +6,7 @@ import { Loader2, Building2, Users, Lock } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/back-button";
+import Link from "next/link";
 
 export default function OrganizationLogin() {
   const router = useRouter();
@@ -207,12 +208,22 @@ export default function OrganizationLogin() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: !isLogin ? 0.2 : 0.1 }}
                     >
-                      <label
-                        htmlFor="password"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Password
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label
+                          htmlFor="password"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Password
+                        </label>
+                        {isLogin && (
+                          <Link
+                            href="/organization/forgot-password"
+                            className="text-sm text-cropper-mint-600 hover:text-cropper-mint-700"
+                          >
+                            Forgot password?
+                          </Link>
+                        )}
+                      </div>
                       <input
                         id="password"
                         name="password"

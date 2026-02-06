@@ -157,6 +157,12 @@ export default function Header() {
                     >
                       Dashboard
                     </Link>
+                    <Link
+                      href="/organization/account"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Account
+                    </Link>
                     <button
                       onClick={handleOrgSignOut}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -189,6 +195,12 @@ export default function Header() {
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Dashboard
+                    </Link>
+                    <Link
+                      href="/admin/account"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Account
                     </Link>
                     <button
                       onClick={() => signOut({ callbackUrl: "/" })}

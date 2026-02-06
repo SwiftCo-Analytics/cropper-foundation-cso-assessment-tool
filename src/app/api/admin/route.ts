@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { hash } from "bcryptjs";
+import { sendAdminInviteEmail } from "@/lib/email";
+import { randomBytes } from "crypto";
 import { z } from "zod";
 
 export const dynamic = 'force-dynamic';
 
-const createAdminSchema = z.object({
+const inviteAdminSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().min(8),
 });
 
 export async function GET() {
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password } = createAdminSchema.parse(body);
+    const { name, email } = inviteAdminSchema.parse(body);
 
     // Check if admin already exists
     const existingAdmin = await prisma.admin.findUnique({
@@ -97,30 +97,48 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash the password
-    const hashedPassword = await hash(password, 12);
+    const token = randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    // Create admin directly (no invitation flow)
     const newAdmin = await prisma.admin.create({
       data: {
         name,
         email,
-        password: hashedPassword,
-        isInvited: false,
-        inviteToken: null,
-        inviteExpiry: null,
+        password: null,
+        isInvited: true,
+        inviteToken: token,
+        inviteExpiry: expires,
         invitedBy: (session.user as any).id,
-        inviteAcceptedAt: new Date(),
       },
     });
 
+    const baseUrl = process.env.NEXTAUTH_URL || "";
+    const inviteUrl = `${baseUrl}/admin/setup?token=${token}&email=${encodeURIComponent(email)}`;
+    const invitedBy = session.user?.name || "An administrator";
+
+    const emailResult = await sendAdminInviteEmail({
+      name,
+      email,
+      inviteUrl,
+      invitedBy,
+    });
+
+    if (!emailResult.success) {
+      console.error("Failed to send admin invite email:", emailResult.error);
+      return NextResponse.json(
+        { error: "Invitation created but email could not be sent. Please share the setup link manually or try again." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
-      message: "Admin created successfully",
+      message: "Invitation sent successfully",
       admin: {
         id: newAdmin.id,
         name: newAdmin.name,
         email: newAdmin.email,
-        isInvited: false,
+        isInvited: true,
+        inviteExpiry: expires.toISOString(),
       },
     });
   } catch (error) {

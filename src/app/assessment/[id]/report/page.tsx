@@ -305,12 +305,10 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
         let loaded = data.suggestions || [];
         // Auto-generate if none exist yet
         if ((!Array.isArray(loaded) || loaded.length === 0) && assessment?.status === "COMPLETED") {
-          console.log("No suggestions found, attempting to auto-generate...");
           const genRes = await fetch(`/api/assessments/${params.id}/suggestions`, { method: "POST" });
           if (genRes.ok) {
             const genData = await genRes.json();
             loaded = genData.suggestions || [];
-            console.log(`Generated ${loaded.length} suggestions`);
           } else {
             const errorText = await genRes.text();
             console.error("Failed to generate suggestions:", genRes.status, errorText);
@@ -401,7 +399,6 @@ export default function AssessmentReport({ params }: AssessmentReportProps) {
       if (!response.ok) throw new Error("Failed to check completion");
 
       const result = await response.json();
-      console.log("Completion check result:", result);
       
       // Reload the assessment to get updated status
       const assessmentResponse = await fetch(`/api/assessments/${params.id}`);

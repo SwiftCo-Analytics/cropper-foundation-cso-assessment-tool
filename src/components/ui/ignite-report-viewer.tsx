@@ -90,15 +90,6 @@ export function IgniteReportViewer({
   // Assessment-wide highlights (section: "assessment")
   const assessmentHighlights = sectionToSuggestions['assessment'] || [];
 
-  // Debug logging (remove in production if needed)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Suggestions data:', {
-      totalSuggestions: suggestions?.length || 0,
-      assessmentTypeSuggestions: suggestions?.filter(s => s.type === 'ASSESSMENT' || s.type === 'assessment').length || 0,
-      sectionToSuggestions,
-      assessmentHighlightsCount: assessmentHighlights.length
-    });
-  }
 
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-soft rounded-2xl border border-cropper-green-200 overflow-hidden">

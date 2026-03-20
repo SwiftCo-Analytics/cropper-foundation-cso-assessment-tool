@@ -19,11 +19,9 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log("Missing credentials");
           return null;
         }
 
-        console.log("Looking for admin with email:", credentials.email);
         const admin = await prisma.admin.findUnique({
           where: {
             email: credentials.email,
@@ -31,25 +29,20 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!admin) {
-          console.log("Admin not found");
           return null;
         }
 
         // Check if admin is invited but hasn't set up password yet
         if (!admin.password) {
-          console.log("Admin has not set up password yet");
           return null;
         }
 
-        console.log("Admin found, checking password");
         const isPasswordValid = await compare(credentials.password, admin.password);
 
         if (!isPasswordValid) {
-          console.log("Invalid password");
           return null;
         }
 
-        console.log("Login successful");
         return {
           id: admin.id,
           email: admin.email,

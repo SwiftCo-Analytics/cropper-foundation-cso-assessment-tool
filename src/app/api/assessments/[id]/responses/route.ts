@@ -96,14 +96,6 @@ export async function POST(
         return response && response.value !== null && response.value !== undefined && response.value !== "";
       });
       
-      console.log(`Assessment ${params.id} completion check:`, {
-        totalMandatoryQuestions: mandatoryQuestions.length,
-        answeredMandatoryQuestions: answeredMandatoryQuestions.length,
-        mandatoryQuestions: mandatoryQuestions.map(q => ({ id: q.id, text: q.text })),
-        answeredQuestions: answeredMandatoryQuestions.map(q => ({ id: q.id, text: q.text })),
-        allResponses: allResponses.map(r => ({ questionId: r.questionId, value: r.value }))
-      });
-      
       // If all mandatory questions are answered, mark assessment as completed
       if (answeredMandatoryQuestions.length === mandatoryQuestions.length && mandatoryQuestions.length > 0) {
         // Check if assessment is already completed to avoid duplicate suggestion generation
@@ -112,27 +104,17 @@ export async function POST(
         });
         
         if (currentAssessment?.status !== "COMPLETED") {
-          console.log(`Marking assessment ${params.id} as completed`);
-          await prisma.assessment.update({
-            where: { id: params.id },
-            data: {
-              status: "COMPLETED",
-              completedAt: new Date(),
-            },
-          });
           
           // Auto-generate suggestions for the newly completed assessment
           try {
-            console.log(`Auto-generating suggestions for assessment ${params.id}`);
             await SuggestionEngine.generateSuggestions(params.id);
-            console.log(`Successfully generated suggestions for assessment ${params.id}`);
           } catch (error) {
             console.error("Error auto-generating suggestions:", error);
             // Don't fail the response save if suggestions fail
           }
         }
       } else {
-        console.log(`Assessment ${params.id} not completed yet. Missing ${mandatoryQuestions.length - answeredMandatoryQuestions.length} mandatory questions`);
+        console.warn(`Assessment ${params.id} not completed yet. Missing ${mandatoryQuestions.length - answeredMandatoryQuestions.length} mandatory questions`);
       }
     }
 

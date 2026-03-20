@@ -82,10 +82,8 @@ export async function GET(
         const hasSuggestions = assessment.report?.suggestions && assessment.report.suggestions.length > 0;
         if (!hasSuggestions) {
           try {
-            console.log(`Auto-generating suggestions for completed assessment ${assessment.id}`);
             await SuggestionEngine.generateSuggestions(assessment.id);
           } catch (error) {
-            console.error(`Error auto-generating suggestions for assessment ${assessment.id}:`, error);
             // Continue with other assessments even if one fails
           }
         }

@@ -10,6 +10,18 @@ interface BackButtonProps {
   className?: string;
 }
 
+/** Logged-out admin flows; dashboard is session-protected and would bounce back to login. */
+const ADMIN_PUBLIC_AUTH_PREFIXES = [
+  "/admin/login",
+  "/admin/forgot-password",
+  "/admin/reset-password",
+  "/admin/setup",
+] as const;
+
+function matchesPathPrefix(pathname: string, prefix: string) {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
 export default function BackButton({ 
   href, 
   label,
@@ -20,17 +32,29 @@ export default function BackButton({
 
   // Determine default href based on current path
   const getDefaultHref = () => {
+    if (ADMIN_PUBLIC_AUTH_PREFIXES.some((p) => matchesPathPrefix(pathname, p))) {
+      return "/";
+    }
+    if (matchesPathPrefix(pathname, "/organization/login")) {
+      return "/";
+    }
     if (pathname.startsWith("/admin")) {
       return "/admin/dashboard";
     }
     if (pathname.startsWith("/organization")) {
       return "/organization/dashboard";
     }
-    // For public pages, go to home
     return "/";
   };
 
   const defaultLabel = () => {
+    const onAdminAuthPage = ADMIN_PUBLIC_AUTH_PREFIXES.some((p) =>
+      matchesPathPrefix(pathname, p)
+    );
+    const onOrgLogin = matchesPathPrefix(pathname, "/organization/login");
+    if (onAdminAuthPage || onOrgLogin) {
+      return "Back to Home";
+    }
     if (pathname.startsWith("/admin")) {
       return "Back to Dashboard";
     }

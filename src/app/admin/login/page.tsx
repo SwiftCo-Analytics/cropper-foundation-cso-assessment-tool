@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Lock, Shield } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
@@ -10,12 +10,16 @@ import { motion } from "framer-motion";
 import BackButton from "@/components/ui/back-button";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin/dashboard";
+  const rawCallback = searchParams.get("callbackUrl") || "/admin/dashboard";
+  // Only allow same-app admin paths (avoid open redirects from query string).
+  const callbackUrl =
+    rawCallback.startsWith("/admin") && !rawCallback.startsWith("//")
+      ? rawCallback
+      : "/admin/dashboard";
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,8 +39,8 @@ export default function AdminLoginPage() {
       });
 
       if (!result?.error) {
-        router.push(callbackUrl);
-        router.refresh();
+        // Full navigation so middleware sees the session cookie (esp. __Secure- on HTTPS).
+        window.location.assign(callbackUrl);
       } else {
         // Translate NextAuth error codes to user-friendly messages
         const errorMessage = result.error === "CredentialsSignin" 

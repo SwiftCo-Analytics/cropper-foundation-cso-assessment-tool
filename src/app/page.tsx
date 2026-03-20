@@ -17,7 +17,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-cropper-yellow-100/50 to-cropper-yellow-50 pointer-events-none" />
         
         {/* Background Artwork */}
-        <div className="absolute top-0 right-0 w-full h-4/3 opacity-40">
+        <div className="absolute top-0 right-0 w-full h-4/3 opacity-40 pointer-events-none">
           <img
             src="/naf/Artboard 1@300x.png"
             alt="Decorative background"
@@ -98,7 +98,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-cropper-yellow-100/30 via-transparent to-cropper-green-50/30 pointer-events-none" />
         
         {/* Decorative artwork */}
-        <div className="absolute top-10 left-10 w-32 h-32 opacity-5">
+        <div className="absolute top-10 left-10 w-32 h-32 opacity-5 pointer-events-none">
           <img
             src="/naf/OVAL@300x.png"
             alt="Decorative element"
@@ -207,7 +207,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-cropper-orange-100 to-cropper-yellow-100 pointer-events-none" />
         
         {/* Background decoration */}
-        <div className="absolute bottom-0 right-0 w-full h-full opacity-10">
+        <div className="absolute bottom-0 right-0 w-full h-full opacity-10 pointer-events-none">
           <img
             src="/naf/Artboard 10@300x.png"
             alt="Decorative background"

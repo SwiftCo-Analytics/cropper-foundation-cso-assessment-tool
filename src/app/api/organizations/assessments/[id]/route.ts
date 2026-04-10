@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { verify } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireVerifiedOrganization } from "@/lib/organization-auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,16 +12,10 @@ const updateAssessmentSchema = z.object({
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
-    const token = request.headers.get("authorization")?.split(" ")[1];
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireVerifiedOrganization(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
     }
-
-    const decoded = verify(token, process.env.NEXTAUTH_SECRET!) as { orgId: string };
     const body = await request.json();
     const { name } = updateAssessmentSchema.parse(body);
 
@@ -29,7 +23,7 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
     const assessment = await prisma.assessment.findFirst({
       where: {
         id: params.id,
-        organizationId: decoded.orgId,
+        organizationId: auth.orgId,
       },
     });
 
@@ -65,22 +59,16 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
-    const token = request.headers.get("authorization")?.split(" ")[1];
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireVerifiedOrganization(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
     }
-
-    const decoded = verify(token, process.env.NEXTAUTH_SECRET!) as { orgId: string };
 
     // Verify the assessment belongs to the organization
     const assessment = await prisma.assessment.findFirst({
       where: {
         id: params.id,
-        organizationId: decoded.orgId,
+        organizationId: auth.orgId,
       },
     });
 

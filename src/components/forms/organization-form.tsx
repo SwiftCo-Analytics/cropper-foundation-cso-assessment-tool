@@ -12,6 +12,9 @@ const organizationSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters.",
+  }),
 });
 
 type OrganizationFormValues = z.infer<typeof organizationSchema>;
@@ -23,12 +26,13 @@ export function OrganizationForm() {
     defaultValues: {
       name: "",
       email: "",
+      password: "",
     },
   });
 
   async function onSubmit(data: OrganizationFormValues) {
     try {
-      const response = await fetch("/api/organizations", {
+      const response = await fetch("/api/organizations/auth?action=register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,15 +44,7 @@ export function OrganizationForm() {
         throw new Error("Failed to create organization");
       }
 
-      const result = await response.json();
-      
-      // Store the authentication token
-      localStorage.setItem("org_token", result.token);
-      
-      // Add a small delay to ensure token is stored
-      setTimeout(() => {
-        router.push("/organization/dashboard");
-      }, 100);
+      router.push("/organization/login");
     } catch (error) {
       console.error("Error creating organization:", error);
       // Handle error appropriately
@@ -106,11 +102,34 @@ export function OrganizationForm() {
           </div>
 
           <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Password
+            </label>
+            <div className="mt-2">
+              <input
+                {...form.register("password")}
+                type="password"
+                id="password"
+                className="input-primary"
+                placeholder="Create a password (min 8 characters)"
+              />
+              {form.formState.errors.password && (
+                <p className="mt-2 text-sm text-red-600">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
             <button
               type="submit"
               className="btn-primary w-full"
             >
-              Create Organization Account
+              Register Organization
             </button>
           </div>
         </div>

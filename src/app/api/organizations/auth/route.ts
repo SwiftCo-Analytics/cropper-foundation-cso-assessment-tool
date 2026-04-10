@@ -3,6 +3,8 @@ import { hash, compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { sign } from "jsonwebtoken";
+import { randomBytes } from "crypto";
+import { sendVerificationEmail } from "@/lib/email";
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +33,28 @@ export async function POST(request: Request) {
       });
 
       if (existingOrg) {
+        if (!existingOrg.emailVerified) {
+          const emailVerifyToken = randomBytes(32).toString("hex");
+          const emailVerifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          await prisma.organization.update({
+            where: { id: existingOrg.id },
+            data: { emailVerifyToken, emailVerifyExpiry },
+          });
+
+          const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(existingOrg.email)}`;
+          await sendVerificationEmail({
+            name: existingOrg.name,
+            email: existingOrg.email,
+            verificationUrl,
+          });
+
+          return NextResponse.json({
+            message:
+              "Your account already exists but is not verified. We sent a new verification email.",
+          });
+        }
+
         return NextResponse.json(
           { error: "Organization already exists" },
           { status: 400 }
@@ -38,28 +62,37 @@ export async function POST(request: Request) {
       }
 
       const hashedPassword = await hash(password, 12);
+      const emailVerifyToken = randomBytes(32).toString("hex");
+      const emailVerifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       const organization = await prisma.organization.create({
         data: {
           name,
           email,
           password: hashedPassword,
-          emailVerified: true, // Auto-verify email
-          emailVerifyToken: null,
-          emailVerifyExpiry: null,
+          emailVerified: false,
+          emailVerifyToken,
+          emailVerifyExpiry,
         },
       });
 
-      // Create auth token immediately after registration
-      const token = sign(
-        { orgId: organization.id },
-        process.env.NEXTAUTH_SECRET!,
-        { expiresIn: "7d" }
-      );
+      const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+      const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(organization.email)}`;
+      const emailResult = await sendVerificationEmail({
+        name: organization.name,
+        email: organization.email,
+        verificationUrl,
+      });
+
+      if (!emailResult.success) {
+        return NextResponse.json(
+          { error: "Account created, but failed to send verification email. Please request a resend." },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({ 
-        message: "Organization created successfully. You can now log in.",
-        token, // Return token so user is automatically logged in
+        message: "Registration successful. Please verify your email before logging in.",
         organization: { id: organization.id, name: organization.name, email: organization.email }
       });
     }
@@ -85,6 +118,13 @@ export async function POST(request: Request) {
         return NextResponse.json(
           { error: "Invalid credentials" },
           { status: 401 }
+        );
+      }
+
+      if (!organization.emailVerified) {
+        return NextResponse.json(
+          { error: "Please verify your email address before logging in" },
+          { status: 403 }
         );
       }
 

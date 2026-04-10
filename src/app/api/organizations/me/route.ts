@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { verify } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireVerifiedOrganization } from "@/lib/organization-auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,19 +9,13 @@ const updateNameSchema = z.object({ name: z.string().min(2) });
 
 export async function GET(request: Request) {
   try {
-    const token = request.headers.get("authorization")?.split(" ")[1];
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireVerifiedOrganization(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
     }
 
-    const decoded = verify(token, process.env.NEXTAUTH_SECRET!) as { orgId: string };
-
     const organization = await prisma.organization.findUnique({
-      where: { id: decoded.orgId },
+      where: { id: auth.orgId },
       select: {
         id: true,
         name: true,
@@ -71,17 +65,15 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const token = request.headers.get("authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireVerifiedOrganization(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
     }
-
-    const decoded = verify(token, process.env.NEXTAUTH_SECRET!) as { orgId: string };
     const body = await request.json();
     const { name } = updateNameSchema.parse(body);
 
     await prisma.organization.update({
-      where: { id: decoded.orgId },
+      where: { id: auth.orgId },
       data: { name },
     });
 

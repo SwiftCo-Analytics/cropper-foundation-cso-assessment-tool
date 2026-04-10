@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { verify } from "jsonwebtoken";
 import { hash, compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireVerifiedOrganization } from "@/lib/organization-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,17 +13,15 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const token = request.headers.get("authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireVerifiedOrganization(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
     }
-
-    const decoded = verify(token, process.env.NEXTAUTH_SECRET!) as { orgId: string };
     const body = await request.json();
     const { currentPassword, newPassword } = schema.parse(body);
 
     const organization = await prisma.organization.findUnique({
-      where: { id: decoded.orgId },
+      where: { id: auth.orgId },
     });
 
     if (!organization || !organization.password) {

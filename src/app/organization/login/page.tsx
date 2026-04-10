@@ -12,7 +12,9 @@ export default function OrganizationLogin() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [resendingVerification, setResendingVerification] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,6 +51,7 @@ export default function OrganizationLogin() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       const response = await fetch(
@@ -68,6 +71,13 @@ export default function OrganizationLogin() {
         throw new Error(data.error || "Authentication failed");
       }
 
+      if (!isLogin) {
+        setSuccess(data.message || "Registration successful. Please verify your email before logging in.");
+        setIsLogin(true);
+        setFormData((prev) => ({ ...prev, password: "" }));
+        return;
+      }
+
       if (!data.token) {
         throw new Error("No session token returned");
       }
@@ -81,6 +91,42 @@ export default function OrganizationLogin() {
       setError(error instanceof Error ? error.message : "Authentication failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResendVerification() {
+    if (!formData.email) {
+      setError("Enter your email address first to resend verification.");
+      return;
+    }
+
+    setResendingVerification(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch("/api/organizations/resend-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to resend verification email");
+      }
+
+      setSuccess("Verification email sent. Please check your inbox.");
+    } catch (resendError) {
+      setError(
+        resendError instanceof Error
+          ? resendError.message
+          : "Failed to resend verification email"
+      );
+    } finally {
+      setResendingVerification(false);
     }
   }
 
@@ -123,7 +169,11 @@ export default function OrganizationLogin() {
                       <>
                         Don't have an account?{" "}
                         <button
-                          onClick={() => setIsLogin(false)}
+                          onClick={() => {
+                            setIsLogin(false);
+                            setError("");
+                            setSuccess("");
+                          }}
                           className="text-cropper-mint-600 hover:text-cropper-mint-700 font-medium transition-colors duration-200"
                         >
                           Register here
@@ -133,7 +183,11 @@ export default function OrganizationLogin() {
                       <>
                         Already have an account?{" "}
                         <button
-                          onClick={() => setIsLogin(true)}
+                          onClick={() => {
+                            setIsLogin(true);
+                            setError("");
+                            setSuccess("");
+                          }}
                           className="text-cropper-mint-600 hover:text-cropper-mint-700 font-medium transition-colors duration-200"
                         >
                           Login here
@@ -252,6 +306,17 @@ export default function OrganizationLogin() {
                       </motion.div>
                     )}
 
+                    {success && (
+                      <motion.div
+                        className="rounded-lg bg-green-50 border border-green-200 p-4"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="text-sm text-green-700">{success}</p>
+                      </motion.div>
+                    )}
+
                     <Hover>
                       <button
                         type="submit"
@@ -280,6 +345,21 @@ export default function OrganizationLogin() {
                         )}
                       </button>
                     </Hover>
+
+                    {isLogin && (
+                      <div className="text-center">
+                        <button
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={resendingVerification}
+                          className="text-sm text-cropper-mint-700 hover:text-cropper-mint-800 underline disabled:opacity-50"
+                        >
+                          {resendingVerification
+                            ? "Sending verification email..."
+                            : "Resend verification email"}
+                        </button>
+                      </div>
+                    )}
                   </form>
                 </SlideIn>
 

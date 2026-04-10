@@ -13,7 +13,7 @@ export default function NewAssessment() {
             Create Organization Account
           </h1>
           <p className="page-description">
-            Please provide your organization&apos;s details to create your account and access the dashboard.
+            Register your organization account. You will need to verify your email before signing in.
           </p>
         </div>
         <div className="mt-8">

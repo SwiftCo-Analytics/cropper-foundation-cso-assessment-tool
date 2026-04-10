@@ -8,7 +8,7 @@
     "build:standalone": "USE_STANDALONE=true prisma generate && next build --webpack && tsc --project tsconfig.server.json",
     "start": "next start",
     "start:standalone": "node .next/standalone/server.js",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
     "create-admin": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts",
     "export-postgres": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/export-postgres-data.ts",

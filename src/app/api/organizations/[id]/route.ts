@@ -218,4 +218,71 @@ export async function PATCH(
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const organization = await prisma.organization.findUnique({
+      where: { id: params.id },
+      include: {
+        assessments: {
+          include: {
+            report: true,
+          },
+        },
+      },
+    });
+
+    if (!organization) {
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
+    }
+
+    // Cascade delete in correct order due to foreign key constraints
+    for (const assessment of organization.assessments) {
+      if (assessment.report) {
+        await prisma.reportSuggestion.deleteMany({
+          where: { reportId: assessment.report.id },
+        });
+        await prisma.report.delete({
+          where: { id: assessment.report.id },
+        });
+      }
+      await prisma.response.deleteMany({
+        where: { assessmentId: assessment.id },
+      });
+    }
+
+    await prisma.assessment.deleteMany({
+      where: { organizationId: params.id },
+    });
+
+    await prisma.organization.delete({
+      where: { id: params.id },
+    });
+
+    return NextResponse.json({
+      message: "Organization and all associated data deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting organization:", error);
+    return NextResponse.json(
+      { error: "Failed to delete organization" },
+      { status: 500 }
+    );
+  }
 } 

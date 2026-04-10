@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { QuestionType } from "@/generated/prisma";
-import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock, Settings, KeyRound, Copy, Check, Shield } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, MoveVertical, Download, Eye, EyeOff, X, ArrowRight, BarChart, CheckCircle, Clock, Settings, KeyRound, Copy, Check, Shield, UserPlus, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -30,14 +30,21 @@ interface Question {
   mandatory: boolean;
 }
 
+interface OrgAssessment {
+  id: string;
+  name: string | null;
+  status: string;
+  startedAt: string;
+  completedAt: string | null;
+  createdAt: string;
+}
+
 interface Organization {
   id: string;
   name: string;
   email: string;
-  assessments: {
-    id: string;
-    completedAt: Date | null;
-  }[];
+  createdAt: string;
+  assessments: OrgAssessment[];
 }
 
 const formatQuestionType = (type: QuestionType) => {
@@ -88,6 +95,10 @@ export default function AdminDashboard() {
   } | null>(null);
   const [isResettingOrgPassword, setIsResettingOrgPassword] = useState<string | null>(null);
   const [passwordCopied, setPasswordCopied] = useState(false);
+  const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
+  const [isDeletingOrg, setIsDeletingOrg] = useState<string | null>(null);
+  const [isDeletingAssessment, setIsDeletingAssessment] = useState<string | null>(null);
+  const [orgSearchQuery, setOrgSearchQuery] = useState("");
 
   useEffect(() => {
     if (status === "loading") return;
@@ -388,6 +399,95 @@ export default function AdminDashboard() {
       setPasswordCopied(true);
       setTimeout(() => setPasswordCopied(false), 2000);
     }
+  }
+
+  async function handleDeleteOrganization(orgId: string, orgName: string) {
+    if (!confirm(`Are you sure you want to delete "${orgName}" and ALL of its assessments, responses, and reports? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeletingOrg(orgId);
+
+    try {
+      const response = await fetch(`/api/organizations/${orgId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to delete organization");
+      }
+
+      showSuccess(`Organization "${orgName}" deleted successfully.`);
+      fetchOrganizations();
+    } catch (error) {
+      console.error("Error deleting organization:", error);
+      setErrorMessage(error instanceof Error ? error.message : "Failed to delete organization");
+    } finally {
+      setIsDeletingOrg(null);
+    }
+  }
+
+  async function handleDeleteAssessment(assessmentId: string, orgName: string) {
+    if (!confirm(`Are you sure you want to delete this assessment for "${orgName}"? All responses and reports will be permanently deleted.`)) {
+      return;
+    }
+
+    setIsDeletingAssessment(assessmentId);
+
+    try {
+      const response = await fetch(`/api/admin/assessments/${assessmentId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to delete assessment");
+      }
+
+      showSuccess("Assessment deleted successfully.");
+      fetchOrganizations();
+    } catch (error) {
+      console.error("Error deleting assessment:", error);
+      setErrorMessage(error instanceof Error ? error.message : "Failed to delete assessment");
+    } finally {
+      setIsDeletingAssessment(null);
+    }
+  }
+
+  const recentSignups = [...organizations]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10);
+
+  const searchedOrganizations = filteredOrganizations.filter((org) => {
+    if (!orgSearchQuery) return true;
+    const query = orgSearchQuery.toLowerCase();
+    return (
+      org.name.toLowerCase().includes(query) ||
+      org.email.toLowerCase().includes(query)
+    );
+  });
+
+  function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  function formatRelativeTime(dateString: string) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
   }
 
   async function handleEditSection(e: React.FormEvent) {
@@ -699,52 +799,235 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* Organizations Overview */}
-      <div className="mt-12">
-        <h2 className="text-heading mb-6">Organizations</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredOrganizations.map((org) => (
-            <div key={org.id} className="card">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-subheading">{org.name}</h3>
-                  <p className="text-caption">{org.email}</p>
-                </div>
-                <span className="px-3 py-1 bg-cropper-mint-100 text-cropper-mint-800 rounded-full text-sm font-medium">
-                  {org.assessments.length} assessments
-                </span>
-              </div>
-              <div className="flex space-x-2">
-                <Link
-                  href={`/admin/reports/${org.id}`}
-                  className="btn-primary btn-sm flex-1"
-                >
-                  View Reports
-                </Link>
-                <button
-                  onClick={() => handleResetOrgPassword(org.id, org.name)}
-                  disabled={isResettingOrgPassword === org.id}
-                  className="btn-secondary btn-sm"
-                  title="Reset password"
-                >
-                  {isResettingOrgPassword === org.id ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                  ) : (
-                    <KeyRound className="h-4 w-4" />
-                  )}
-                </button>
-                <button
-                  onClick={() => handleDownloadResponses(org.id)}
-                  className="btn-secondary btn-sm"
-                  title="Download reports"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
+      {/* Recent Signups */}
+      <SlideIn direction="up" delay={0.2}>
+        <div className="mt-12">
+          <div className="flex items-center space-x-3 mb-6">
+            <UserPlus className="h-6 w-6 text-cropper-mint-600" />
+            <h2 className="text-heading">Recent Organization Signups</h2>
+          </div>
+          {recentSignups.length === 0 ? (
+            <div className="card text-center py-8">
+              <p className="text-caption">No organizations have signed up yet.</p>
+            </div>
+          ) : (
+            <div className="card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Organization</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Email</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Signed Up</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-600">Assessments</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-600">Completed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentSignups.map((org) => {
+                      const completedCount = org.assessments.filter(a => a.status === "COMPLETED").length;
+                      return (
+                        <tr key={org.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="py-3 px-4 font-medium text-gray-900">{org.name}</td>
+                          <td className="py-3 px-4 text-gray-600">{org.email}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col">
+                              <span className="text-gray-900">{formatDate(org.createdAt)}</span>
+                              <span className="text-xs text-gray-500">{formatRelativeTime(org.createdAt)}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="px-2 py-1 bg-cropper-blue-50 text-cropper-blue-700 rounded-full text-xs font-medium">
+                              {org.assessments.length}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              completedCount > 0
+                                ? "bg-cropper-mint-50 text-cropper-mint-700"
+                                : "bg-gray-100 text-gray-500"
+                            }`}>
+                              {completedCount}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ))}
+          )}
         </div>
-      </div>
+      </SlideIn>
+
+      {/* Organizations Management */}
+      <SlideIn direction="up" delay={0.3}>
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-heading">Organizations</h2>
+            <div className="flex items-center space-x-3">
+              <span className="text-caption">{searchedOrganizations.length} organizations</span>
+              <input
+                type="text"
+                placeholder="Search organizations..."
+                value={orgSearchQuery}
+                onChange={(e) => setOrgSearchQuery(e.target.value)}
+                className="input-primary text-sm py-2 px-3 w-64"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {searchedOrganizations.map((org) => {
+              const isExpanded = expandedOrg === org.id;
+              const completedCount = org.assessments.filter(a => a.status === "COMPLETED").length;
+              const inProgressCount = org.assessments.filter(a => a.status === "IN_PROGRESS").length;
+
+              return (
+                <div key={org.id} className="card">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-subheading truncate">{org.name}</h3>
+                      <p className="text-caption truncate">{org.email}</p>
+                      <p className="text-xs text-gray-400 mt-1">Joined {formatDate(org.createdAt)}</p>
+                    </div>
+                    <div className="flex flex-col items-end space-y-1 ml-3">
+                      <span className="px-3 py-1 bg-cropper-mint-100 text-cropper-mint-800 rounded-full text-sm font-medium whitespace-nowrap">
+                        {org.assessments.length} assessments
+                      </span>
+                      {completedCount > 0 && (
+                        <span className="flex items-center text-xs text-cropper-mint-700">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          {completedCount} completed
+                        </span>
+                      )}
+                      {inProgressCount > 0 && (
+                        <span className="flex items-center text-xs text-cropper-blue-600">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {inProgressCount} in progress
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 mt-3">
+                    <Link
+                      href={`/admin/reports/${org.id}`}
+                      className="btn-primary btn-sm flex-1"
+                    >
+                      View Reports
+                    </Link>
+                    <button
+                      onClick={() => handleResetOrgPassword(org.id, org.name)}
+                      disabled={isResettingOrgPassword === org.id}
+                      className="btn-secondary btn-sm"
+                      title="Reset password"
+                    >
+                      {isResettingOrgPassword === org.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      ) : (
+                        <KeyRound className="h-4 w-4" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDownloadResponses(org.id)}
+                      className="btn-secondary btn-sm"
+                      title="Download reports"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setExpandedOrg(isExpanded ? null : org.id)}
+                      className="btn-secondary btn-sm"
+                      title={isExpanded ? "Collapse" : "Manage assessments"}
+                    >
+                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                  </div>
+
+                  {/* Expanded Assessment Management */}
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4 pt-4 border-t border-gray-200"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-gray-700">Assessments</h4>
+                      </div>
+
+                      {org.assessments.length === 0 ? (
+                        <p className="text-caption text-center py-2">No assessments</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {org.assessments.map((assessment) => (
+                            <div
+                              key={assessment.id}
+                              className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-800 truncate">
+                                  {assessment.name || "Untitled Assessment"}
+                                </p>
+                                <div className="flex items-center space-x-2 mt-0.5">
+                                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
+                                    assessment.status === "COMPLETED"
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-yellow-100 text-yellow-700"
+                                  }`}>
+                                    {assessment.status === "COMPLETED" ? (
+                                      <><CheckCircle className="h-3 w-3 mr-0.5" /> Completed</>
+                                    ) : (
+                                      <><Clock className="h-3 w-3 mr-0.5" /> In Progress</>
+                                    )}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {formatDate(assessment.createdAt)}
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => handleDeleteAssessment(assessment.id, org.name)}
+                                disabled={isDeletingAssessment === assessment.id}
+                                className="ml-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                title="Delete assessment"
+                              >
+                                {isDeletingAssessment === assessment.id ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Delete Organization Button */}
+                      <div className="mt-4 pt-3 border-t border-gray-200">
+                        <button
+                          onClick={() => handleDeleteOrganization(org.id, org.name)}
+                          disabled={isDeletingOrg === org.id}
+                          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          {isDeletingOrg === org.id ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+                          ) : (
+                            <>
+                              <AlertTriangle className="h-4 w-4" />
+                              <span>Delete Organization</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </SlideIn>
 
       {/* Add Section Form */}
       {isEditingSection && (

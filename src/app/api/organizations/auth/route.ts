@@ -42,7 +42,7 @@ export async function POST(request: Request) {
           });
 
           const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-          const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(existingOrg.email)}`;
+          const verificationUrl = `${baseUrl}/organization/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(existingOrg.email)}`;
           await sendVerificationEmail({
             name: existingOrg.name,
             email: existingOrg.email,
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       });
 
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-      const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(organization.email)}`;
+      const verificationUrl = `${baseUrl}/organization/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(organization.email)}`;
       const emailResult = await sendVerificationEmail({
         name: organization.name,
         email: organization.email,

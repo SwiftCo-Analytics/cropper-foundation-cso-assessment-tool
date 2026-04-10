@@ -11,6 +11,12 @@ import BackButton from "@/components/ui/back-button";
 export default function AdminAccountPage() {
   const router = useRouter();
   const [admin, setAdmin] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [stats, setStats] = useState<{
+    organizationsCount: number;
+    completedAssessmentsCount: number;
+    inProgressAssessmentsCount: number;
+    notStartedAssessmentsCount: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [nameSaving, setNameSaving] = useState(false);
@@ -34,6 +40,7 @@ export default function AdminAccountPage() {
         if (data?.admin) {
           setAdmin(data.admin);
           setName(data.admin.name);
+          setStats(data.stats ?? null);
         }
       })
       .catch(() => router.replace("/admin/login"))
@@ -127,6 +134,30 @@ export default function AdminAccountPage() {
                 </div>
 
                 <SlideIn delay={0.2}>
+                  {stats && (
+                    <section className="mb-8">
+                      <h2 className="text-lg font-semibold text-gray-900 mb-4">Assessment Summary</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-cropper-mint-200 bg-cropper-mint-50 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Organizations</p>
+                          <p className="text-2xl font-semibold text-cropper-green-800">{stats.organizationsCount}</p>
+                        </div>
+                        <div className="rounded-xl border border-cropper-mint-200 bg-cropper-mint-50 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Completed Assessments</p>
+                          <p className="text-2xl font-semibold text-cropper-green-800">{stats.completedAssessmentsCount}</p>
+                        </div>
+                        <div className="rounded-xl border border-cropper-mint-200 bg-cropper-mint-50 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">In Progress Assessments</p>
+                          <p className="text-2xl font-semibold text-cropper-green-800">{stats.inProgressAssessmentsCount}</p>
+                        </div>
+                        <div className="rounded-xl border border-cropper-mint-200 bg-cropper-mint-50 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Not Started (Organizations)</p>
+                          <p className="text-2xl font-semibold text-cropper-green-800">{stats.notStartedAssessmentsCount}</p>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
                   <section className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <User className="h-5 w-5" /> Display name

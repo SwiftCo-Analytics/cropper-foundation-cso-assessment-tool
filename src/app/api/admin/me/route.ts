@@ -22,7 +22,23 @@ export async function GET() {
       return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ admin });
+    const [organizationsCount, completedAssessmentsCount, inProgressAssessmentsCount, notStartedAssessmentsCount] =
+      await Promise.all([
+        prisma.organization.count(),
+        prisma.assessment.count({ where: { status: "COMPLETED" } }),
+        prisma.assessment.count({ where: { status: "IN_PROGRESS" } }),
+        prisma.organization.count({ where: { assessments: { none: {} } } }),
+      ]);
+
+    return NextResponse.json({
+      admin,
+      stats: {
+        organizationsCount,
+        completedAssessmentsCount,
+        inProgressAssessmentsCount,
+        notStartedAssessmentsCount,
+      },
+    });
   } catch (error) {
     console.error("Error fetching admin:", error);
     return NextResponse.json(

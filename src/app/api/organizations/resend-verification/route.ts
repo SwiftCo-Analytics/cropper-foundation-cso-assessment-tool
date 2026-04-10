@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     // Send verification email
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const verificationUrl = `${baseUrl}/api/organizations/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(email)}`;
+    const verificationUrl = `${baseUrl}/organization/verify-email?token=${emailVerifyToken}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await sendVerificationEmail({
       name: organization.name,

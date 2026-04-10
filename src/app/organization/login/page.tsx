@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Building2, Users, Lock } from "lucide-react";
 import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
@@ -10,6 +10,8 @@ import Link from "next/link";
 
 export default function OrganizationLogin() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prefilledEmail = searchParams.get("email") ?? "";
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [resendingVerification, setResendingVerification] = useState(false);
@@ -17,7 +19,7 @@ export default function OrganizationLogin() {
   const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    email: prefilledEmail,
     password: "",
   });
 

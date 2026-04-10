@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import BackButton from "@/components/ui/back-button";
 
 interface AssessmentPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default async function AssessmentPage({ params }: AssessmentPageProps) {
+export default async function AssessmentPage(props: AssessmentPageProps) {
+  const params = await props.params;
   const assessment = await getAssessment(params.id);
 
   // If assessment is completed, redirect to report page

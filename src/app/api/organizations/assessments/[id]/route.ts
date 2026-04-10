@@ -9,10 +9,8 @@ const updateAssessmentSchema = z.object({
   name: z.string().min(1).max(100).optional(),
 });
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const token = request.headers.get("authorization")?.split(" ")[1];
 
@@ -64,10 +62,8 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const token = request.headers.get("authorization")?.split(" ")[1];
 

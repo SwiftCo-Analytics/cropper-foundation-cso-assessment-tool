@@ -5,10 +5,8 @@ import { ReportGenerator } from "@/lib/report-generator";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
 import ExcelJS from "exceljs";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const token = request.headers.get("authorization")?.split(" ")[1];
 

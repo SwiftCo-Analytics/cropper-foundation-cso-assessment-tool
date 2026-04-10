@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { Download, CheckCircle, Clock, Lightbulb, Target, BarChart3, FileSpreadsheet, FileArchiveIcon } from "lucide-react";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
@@ -9,9 +9,9 @@ import BackButton from "@/components/ui/back-button";
 import Link from "next/link";
 
 interface AssessmentReportProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface Assessment {
@@ -260,7 +260,8 @@ function CSOScoreBarChart({ scores }: { scores: CSOScores }) {
   );
 }
 
-export default function AssessmentReport({ params }: AssessmentReportProps) {
+export default function AssessmentReport(props: AssessmentReportProps) {
+  const params = use(props.params);
   const router = useRouter();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);

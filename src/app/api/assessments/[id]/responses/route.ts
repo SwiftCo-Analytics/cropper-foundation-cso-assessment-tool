@@ -11,10 +11,8 @@ const createResponseSchema = z.object({
   saveOnly: z.boolean().optional().default(false),
 });
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const responses = await prisma.response.findMany({
       where: { assessmentId: params.id },
@@ -33,10 +31,8 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const body = await request.json();
     const { sectionId, answers, saveOnly = false } = createResponseSchema.parse(body);

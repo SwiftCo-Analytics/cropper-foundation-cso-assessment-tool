@@ -4,10 +4,8 @@ import { SuggestionEngine } from "@/lib/suggestion-engine";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     // Get all sections
     const allSections = await prisma.section.findMany({

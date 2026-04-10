@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build && tsc --project tsconfig.server.json",
-    "build:standalone": "USE_STANDALONE=true prisma generate && next build && tsc --project tsconfig.server.json",
+    "build": "prisma generate && next build --webpack && tsc --project tsconfig.server.json",
+    "build:standalone": "USE_STANDALONE=true prisma generate && next build --webpack && tsc --project tsconfig.server.json",
     "start": "next start",
     "start:standalone": "node .next/standalone/server.js",
     "lint": "next lint",

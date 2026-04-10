@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Download } from "lucide-react";
 import { IgniteReportViewer } from "@/components/ui/ignite-report-viewer";
 import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
 import BackButton from "@/components/ui/back-button";
-
-interface OrganizationReportProps {
-  params: {
-    organizationId: string;
-  };
-}
 
 interface Organization {
   id: string;
@@ -64,27 +58,36 @@ interface Suggestion {
   metadata?: any;
 }
 
-export default function OrganizationReport({ params }: OrganizationReportProps) {
+export default function OrganizationReport() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const params = useParams<{ organizationId?: string | string[] }>();
+  const organizationId = Array.isArray(params?.organizationId)
+    ? params.organizationId[0]
+    : params?.organizationId;
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (status === "unauthenticated") {
       router.replace("/admin/login");
       return;
     }
 
+    if (!organizationId) {
+      router.push("/admin/dashboard");
+      return;
+    }
+
     fetchOrganizationData();
-  }, [status, router, params.organizationId]);
+  }, [status, router, organizationId]);
 
   async function fetchOrganizationData() {
     try {
-      const response = await fetch(`/api/organizations/${params.organizationId}`);
+      const response = await fetch(`/api/organizations/${organizationId}`);
       if (!response.ok) {
         router.push("/admin/dashboard");
         return;
@@ -102,7 +105,7 @@ export default function OrganizationReport({ params }: OrganizationReportProps) 
   async function handleDownloadReport() {
     setDownloading(true);
     try {
-      const response = await fetch(`/api/admin/reports/${params.organizationId}/download`);
+      const response = await fetch(`/api/admin/reports/${organizationId}/download`);
       if (!response.ok) throw new Error("Failed to download report");
 
       const blob = await response.blob();

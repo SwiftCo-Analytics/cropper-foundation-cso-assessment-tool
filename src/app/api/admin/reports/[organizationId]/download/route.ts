@@ -7,10 +7,8 @@ import { CSOScoreCalculator } from "@/lib/cso-score-calculator";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { organizationId: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ organizationId: string }> }) {
+  const params = await props.params;
   try {
     const session = await getServerSession(authOptions);
 

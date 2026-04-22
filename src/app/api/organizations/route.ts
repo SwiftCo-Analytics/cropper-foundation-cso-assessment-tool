@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
-import { sign } from "jsonwebtoken";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { signOrganizationToken } from "@/lib/organization-session";
 
 export const dynamic = 'force-dynamic';
 
@@ -97,11 +97,7 @@ export async function POST(request: Request) {
     });
 
     // Create authentication token immediately
-    const token = sign(
-      { orgId: organization.id },
-      process.env.NEXTAUTH_SECRET!,
-      { expiresIn: "7d" }
-    );
+    const token = signOrganizationToken(organization.id);
 
     return NextResponse.json({
       organizationId: organization.id,

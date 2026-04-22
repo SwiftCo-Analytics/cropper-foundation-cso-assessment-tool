@@ -8,10 +8,24 @@ import { motion } from "framer-motion";
 import BackButton from "@/components/ui/back-button";
 import Link from "next/link";
 
+function getSsoErrorMessage(code: string | null): string | null {
+  switch (code) {
+    case "missing_sso_token":
+      return "SSO failed because no token was returned from CSO Go. Please try again.";
+    case "sso_not_configured":
+      return "SSO is not configured yet. Please contact support.";
+    case "sso_auth_failed":
+      return "SSO sign-in could not be verified. Please try again.";
+    default:
+      return null;
+  }
+}
+
 export default function OrganizationLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams.get("email") ?? "";
+  const ssoErrorCode = searchParams.get("error");
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [resendingVerification, setResendingVerification] = useState(false);
@@ -22,6 +36,13 @@ export default function OrganizationLogin() {
     email: prefilledEmail,
     password: "",
   });
+
+  useEffect(() => {
+    const ssoError = getSsoErrorMessage(ssoErrorCode);
+    if (ssoError) {
+      setError(ssoError);
+    }
+  }, [ssoErrorCode]);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -169,7 +190,7 @@ export default function OrganizationLogin() {
                   >
                     {isLogin ? (
                       <>
-                        Don't have an account?{" "}
+                        Don&apos;t have an account?{" "}
                         <button
                           onClick={() => {
                             setIsLogin(false);
@@ -200,6 +221,27 @@ export default function OrganizationLogin() {
                 </div>
                 
                 <SlideIn delay={0.4}>
+                  <div className="mb-6">
+                    <Link
+                      href="/api/organizations/sso/start?returnTo=/organization/dashboard"
+                      className="btn-secondary btn-lg w-full inline-flex justify-center items-center"
+                    >
+                      Sign in with CSO Go
+                    </Link>
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      Existing accounts can switch to SSO on first successful sign-in.
+                    </p>
+                  </div>
+
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">or continue with email</span>
+                    </div>
+                  </div>
+
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {!isLogin && (
                       <motion.div

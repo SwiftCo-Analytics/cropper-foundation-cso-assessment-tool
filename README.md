@@ -63,6 +63,10 @@ A comprehensive self-assessment tool for Civil Society Organizations (CSOs) to e
    
    # Application
    NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+   # CSO Go WordPress SSO
+   CSOGO_SSO_AUTH_URL="https://csogo.org/sso/authenticate"
+   CSOGO_SSO_SHARED_SECRET="replace-with-wordpress-sso-shared-secret"
    ```
 
 4. **Database Setup:**
@@ -153,6 +157,8 @@ scripts/
 | `NEXTAUTH_SECRET` | Secret for NextAuth.js | ✅ |
 | `NEXTAUTH_URL` | Base URL for NextAuth.js | ✅ |
 | `NEXT_PUBLIC_APP_URL` | Public app URL | ✅ |
+| `CSOGO_SSO_AUTH_URL` | WordPress SSO entry endpoint (ex: `https://csogo.org/sso/authenticate`) | For SSO |
+| `CSOGO_SSO_SHARED_SECRET` | Shared HS256 secret used to verify WordPress SSO JWTs | For SSO |
 | `EMAIL_HOST` | SMTP server host | ✅ |
 | `EMAIL_PORT` | SMTP server port | ✅ |
 | `EMAIL_SECURE` | Whether to use TLS/SSL (`true`/`false`) | ✅ |

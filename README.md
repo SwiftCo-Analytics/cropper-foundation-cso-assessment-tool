@@ -67,6 +67,8 @@ A comprehensive self-assessment tool for Civil Society Organizations (CSOs) to e
    # CSO Go WordPress SSO
    CSOGO_SSO_AUTH_URL="https://csogo.org/sso/authenticate"
    CSOGO_SSO_SHARED_SECRET="replace-with-wordpress-sso-shared-secret"
+   CSOGO_PASSWORD_RESET_URL="https://csogo.org/wp-login.php?action=lostpassword"
+   NEXT_PUBLIC_CSOGO_PASSWORD_RESET_URL="https://csogo.org/wp-login.php?action=lostpassword"
    ```
 
 4. **Database Setup:**
@@ -159,6 +161,8 @@ scripts/
 | `NEXT_PUBLIC_APP_URL` | Public app URL | ✅ |
 | `CSOGO_SSO_AUTH_URL` | WordPress SSO entry endpoint (ex: `https://csogo.org/sso/authenticate`) | For SSO |
 | `CSOGO_SSO_SHARED_SECRET` | Shared HS256 secret used to verify WordPress SSO JWTs | For SSO |
+| `CSOGO_PASSWORD_RESET_URL` | Server-side fallback URL for CSO Go password reset guidance | Optional |
+| `NEXT_PUBLIC_CSOGO_PASSWORD_RESET_URL` | Client-side CSO Go reset link shown on login page | Optional |
 | `EMAIL_HOST` | SMTP server host | ✅ |
 | `EMAIL_PORT` | SMTP server port | ✅ |
 | `EMAIL_SECURE` | Whether to use TLS/SSL (`true`/`false`) | ✅ |

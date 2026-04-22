@@ -12,6 +12,11 @@ export default function OrganizationForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(
+    "If an account exists with that email, you\u2019ll receive a reset link shortly. Check your inbox and spam folder."
+  );
+  const [isSsoOnlyAccount, setIsSsoOnlyAccount] = useState(false);
+  const [ssoResetUrl, setSsoResetUrl] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,6 +30,12 @@ export default function OrganizationForgotPasswordPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Request failed");
+      setSuccessMessage(
+        data.message ||
+          "If an account exists with that email, you\u2019ll receive a reset link shortly. Check your inbox and spam folder."
+      );
+      setIsSsoOnlyAccount(data.accountType === "sso");
+      setSsoResetUrl(typeof data.ssoResetUrl === "string" ? data.ssoResetUrl : "");
       setSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -72,8 +83,18 @@ export default function OrganizationForgotPasswordPage() {
                   <SlideIn>
                     <div className="rounded-lg bg-cropper-mint-50 border border-cropper-mint-200 p-4 text-center">
                       <p className="text-cropper-mint-800">
-                        If an account exists with that email, you’ll receive a reset link shortly. Check your inbox and spam folder.
+                        {successMessage}
                       </p>
+                      {isSsoOnlyAccount && ssoResetUrl && (
+                        <a
+                          href={ssoResetUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex items-center text-sm font-medium text-cropper-mint-700 hover:text-cropper-mint-800 underline"
+                        >
+                          Go to CSO Go password reset
+                        </a>
+                      )}
                       <Link
                         href="/organization/login"
                         className="mt-4 inline-flex items-center text-sm font-medium text-cropper-mint-600 hover:text-cropper-mint-700"

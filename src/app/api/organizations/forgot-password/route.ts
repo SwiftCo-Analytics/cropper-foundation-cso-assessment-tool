@@ -19,7 +19,27 @@ export async function POST(request: Request) {
 
     if (!organization) {
       return NextResponse.json(
-        { message: "If an account exists with this email, you will receive a reset link." },
+        {
+          message: "If an account exists with this email, you will receive a reset link.",
+          accountType: "unknown",
+        },
+        { status: 200 }
+      );
+    }
+
+    const isSsoOnlyAccount = Boolean(organization.ssoProvider && !organization.password);
+    if (isSsoOnlyAccount) {
+      const ssoResetUrl =
+        process.env.CSOGO_PASSWORD_RESET_URL ||
+        "https://csogo.org/wp-login.php?action=lostpassword";
+
+      return NextResponse.json(
+        {
+          message:
+            "This account uses CSO Go sign-in. Please reset your password on CSO Go.",
+          accountType: "sso",
+          ssoResetUrl,
+        },
         { status: 200 }
       );
     }
@@ -54,6 +74,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       message: "If an account exists with this email, you will receive a reset link.",
+      accountType: "local",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

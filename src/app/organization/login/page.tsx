@@ -21,6 +21,10 @@ function getSsoErrorMessage(code: string | null): string | null {
   }
 }
 
+const CSOGO_PASSWORD_RESET_URL =
+  process.env.NEXT_PUBLIC_CSOGO_PASSWORD_RESET_URL ||
+  "https://csogo.org/wp-login.php?action=lostpassword";
+
 export default function OrganizationLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -230,6 +234,17 @@ export default function OrganizationLogin() {
                     </Link>
                     <p className="text-xs text-gray-500 text-center mt-2">
                       Existing accounts can switch to SSO on first successful sign-in.
+                    </p>
+                    <p className="text-xs text-gray-500 text-center mt-1">
+                      SSO password help:{" "}
+                      <a
+                        href={CSOGO_PASSWORD_RESET_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-cropper-mint-700 hover:text-cropper-mint-800 underline"
+                      >
+                        reset on CSO Go
+                      </a>
                     </p>
                   </div>
 

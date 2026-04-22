@@ -166,6 +166,10 @@ model Admin {
   name                 String
   email                String    @unique
   password             String?
+  ssoProvider          String?
+  ssoSubject           String?
+  ssoLinkedAt          DateTime?
+  ssoLastLoginAt       DateTime?
   isInvited            Boolean   @default(false)
   inviteToken          String?
   inviteExpiry         DateTime?
@@ -175,6 +179,8 @@ model Admin {
   passwordResetExpiry  DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+
+  @@unique([ssoProvider, ssoSubject])
 }
 
 enum AssessmentStatus {

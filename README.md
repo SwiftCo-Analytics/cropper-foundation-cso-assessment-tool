@@ -110,9 +110,10 @@ The application will be available at `http://localhost:3000`.
 
 ### For Administrators
 1. Access the admin panel at `/admin/login`
-2. Use the dashboard to view all organizations and assessments
-3. Manage questions and sections through the admin interface
-4. Generate and download comprehensive reports
+2. Admins can also use **Sign in with CSO Go** on the same page (existing admin email must already exist in this app)
+3. Use the dashboard to view all organizations and assessments
+4. Manage questions and sections through the admin interface
+5. Generate and download comprehensive reports
 
 ## 🏗 Project Structure
 

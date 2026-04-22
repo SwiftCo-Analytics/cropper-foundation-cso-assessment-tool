@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -9,10 +9,28 @@ import { FadeIn, SlideIn, ScaleIn, Hover } from "@/components/ui/animations";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/back-button";
 
+function getSsoErrorMessage(code: string | null): string | null {
+  switch (code) {
+    case "sso_not_configured":
+      return "Admin SSO is not configured yet. Please contact support.";
+    case "sso_missing_token":
+      return "SSO failed because no token was returned from CSO Go.";
+    case "sso_auth_failed":
+      return "SSO sign-in failed. Make sure your admin account exists and try again.";
+    default:
+      return null;
+  }
+}
+
+const CSOGO_PASSWORD_RESET_URL =
+  process.env.NEXT_PUBLIC_CSOGO_PASSWORD_RESET_URL ||
+  "https://csogo.org/wp-login.php?action=lostpassword";
+
 export default function AdminLoginPage() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const ssoErrorCode = searchParams.get("error");
 
   const rawCallback = searchParams.get("callbackUrl") || "/admin/dashboard";
   // Only allow same-app admin paths (avoid open redirects from query string).
@@ -20,6 +38,13 @@ export default function AdminLoginPage() {
     rawCallback.startsWith("/admin") && !rawCallback.startsWith("//")
       ? rawCallback
       : "/admin/dashboard";
+
+  useEffect(() => {
+    const ssoError = getSsoErrorMessage(ssoErrorCode);
+    if (ssoError) {
+      setError(ssoError);
+    }
+  }, [ssoErrorCode]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,6 +121,38 @@ export default function AdminLoginPage() {
                 </div>
                 
                 <SlideIn delay={0.4}>
+                  <div className="mb-6">
+                    <Link
+                      href={`/api/admin/sso/start?returnTo=${encodeURIComponent(callbackUrl)}`}
+                      className="btn-secondary btn-lg w-full inline-flex justify-center items-center"
+                    >
+                      Sign in with CSO Go
+                    </Link>
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      Existing admins can convert to SSO on first successful sign-in.
+                    </p>
+                    <p className="text-xs text-gray-500 text-center mt-1">
+                      SSO password help:{" "}
+                      <a
+                        href={CSOGO_PASSWORD_RESET_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-cropper-mint-700 hover:text-cropper-mint-800 underline"
+                      >
+                        reset on CSO Go
+                      </a>
+                    </p>
+                  </div>
+
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">or continue with email</span>
+                    </div>
+                  </div>
+
                   <form className="space-y-6" onSubmit={onSubmit}>
                     <div className="space-y-4">
                       <div>
